@@ -1,0 +1,25 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    ProMotion (2.2.1)
+      methadone (~> 1.7)
+    bubble-wrap (1.7.1)
+      bubble-wrap-http (= 1.7.1)
+    bubble-wrap-http (1.7.1)
+    dbt (1.1.5)
+    methadone (1.9.0)
+      bundler
+    motion-kit (0.17.0)
+      dbt (~> 1.1.5)
+    rake (10.4.2)
+    sugarcube (3.3.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  ProMotion
+  bubble-wrap
+  motion-kit
+  rake
+  sugarcube
