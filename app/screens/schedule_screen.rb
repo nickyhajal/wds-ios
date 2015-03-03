@@ -1,12 +1,20 @@
 class ScheduleScreen < PM::Screen
   title "Your Schedule"
   status_bar :light
-
   def on_load
-    @layout = ScheduleLayout.new(root: self.view).build
+    @layout = ScheduleLayout.new(root: self.view)
+    @schedule_table = ScheduleListing.new
+    @layout.schedule_view = @schedule_table.view
+    @layout.setController self
+    @layout.build
     true
   end
-  def on_init
-    set_tab_bar_item system_item: :most_recent
+  def will_appear
+    update_schedule
+  end
+  def update_schedule
+    Assets.getSmart 'events' do |events, status|
+      @schedule_table.update_events events
+    end
   end
 end
