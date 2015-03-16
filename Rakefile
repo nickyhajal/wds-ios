@@ -8,7 +8,9 @@ begin
   require 'sugarcube'
   require 'sugarcube-timer'
   require 'sugarcube-nsdate'
+  require 'sugarcube-attributedstring'
   require 'sugarcube-color'
+  require 'sugarcube-gestures'
   require 'bubble-wrap'
   require 'motion-kit'
   require 'motion_model'
@@ -23,9 +25,13 @@ end
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'WDS App'
+  app.identifier = 'com.worlddominationsummit.wdsios'
+  app.codesign_certificate = 'iPhone Developer: Nick Hajal (TS4DVF4YGA)'
+  app.provisioning_profile = '/nky/secure_files/WDS_App_Dev.mobileprovision'
   app.info_plist['UIViewControllerBasedStatusBarAppearance'] = false
   app.libs += ['/usr/lib/libsqlite3.dylib']
   app.vendor_project 'vendor/FMDB', :static
+  app.deployment_target = "7.0" 
   app.fonts = ['Karla-Regular.ttf', 'Karla-Italic.ttf', 'Karla-Bold.ttf', 'Vitesse-Bold.otf', 'Vitesse-Book.otf', 'Vitesse-Light.otf', 'Vitesse-Medium.otf']
   app.pods do
     pod 'SDWebImage', '~>3.6'

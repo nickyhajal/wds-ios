@@ -9,6 +9,10 @@ module Assets
         'speakers' => 300,
         'places' => 300
       }
+      @aliases = {
+        "schedule" => "events",
+        "meetups" => "events"
+      }
     end
     def sync(&block)
       pull @assets, do
@@ -22,9 +26,9 @@ module Assets
       Api.get 'assets', {tracker: tracker, assets: assets.join(','),via:'ios'} do |rsp|
         rsp = rsp['json']
         assets.each do |asset|
-          unless rsp[asset].nil?
-            if asset == 'me'
-              Me.update(rsp[asset])
+          unless rsp.nil? || rsp[asset].nil?
+            if self.respond_to? 'process_'+asset
+              self.send('process_'+asset, rsp[asset])
             else
               set asset, rsp[asset]
             end
@@ -36,28 +40,25 @@ module Assets
       end
     end
     def getSmart(asset, &block)
-      existing = get asset
+      unaliased = asset
+      unless @aliases[asset].nil?
+        asset = @aliases[asset]
+      end
+      existing = get unaliased
       _tracker = tracker(true)
       diff = (NSDate.new.timeIntervalSince1970 - _tracker[asset].to_i) / 60
-      puts diff
-      puts @expires[asset]
       doPull = false
       if existing && diff < @expires[asset]
-        puts '1'
         block.call existing, 'up-to-date'
       elsif existing
-        puts '2'
         block.call existing, 'will-update'
         doPull = true
       else
-        puts '3'
         doPull = true
       end
       if doPull
-        puts '4'
         pull asset do |rsp|
-          puts '5'
-          latest_asset = get asset
+          latest_asset = get unaliased
           block.call latest_asset, 'updated'
         end
       end
@@ -81,6 +82,35 @@ module Assets
       _tracker = tracker(true)
       _tracker[asset] = NSDate.new.timeIntervalSince1970.floor
       Store.set('tracker', BW::JSON.generate(_tracker))
+    end
+    def process_me(me)
+      Me.update(me)
+    end
+    def process_events(events)
+      schedule = []
+      meetups = {}
+      lastDay = ''
+      events.sort! {|x, y| x['start'] <=> y['start']}
+      events.each do |event|
+        event = Event.new(event)
+        if Me.isAttendingEvent(event)
+          unless lastDay == event.startDay
+            title = Event.new({type:'title', dayStr:event.dayStr}).to_hash
+            schedule << title
+            lastDay = event.startDay
+          end
+        schedule.push event.to_hash
+        end
+        if event.type == 'meetup'
+          if meetups[event.startDay].nil? 
+            meetups[event.startDay] = []
+          end
+          meetups[event.startDay] << event.to_hash
+        end
+      end
+      set 'events', events
+      set 'meetups', meetups
+      set 'schedule', schedule
     end
   end
 end

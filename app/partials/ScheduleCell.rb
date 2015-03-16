@@ -1,11 +1,10 @@
 class ScheduleCell < PM::TableViewCell
-  attr_accessor :event, :what
+  attr_accessor :event
   def will_display
-    puts @event.what
     unless @layout.nil?
       @layout.clear_cells
     end
-    if @event.type == 'title'
+    if @event['type'] == 'title'
       @layout = ScheduleTitleCellLayout.new(root: self.contentView)
     else
       @layout = ScheduleCellLayout.new(root: self.contentView)
@@ -17,7 +16,6 @@ class ScheduleCell < PM::TableViewCell
   end
   def willMoveToSuperview(_superview)
     event = @event
-    puts 'W:'+@what.to_s
   end
 end
 class ScheduleTitleCellLayout < MK::Layout
@@ -31,7 +29,7 @@ class ScheduleTitleCellLayout < MK::Layout
     get(:main).frame.size.width
   end
   def title_style
-    text @event.start.string_with_format("EEEE, LLLL d")
+    text @event['dayStr']
     textColor "#0073ad".uicolor
     font UIFont.fontWithName("Vitesse-Bold", size:24.0)
     backgroundColor "#FFFFFF".uicolor
@@ -76,7 +74,7 @@ class ScheduleCellLayout < MK::Layout
     get(:main).frame.size.width
   end
   def start_style
-    text @event.startTime
+    text @event['startStr']
     textColor "#FFFFFF".uicolor
     font UIFont.fontWithName("Vitesse-Bold", size:16.0)
     textAlignment UITextAlignmentCenter
@@ -88,7 +86,7 @@ class ScheduleCellLayout < MK::Layout
     frame [[95,0], [super_width-95,32]]
   end
   def place_style
-    text @event.place
+    text @event['place']
     textColor "#EB9622".uicolor
     font UIFont.fontWithName("Karla-Bold", size:17.0)
     frame [[15,0], [super_width-110,32]]
@@ -98,7 +96,7 @@ class ScheduleCellLayout < MK::Layout
     frame [[0,32],[super_width,40]]
   end
   def what_style
-    text @event.what
+    text @event['what']
     textColor "#231f20".uicolor
     font UIFont.fontWithName("Vitesse-Medium", size:18.0)
     frame [[10,0],[super_width-10,40]]

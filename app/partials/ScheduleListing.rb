@@ -9,38 +9,20 @@ class ScheduleListing < PM::TableScreen
     [{
       cells: @events.map do |event|
         {
-          title: event.what,
+          title: '',
           cell_class: ScheduleCell,
           action: :show_event_profile_action,
           arguments: { event: event },
           properties: {
             selectionStyle: UITableViewCellSelectionStyleNone,
-            event: event,
-            what: event.what
+            event: event
           }
         }
       end
     }]
   end
   def update_events(events)
-    @events = processEventsForSchedule(events)
+    @events = events
     update_table_data
-  end
-  def processEventsForSchedule(events)
-    filtered = []
-    lastDay = ''
-    events.sort! {|x, y| x['start'] <=> y['start']}
-    events.each do |event|
-      event = Event.new(event)
-      if Me.isAttendingEvent(event)
-        unless lastDay == event.startDay
-          title = Event.new({type:'title', start:event.startStr})
-          filtered << title
-          lastDay = event.startDay
-        end
-        filtered << event
-      end
-    end
-    filtered
   end
 end

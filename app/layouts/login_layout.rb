@@ -1,8 +1,11 @@
 class LoginLayout < MK::Layout
+  include SugarCube::Timer
+  attr_accessor :login_top
   def setController(controller)
     @controller = controller
   end
   def layout
+    @slid_up = false
     root :main do
       add UIImageView, :big_logo do
         @logo_image = image UIImage.imageNamed("big_logo")
@@ -16,6 +19,28 @@ class LoginLayout < MK::Layout
         end
         add UIButton, :submit
         add UIButton, :forgot
+      end
+    end
+  end
+  def slide_up
+    @slid_up = true
+    get(:big_logo).setAlpha 0.0
+    @login_top.equals(60)
+    @login_height.equals super_height - 60
+    UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
+      self.view.layoutIfNeeded  # applies the constraint change
+    end, completion: nil)
+  end
+  def slide_down
+    @slid_up = false
+    0.2.seconds.later do
+      unless @slid_up
+        @login_top.equals(300)
+        @login_height.equals super_height - 300
+        get(:big_logo).setAlpha 1.0
+        UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
+          self.view.layoutIfNeeded  # applies the constraint change
+        end, completion: nil)
       end
     end
   end
@@ -43,8 +68,8 @@ class LoginLayout < MK::Layout
     background_color "#BDC72B".uicolor
     constraints do
       width.equals(:superview)
-      height super_height - 300
-      top 300
+      @login_height = height super_height - 300
+      @login_top = top 300
       left 0
     end
   end
@@ -60,6 +85,7 @@ class LoginLayout < MK::Layout
   end
   def email_input_style
     backgroundColor UIColor.clearColor
+    target.delegate = @controller
     textColor "#EB9622".uicolor
     attributedPlaceholder NSAttributedString.alloc.initWithString("E-Mail Address", attributes:{
       NSForegroundColorAttributeName => "#EB9622".uicolor
@@ -86,6 +112,7 @@ class LoginLayout < MK::Layout
   def password_input_style
     backgroundColor UIColor.clearColor
     textColor "#EB9622".uicolor
+    target.delegate = @controller
     attributedPlaceholder NSAttributedString.alloc.initWithString("Password", attributes:{
       NSForegroundColorAttributeName => "#EB9622".uicolor
     })

@@ -48,5 +48,25 @@ module Me
         get('rsvps').include? event.event_id
       end
     end
+    def isInterestedInEvent(event)
+      is = Assets.get('interests')
+      interested = []
+      interests = event.ints
+      unless interests.nil?
+        my_interests = get('interests')
+        interests.each do |int_id|
+          if my_interests.include? int_id.to_s
+            unless isAttendingEvent(event)
+              is.each do |i|
+                if i['interest_id'] == int_id
+                  interested << i['interest']
+                end
+              end
+            end
+          end
+        end
+      end
+      interested
+    end
   end
 end

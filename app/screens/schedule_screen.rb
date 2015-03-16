@@ -1,5 +1,5 @@
 class ScheduleScreen < PM::Screen
-  title "Your Schedule"
+  title "Schedule"
   status_bar :light
   def on_load
     @layout = ScheduleLayout.new(root: self.view)
@@ -13,7 +13,7 @@ class ScheduleScreen < PM::Screen
     update_schedule
   end
   def update_schedule
-    Assets.getSmart 'events' do |events, status|
+    Assets.getSmart 'schedule' do |events, status|
       @schedule_table.update_events events
     end
   end
