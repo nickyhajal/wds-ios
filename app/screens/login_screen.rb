@@ -30,22 +30,27 @@ class LoginScreen < PM::Screen
     password = @layout.get(:password_input).text
     params = {username: email, password: password, request_user_token: 1}
     Api.post 'user/login', params do |rsp|
-      if rsp['json']['user_token']
-        Me.saveUserToken rsp['json']['user_token'] 
-        @layout.setButtonTitle('Success!')
-      else
-        if not rsp['json']['loggedin']
-          @layout.setButtonTitle 'Wrong Email/Password'
-        else
-          @layout.setButtonTitle 'Try Again'
-        end
-      end
-      3.seconds.later do
+      if rsp.is_err
+        $APP.offline_alert
         @layout.setButtonTitle 'Login to WDS'
+      else
+        if !rsp.json[:user_token].nil?
+          Me.saveUserToken rsp.user_token
+          @layout.setButtonTitle('Success!')
+        else
+          if not rsp.json[:loggedin].nil?
+            @layout.setButtonTitle 'Wrong Email/Password'
+          else
+            @layout.setButtonTitle 'Try Again'
+          end
+        end
+        3.seconds.later do
+          @layout.setButtonTitle 'Login to WDS'
+        end
       end
     end
   end
   def forgot_action
-    puts 'forgot'
+    UIApplication.sharedApplication.openURL("http://worlddominationsummit.com/forgot-password".nsurl)
   end
 end

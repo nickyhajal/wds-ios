@@ -6,35 +6,69 @@ begin
   require 'bundler'
   Bundler.require
   require 'sugarcube'
-  require 'sugarcube-timer'
   require 'sugarcube-nsdate'
+  require 'sugarcube-timer'
+  require 'sugarcube-foundation'
   require 'sugarcube-attributedstring'
+  require 'sugarcube-animations'
+  require 'sugarcube-notifications'
   require 'sugarcube-color'
   require 'sugarcube-gestures'
+  require 'sugarcube-ui'
+  require 'sugarcube-factories'
+  require 'sugarcube-image'
   require 'bubble-wrap'
+  require "bubble-wrap/location"
   require 'motion-kit'
   require 'motion_model'
   require 'motion_model/array'
   require 'motion_model/sql'
-  require 'bubble-wrap-http'
+  require 'afmotion'
   require 'ProMotion'
   require 'motion-cocoapods'
+  require 'map-kit-wrapper'
 rescue LoadError
 end
 
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'WDS App'
+  app.frameworks += ["QuartzCore", "CoreImage"]
   app.identifier = 'com.worlddominationsummit.wdsios'
-  app.codesign_certificate = 'iPhone Developer: Nick Hajal (TS4DVF4YGA)'
-  app.provisioning_profile = '/nky/secure_files/WDS_App_Dev.mobileprovision'
+  app.version = '1.2'
+  app.development do
+    app.provisioning_profile = '/nky/secure_files/WDS_App_Dev.mobileprovision'
+    app.codesign_certificate = 'iPhone Developer: Nick Hajal (TS4DVF4YGA)'
+  end
+  app.release do
+    app.provisioning_profile = '/nky/secure_files/WDS_App_Production.mobileprovision'
+    app.codesign_certificate = 'iPhone Distribution: Nicholas Hajal (B2D7N48CG9)'
+    app.entitlements['beta-reports-active'] = true
+  end
+  app.entitlements['application-identifier'] = "#{app.seed_id}.#{app.identifier}"
   app.info_plist['UIViewControllerBasedStatusBarAppearance'] = false
+  app.info_plist['UIRequiredDeviceCapabilities'] = false
+  app.info_plist['NSLocationAlwaysUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers'
+  app.info_plist['NSLocationWhenInUseUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers'
   app.libs += ['/usr/lib/libsqlite3.dylib']
   app.vendor_project 'vendor/FMDB', :static
-  app.deployment_target = "7.0" 
-  app.fonts = ['Karla-Regular.ttf', 'Karla-Italic.ttf', 'Karla-Bold.ttf', 'Vitesse-Bold.otf', 'Vitesse-Book.otf', 'Vitesse-Light.otf', 'Vitesse-Medium.otf']
+  app.interface_orientations = [:portrait]
+  app.icons = ['Icon.png', 'Icon@2x.png', 'Icon@3x.png']
+  app.deployment_target = "7.0"
+  app.fonts = ['Karla-Regular.ttf', 'Karla-Italic.ttf', 'Karla-Bold.ttf', 'Vitesse-Bold.otf', 'Vitesse-Book.otf', 'Vitesse-Light.otf', 'Vitesse-Medium.otf', 'ionicons.ttf']
   app.pods do
-    pod 'SDWebImage', '~>3.6'
+    pod 'SDWebImage', '~>3.7'
+    pod 'ionicons'
+    pod 'OpenInChrome'
+    pod 'SORelativeDateTransformer'
+  end
+
+  # Push Notifications
+  app.development do
+    app.entitlements["aps-environment"] = "development"
+  end
+  app.release do
+    app.entitlements["aps-environment"] = "production"
   end
 end
 
@@ -54,12 +88,17 @@ task :iphone6 do
     exec 'bundle exec rake device_name="iPhone 6"'
 end
 
-desc "Run simulator in iPad Retina" 
+desc "Run simulator on iPhone 6 Plus"
+task :iphone6p do
+    exec 'bundle exec rake device_name="iPhone 6 Plus"'
+end
+
+desc "Run simulator in iPad Retina"
 task :retina do
     exec 'bundle exec rake device_name="iPad Retina"'
 end
 
-desc "Run simulator on iPad Air" 
+desc "Run simulator on iPad Air"
 task :ipad do
     exec 'bundle exec rake device_name="iPad Air"'
 end

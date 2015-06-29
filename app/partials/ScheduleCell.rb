@@ -1,111 +1,124 @@
 class ScheduleCell < PM::TableViewCell
-  attr_accessor :event
+  attr_accessor :event, :width
+  def initWithStyle(style, reuseIdentifier:id)
+    singleFingerTap = UITapGestureRecognizer.alloc.initWithTarget(self, action:'singleTap:')
+    self.addGestureRecognizer(singleFingerTap)
+    @_event = false
+    super
+  end
   def will_display
-    unless @layout.nil?
-      @layout.clear_cells
+    self.setNeedsDisplay
+  end
+  def getHeight
+    size = self.frame.size
+    size.width = @width - 70
+    size.height = Float::MAX
+    if @navView.nil?
+      @navView = UIButton.alloc.initWithFrame([[0,0], [18,18]])
+      @navView.setImage Ion.image(:navigate, color:Color.orangish_gray), forState:UIControlStateNormal
+      @navView.addTarget self, action: 'nav_action', forControlEvents: UIControlEventTouchDown
+      self.addSubview @navView
+      @moreView = UIButton.alloc.initWithFrame([[0,0], [24,24]])
+      @moreView.setImage Ion.image(:ios_arrow_forward, color:Color.orange), forState:UIControlStateNormal
+      @moreView.addTarget self, action: 'open_meetup_action', forControlEvents: UIControlEventTouchDown
+      self.addSubview @moreView
     end
-    if @event['type'] == 'title'
-      @layout = ScheduleTitleCellLayout.new(root: self.contentView)
+    what = @event['what']
+    type = @event['type']
+    if type == 'meetup'
+      what = 'Meetup: '+what
+    elsif type == 'academy'
+      what = 'Academy: '+what
+    end
+    @whatStr = what.nsattributedstring({
+      NSFontAttributeName => Font.Vitesse_Medium(19),
+      UITextAttributeTextColor => Color.blue
+    })
+    @what = @whatStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+    pgraph = NSMutableParagraphStyle.alloc.init
+    pgraph.lineBreakMode = NSLineBreakByTruncatingTail
+    @placeStr = @event['place'].nsattributedstring({
+      NSFontAttributeName => Font.Karla_Bold(17),
+      UITextAttributeTextColor => Color.dark_gray
+    })
+    size.width -= 40
+    @place = @placeStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+    return 10+10+8+@what.size.height+@place.size.height
+  end
+  def nav_action
+    puts 'nav_action'
+    chrome = "comgooglemaps://"
+    chromeURL = NSURL.URLWithString(chrome)
+    destination = @event['lat'].to_s+','+@event['lon'].to_s
+    if UIApplication.sharedApplication.canOpenURL(chromeURL)
+      UIApplication.sharedApplication.openURL(NSURL.URLWithString(chrome+'?daddr='+destination+'&directionsmode=walking'))
     else
-      @layout = ScheduleCellLayout.new(root: self.contentView)
-    end
-    #puts event.what
-    @layout.setEvent @event
-    @layout.build
-    @layout.create_cells
-  end
-  def willMoveToSuperview(_superview)
-    event = @event
-  end
-end
-class ScheduleTitleCellLayout < MK::Layout
-  attr_accessor :event
-  def layout
-    root :main do
-      add UIView, :container
+      place = MKPlacemark.alloc.initWithCoordinate(CLLocationCoordinate2DMake(@event['lat'], @event['lon']), addressDictionary: nil)
+      item = MKMapItem.alloc.initWithPlacemark(place)
+      item.setName(@event['place'])
+      currentLocationMapItem = MKMapItem.mapItemForCurrentLocation
+      launchOptions = {
+        MKLaunchOptionsDirectionsModeKey => MKLaunchOptionsDirectionsModeWalking
+      }
+      MKMapItem.openMapsWithItems([currentLocationMapItem, item], launchOptions: launchOptions)
     end
   end
-  def super_width
-    get(:main).frame.size.width
-  end
-  def title_style
-    text @event['dayStr']
-    textColor "#0073ad".uicolor
-    font UIFont.fontWithName("Vitesse-Bold", size:24.0)
-    backgroundColor "#FFFFFF".uicolor
-    frame [[10,18], [super_width-10,60]]
-  end
-  def create_cells
-    context :container do
-      add UILabel, :title
-      add UIView, :button_view
+  def open_meetup_action
+    if @event['type'] == 'meetup'
+      $APP.open_event(Event.new(@event), "schedule")
     end
   end
-  def clear_cells
-    container = get(:container)
-    container.subviews.makeObjectsPerformSelector("removeFromSuperview")
-  end
-end
-class ScheduleCellLayout < MK::Layout
-  def layout
-    root :main do
-      add UIView, :container
-    end
-  end
-  def create_cells
-    context :container do
-      add UILabel, :start
-      add UIView, :place_shell do
-        add UILabel, :place
-      end
-      add UIView, :what_shell do
-        add UILabel, :what 
-      end
-    end
-  end
-  def clear_cells
-    container = get(:container)
-    container.subviews.makeObjectsPerformSelector("removeFromSuperview")
-  end
-  def setEvent(event)
-    @event = event
-  end
-  def super_width
-    get(:main).frame.size.width
-  end
-  def start_style
-    text @event['startStr']
-    textColor "#FFFFFF".uicolor
-    font UIFont.fontWithName("Vitesse-Bold", size:16.0)
-    textAlignment UITextAlignmentCenter
-    backgroundColor "#e27f1c".uicolor
-    frame [[0,0], [95,32]]
-  end
-  def place_shell_style
-    backgroundColor "#f2f2ea".uicolor
-    frame [[95,0], [super_width-95,32]]
-  end
-  def place_style
-    text @event['place']
-    textColor "#EB9622".uicolor
-    font UIFont.fontWithName("Karla-Bold", size:17.0)
-    frame [[15,0], [super_width-110,32]]
-  end
-  def what_shell_style
-    backgroundColor "#f8f8f2".uicolor
-    frame [[0,32],[super_width,40]]
-  end
-  def what_style
-    text @event['what']
-    textColor "#231f20".uicolor
-    font UIFont.fontWithName("Vitesse-Medium", size:18.0)
-    frame [[10,0],[super_width-10,40]]
-  end
-end
+  def singleTap(theEvent)
+    pnt = theEvent.locationInView(theEvent.view)
+    y = pnt.y
+    x = pnt.x
+    size = self.frame.size
+    width = size.width
+    height = size.height
 
-  # def tableView(table_view, heightForRowAtIndexPath:index_path)
-  #   my_cell = self.promotion_table_data.cell(index_path: index_path)
-  #   # calculate based on properties
-  #   height = my_cell[:some_property] * something else + padding - moon cycle
-  #   height.to_f
-  # end
+    if x > 10 && x < width - 30
+      if y > 10 && y < @what.size.height+10 && x < @what.size.width+10
+        open_meetup_action
+      end
+      if y > @what.size.height+10 && y < height - 10 && x < @place.size.width+10
+        nav_action
+      end
+    end
+  end
+  def drawRect(rect)
+    # Init
+    @_event = Event.new(@event)
+    height = getHeight
+    size = rect.size
+
+    # Colors
+    orange = Color.orange
+    white = Color.white
+    tan = "#f8f8f2".uicolor
+    darkTan = Color.yellowish_tan
+    grey = "#231f20".uicolor
+
+    # Background
+    bgPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 0, rect.size.width, rect.size.height), cornerRadius:0.0)
+    white.setFill
+    bgPath.fill
+
+    @whatStr.drawInRect(CGRectMake(15, 12, size.width-70, Float::MAX))
+    @placeStr.drawInRect(CGRectMake(40, 17+@what.size.height, size.width-95, Float::MAX))
+    unless @navView.nil?
+      frame = @navView.frame
+      frame.origin.x = 15
+      frame.origin.y = 19+@what.size.height
+      @navView.setFrame frame
+      if (@event['type'] == "meetup")
+        frame = @moreView.frame
+        frame.origin.x = @width-28
+        frame.origin.y = height/2 - 10
+        @moreView.setFrame frame
+        @moreView.setHidden false
+      else
+        @moreView.setHidden true
+      end
+    end
+  end
+end

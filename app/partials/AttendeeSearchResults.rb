@@ -1,4 +1,5 @@
 class AttendeeSearchResults < PM::TableScreen
+  attr_accessor :controller
   title "Attendees"
   row_height :auto, estimated: 44
   def on_load
@@ -23,5 +24,8 @@ class AttendeeSearchResults < PM::TableScreen
   def update_results(attendees)
     @attendees = attendees
     update_table_data
+  end
+  def show_atn_profile_action(args)
+    @controller.open_profile(args[:atn]['user_id'])
   end
 end

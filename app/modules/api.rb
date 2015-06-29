@@ -6,10 +6,21 @@ module Api
   ####
   ####
   ####
-  @@url = 'http://worlddominationsummit.com/api/'
-#  @@url = 'http://wds.nky/api/'
+  if Device.simulator?
+    @@url = 'http://wds.nky/api/'
+    # @@url = 'http://worlddominationsummit.com/api/'
+  else
+    @@url = 'http://worlddominationsummit.com/api/'
+  end
+  # @@url = 'http://wds.nky/api/'
   class << self
     attr_accessor :url
+    def init
+      @client = AFMotion::Client.build(@@url) do
+        header "Accept-Encoding", "gzip"
+        response_serializer :json
+      end
+    end
     def get(path, params, &block)
       request('get', path, params, &block)
     end
@@ -26,18 +37,53 @@ module Api
       url = @@url + path
       if Me.user_token
         params['user_token'] = Me.user_token
+        params['nopic'] = 1
       end
-      BubbleWrap::HTTP.send method, url, {payload: params} do |response|
-        rsp = {}
-        if response.ok?
-          json = BW::JSON.parse(response.body.to_str)
-          rsp['json'] = json
-          rsp['response'] = response
-        else
-          rsp['err'] = response.status_code
-        end
-        block.call rsp
+      @client.send method, url, params do |response|
+        block.call Response.new(response)
       end
     end
+  end
+end
+
+class Response
+  attr_reader :is_err, :err_code, :raw, :json
+  def initialize(rsp)
+    @raw = rsp
+    if rsp.success?
+      @is_err = false
+      @err_code = false
+      @json = rsp.object
+      @json.each do |key, value|
+        create_attr(key)
+        self.send("#{key}=", value)
+      end
+    else
+      @is_err = true
+      @err_code = rsp.status_code
+    end
+    self
+  end
+  def [](key)
+    if @json.nil?
+      false
+    else
+      @json[key]
+    end
+
+  end
+  def create_method(name, &block)
+      self.class.send( :define_method, name, &block )
+  end
+  def create_attr(name)
+    create_method( "#{name}=".to_sym ) do |val|
+      instance_variable_set( "@" + name, val)
+    end
+    create_method( name.to_sym ) do
+      instance_variable_get( "@" + name )
+    end
+  end
+  def to_s
+    self.inspect
   end
 end

@@ -4,7 +4,7 @@ class AttendeeSearchCell < PM::TableViewCell
       v = add UILabel.alloc.initWithFrame([[ 47, 7 ], [ 300, 30 ]])
       v.backgroundColor = UIColor.clearColor
       v.textColor = "#EB9622".uicolor
-      v.font = UIFont.fontWithName("Karla-Bold", size:17.0)
+      v.font = Font.Karla_Bold(17)
       v 
     end
     @name_view.text = name
@@ -23,10 +23,4 @@ class AttendeeSearchCell < PM::TableViewCell
     @avatar_view.layer.masksToBounds = true
     @avatar_view
   end
-  # def tableView(table_view, heightForRowAtIndexPath:index_path)
-  #   my_cell = self.promotion_table_data.cell(index_path: index_path)
-  #   # calculate based on properties
-  #   height = my_cell[:some_property] * something else + padding - moon cycle
-  #   height.to_f
-  # end
 end

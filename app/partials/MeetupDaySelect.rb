@@ -24,7 +24,7 @@ class MeetupDaySelect < MK::Layout
   def day_heading_style
     font UIFont.fontWithName('Vitesse-Medium', size:18)
     textColor "#848477".uicolor
-    text 'Friday, July 10th'
+    text 'Tuesday, July 7th'
     constraints do
       top 10
       left 10
@@ -69,6 +69,9 @@ class MeetupDaySelect < MK::Layout
     end
     hidden true
   end
+  def setDay(day)
+    @elements[:day_heading].first.text = day
+  end
   def select_day(day, dayString)
     @elements[:day_heading].first.hidden = false
     @elements[:day_select_button].first.hidden = false
@@ -76,12 +79,12 @@ class MeetupDaySelect < MK::Layout
     @elements[:v_line].first.hidden = false
     @elements[:day_list].first.hidden = true
     @elements[:day_heading].first.text = dayString
-    @controller.setDay day
+    @controller.setDay day, dayString
     @layout.daySelHeight.equals(37)
-    unless @layout.slid_up
-      @layout.daySelTop.plus(46)
+    if !@layout.slid_up
+      #@layout.daySelTop.plus(46)
     end
-    UIView.animateWithDuration(0.05, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
+    UIView.animateWithDuration(0.15, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
         self.view.layoutIfNeeded  # applies the constraint change
         @layout.view.layoutIfNeeded  # applies the constraint change
       end, completion: nil)
@@ -93,14 +96,14 @@ class MeetupDaySelect < MK::Layout
     @elements[:v_line].first.hidden = true
     @elements[:day_list].first.hidden = false
     if @layout.slid_up
-      @layout.daySelHeight.equals(@layout.super_height)
-      @dayListHeight.equals(@layout.super_height)
+      @layout.daySelHeight.equals(@layout.super_height - 49)
+      @dayListHeight.equals(@layout.super_height - 49)
     else
-      @layout.daySelHeight.equals(@layout.super_height - 46)
-      @dayListHeight.equals(@layout.super_height - 46)
-      @layout.daySelTop.minus(46)
+      @layout.daySelHeight.equals(@layout.super_height - 46 - 49)
+      @dayListHeight.equals(@layout.super_height - 46 - 49)
+      #@layout.daySelTop.minus(46)
     end
-    UIView.animateWithDuration(0.05, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
+    UIView.animateWithDuration(0.15, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
         self.view.layoutIfNeeded  # applies the constraint change
         @layout.view.layoutIfNeeded  # applies the constraint change
       end, completion: nil)
@@ -115,40 +118,7 @@ class MeetupTimeListing < PM::TableScreen
   end
   def on_load
     self.tableView.backgroundColor = "#F2F2EA".uicolor
-    @days = [
-      {
-        day: "2014-07-09",
-        dayStr: "Wednesday, July 8th"
-      },
-      {
-        day: "2014-07-09",
-        dayStr: "Thursday, July 9th"
-      },
-      {
-        day: "2014-07-10",
-        dayStr: "Friday, July 10th"
-      },
-      {
-        day: "2014-07-11",
-        dayStr: "Saturday, July 11th"
-      },
-      {
-        day: "2014-07-12",
-        dayStr: "Sunday, July 12th"
-      },
-      {
-        day: "2014-07-13",
-        dayStr: "Monday, July 13th"
-      },
-      {
-        day: "2014-07-14",
-        dayStr: "Tuesday, July 14th"
-      },
-      {
-        day: "2014-07-15",
-        dayStr: "Wednesday, July 15th"
-      }
-    ]
+    @days = Assets.get('days')
   end
   def table_data
     [{

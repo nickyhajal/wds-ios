@@ -4,4 +4,7 @@ class LoadingScreen < PM::Screen
     @layout = LoadingLayout.new(root: self.view).build
     true
   end
+  def shouldAutorotate 
+    false 
+  end
 end

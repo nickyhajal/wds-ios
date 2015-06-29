@@ -1,7 +1,7 @@
 module Assets
   class << self
     def init
-      @assets = ['me','events','interests','speakers','places']
+      @assets = ['me','events','interests','places']
       @expires = {
         'me' => 0,
         'events' => 5,
@@ -15,8 +15,8 @@ module Assets
       }
     end
     def sync(&block)
-      pull @assets, do
-        block.call
+      pull @assets, do |rsp|
+        block.call rsp
       end
     end
     def pull(assets, &block)
@@ -24,18 +24,19 @@ module Assets
         assets = assets.split(',')
       end
       Api.get 'assets', {tracker: tracker, assets: assets.join(','),via:'ios'} do |rsp|
-        rsp = rsp['json']
-        assets.each do |asset|
-          unless rsp.nil? || rsp[asset].nil?
-            if self.respond_to? 'process_'+asset
-              self.send('process_'+asset, rsp[asset])
-            else
-              set asset, rsp[asset]
+        unless rsp.is_err
+          assets.each do |asset|
+            unless rsp.nil? || rsp[asset].nil?
+              if self.respond_to? 'process_'+asset
+                self.send('process_'+asset, rsp[asset])
+              else
+                set asset, rsp[asset]
+              end
             end
           end
         end
         unless block.nil?
-          block.call
+          block.call rsp.is_err
         end
       end
     end
@@ -64,52 +65,79 @@ module Assets
       end
     end
     def get(asset)
-      BW::JSON.parse(Store.get(asset))
+      Store.get(asset, true, true)
     end
     def set(asset, val)
-      Store.set(asset, BW::JSON.generate(val))
+      Store.set(asset, val, true, true)
       track(asset)
     end
     def tracker(parse = false)
-      tracker = Store.get('tracker')
-      tracker = '{}' unless tracker
-      if parse
-        tracker = BW::JSON.parse(tracker)
+      tracker = Store.get('tracker', parse)
+      unless tracker
+        tracker = parse ? {} : '{}'
       end
       tracker
     end
     def track(asset)
       _tracker = tracker(true)
       _tracker[asset] = NSDate.new.timeIntervalSince1970.floor
-      Store.set('tracker', BW::JSON.generate(_tracker))
+      Store.set('tracker', _tracker, true)
     end
     def process_me(me)
+      Store.set('me', me, true)
       Me.update(me)
     end
+    def process_interests(interests)
+      Interests.updateInterests(interests)
+      set 'interests', interests
+    end
     def process_events(events)
-      schedule = []
+      return false unless events
+      schedule = {}
       meetups = {}
       lastDay = ''
+      byDay = {}
+      days = []
+      existingDays = {}
       events.sort! {|x, y| x['start'] <=> y['start']}
       events.each do |event|
         event = Event.new(event)
+        if existingDays[event.startDay].nil?
+          existingDays[event.startDay] = true;
+          days << {day: event.startDay, dayStr: event.dayStr}
+        end
         if Me.isAttendingEvent(event)
-          unless lastDay == event.startDay
-            title = Event.new({type:'title', dayStr:event.dayStr}).to_hash
-            schedule << title
-            lastDay = event.startDay
+          if schedule[event.startDay].nil?
+            schedule[event.startDay] = []
           end
-        schedule.push event.to_hash
+          schedule[event.startDay] << event.to_hash
         end
         if event.type == 'meetup'
-          if meetups[event.startDay].nil? 
+          if meetups[event.startDay].nil?
             meetups[event.startDay] = []
           end
           meetups[event.startDay] << event.to_hash
         end
       end
+      set 'days', days
       set 'events', events
       set 'meetups', meetups
+      set 'schedule', schedule
+    end
+    def process_schedule
+      events = get 'events'
+      schedule = {}
+      lastDay = ''
+      byDay = {}
+      events.each do |event|
+        event = Event.new(event)
+        if Me.isAttendingEvent(event)
+          if schedule[event.startDay].nil?
+            schedule[event.startDay] = []
+          end
+          schedule[event.startDay] << event.to_hash
+        end
+      end
       set 'schedule', schedule
     end
   end

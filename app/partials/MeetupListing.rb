@@ -1,27 +1,69 @@
 class MeetupListing < PM::TableScreen
   title "MeetupList"
+  attr_accessor :state, :events, :dayStr, :controller
   row_height 144
   def on_load
     @events = []
     self.tableView.setSeparatorStyle(UITableViewCellSeparatorStyleNone)
     self.tableView.backgroundView = nil
     self.tableView.backgroundColor = "#F2F2EA".uicolor
-    @day = "2014-07-11"
+    days = Assets.get('days')
+    @day ||= begin
+      days[0][:startDay]
+    end
+    @dayStr ||= begin
+      days[0][:dayStr]
+    end
     @state = 'browse'
   end
   def setLayout(layout)
     @layout = layout
   end
-  def setDay(day)
+  def setDay(day, dayStr)
     @day = day
+    @dayStr = dayStr
   end
   def setState(state)
     @state = state
+  end
+  def scrollToHour
+    today = NSDate.new.string_with_format(:ymd)
+    now = NSDate.new.string_with_format(:iso8601).sub(" ", "T")+"Z"
+    # today = '2015-07-10'
+    # now = "2015-07-10T12:39:28.067Z"
+    count = 0
+    found = 0
+    section = 0
+    if (today == @day)
+      @events.each do |event|
+        if (section != event[:section])
+          section = event[:section]
+          found = 0
+        end
+        start = event[:cells][0][:arguments][:event].start
+        if start > now
+          found = count
+          break
+        end
+        count += 1
+      end
+      0.1.seconds.later do
+        self.tableView.scrollToRowAtIndexPath(NSIndexPath.indexPathForRow(0, inSection: section), atScrollPosition: UITableViewScrollPositionTop, animated: true)
+      end
+    end
   end
   def table_data
     @events
   end
   def make_cell(event)
+    @width ||= begin
+      @layout.super_width
+    end
+    event = Event.new(event)
+    if @state != 'suggested'
+      event.because = nil
+      event.becauseStr = nil
+    end
     {
       title: '',
       cell_class: MeetupCell,
@@ -29,12 +71,15 @@ class MeetupListing < PM::TableScreen
       arguments: { event: event },
       properties: {
         selectionStyle: UITableViewCellSelectionStyleNone,
-        event: event
+        event: event,
+        width: @width,
+        controller: @controller
       }
     }
   end
   def update_meetups(events)
-    tmp = events[@day] 
+    events[@day] = [] if events[@day].nil?
+    tmp = events[@day]
     use = []
     byDay = {}
     final = []
@@ -61,15 +106,24 @@ class MeetupListing < PM::TableScreen
       end
       byDay[event['startStr']] << make_cell(event)
     end
+    section = 0
     byDay.each do |key, val|
       day = {}
-      day[:title] = key
       day[:cells] = val
+      day[:title] = key
+      day[:section] = section
       day[:title_view] = MeetupSectionHeading
       final << day
+      section += 1
     end
     @events = final
     update_table_data
+    # http://stackoverflow.com/questions/19268630/ios-trigger-single-cell-tableviewheightforrowatindexpath
+    UIView.setAnimationsEnabled false
+    self.tableView.beginUpdates
+    self.tableView.endUpdates
+    UIView.setAnimationsEnabled true
+    self.tableView.setContentOffset(CGPointMake(0, -self.tableView.contentInset.top), animated: false)
   end
   def scrollViewDidScroll(scrollView)
     @lastY = scrollView.contentOffset.y if @lastY.nil?
@@ -103,7 +157,7 @@ class MeetupListing < PM::TableScreen
     view.setFont UIFont.fontWithName('Vitesse-Medium', size:14.0)
     view.setBackgroundColor "#F2F2EA".uicolor
     view.setTextColor "#848477".uicolor
-    view.text = section[:title].upcase 
+    view.text = section[:title].upcase
     view
   end
   def tableView(table_view, heightForRowAtIndexPath:index_path)
