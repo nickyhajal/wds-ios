@@ -49,10 +49,10 @@ class AttendeeSearchTitleLayout < MK::Layout
     end
   end
   def search_icon_style
-    image Ion.image(:ios_search_strong, color:Color.white)
+    image Ion.imageByFont(:ios_search_strong, color:Color.white)
     constraints do
-      top 5
-      left 4
+      top 4
+      left 6
       width 22
       height 22
     end

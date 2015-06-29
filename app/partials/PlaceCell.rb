@@ -1,5 +1,5 @@
 class PlaceCell < PM::TableViewCell
-  attr_accessor :place, :width, :controller, :checkinScreen, :checkinMessage
+  attr_accessor :place, :width, :controller, :checkinScreen, :checkinMessage, :onPicked
   def initWithStyle(style, reuseIdentifier:id)
     singleFingerTap = UITapGestureRecognizer.alloc.initWithTarget(self, action:'singleTap:')
     self.addGestureRecognizer(singleFingerTap)
@@ -25,6 +25,11 @@ class PlaceCell < PM::TableViewCell
       @navView.setImage Ion.image(:navigate, color:Color.orangish_gray), forState:UIControlStateNormal
       @navView.addTarget self, action: 'nav_action', forControlEvents: UIControlEventTouchDown
       self.addSubview @navView
+      @moreView = UIButton.alloc.initWithFrame([[0,0], [24,24]])
+      @moreView.setImage Ion.image(:ios_arrow_forward, color:Color.orange), forState:UIControlStateNormal
+      @moreView.addTarget self, action: 'open_place_action', forControlEvents: UIControlEventTouchDown
+      @moreView.setHidden true
+      self.addSubview @moreView
     end
 
     # Name
@@ -73,12 +78,28 @@ class PlaceCell < PM::TableViewCell
       height += @meta.size.height+4
     end
 
+    if !@place[:pick].nil? && @place[:pick].length > 0 && @onPicked
+      pickStr = "Picked by " + @place[:pick].to_s
+      @pickStr = pickStr.nsattributedstring({
+        NSFontAttributeName => Font.Karla_Bold(15),
+        NSParagraphStyleAttributeName => pgraph,
+        UITextAttributeTextColor => Color.green
+      })
+      @pick = @pickStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+      height += @pick.size.height+4
+    end
+
     @checkinStr = @checkinMessage.attrd({
         NSFontAttributeName => Font.Karla_Bold(15),
         UITextAttributeTextColor => Color.orange
       })
     @checkin = @checkinStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     return height
+  end
+  def open_place_action
+    if !@place[:descr].nil? && @place[:descr].length() > 0
+      @controller.open_place(@place)
+    end
   end
   def nav_action
     chrome = "comgooglemaps://"
@@ -112,6 +133,20 @@ class PlaceCell < PM::TableViewCell
     end
     CGRectMake(10, @meta_top, @meta.size.width, @meta.size.height)
   end
+  def pick_rect
+    @pick_top = @meta_top + @meta.size.height + 4
+    CGRectMake(10, @pick_top, @pick.size.width, @pick.size.height)
+  end
+  def more_rect
+    size = self.frame.size
+    if @addStr.nil?
+      width = size.width - @addr.size.width
+    else
+      width = size.width - 50
+    end
+    x = size.width - width
+    CGRectMake(x, 0, width, size.height)
+  end
   def button_rect
     width = 110
     height = 30
@@ -132,10 +167,12 @@ class PlaceCell < PM::TableViewCell
     size = self.frame.size
     width = size.width
     height = size.height
-    rects = {}
+    rects = {
+      open_place: more_rect
+    }
     if @checkinScreen
       rects = {
-        checkin: button_rect,
+        checkin: button_rect
       }
     end
     rects.each do |name, rect|
@@ -181,11 +218,23 @@ class PlaceCell < PM::TableViewCell
     unless @metaStr.nil?
       @metaStr.drawInRect(meta_rect)
     end
+    unless @pickStr.nil?
+      @pickStr.drawInRect(pick_rect)
+    end
     unless @navView.nil?
       frame = @navView.frame
       frame.origin.x = 11
       frame.origin.y = 16+@name.size.height
       @navView.setFrame frame
+      if (!@place[:descr].nil? && @place[:descr].length > 0)
+        frame = @moreView.frame
+        frame.origin.x = size.width - frame.size.width - 10
+        frame.origin.y = (size.height/2) - (frame.size.height/2)
+        @moreView.setFrame frame
+        @moreView.setHidden false
+      else
+        @moreView.setHidden true
+      end
     end
   end
 end

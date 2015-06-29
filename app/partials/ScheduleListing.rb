@@ -1,7 +1,7 @@
 class ScheduleListing < PM::TableScreen
   title "Schedule"
   row_height 72
-  attr_accessor :day, :dayStr, :events, :layout
+  attr_accessor :day, :dayStr, :events, :layout, :controller
   def on_load
     days = Assets.get('days')
     @day ||= begin
@@ -32,6 +32,7 @@ class ScheduleListing < PM::TableScreen
       properties: {
         selectionStyle: UITableViewCellSelectionStyleNone,
         width: @width,
+        controller: @controller,
         event: event
       }
     }

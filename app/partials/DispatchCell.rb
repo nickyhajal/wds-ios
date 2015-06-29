@@ -53,9 +53,8 @@ class DispatchCell < PM::TableViewCell
     })
     formatter = NSDateFormatter.alloc.init
     formatter.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    hours = (NSDate.new.utc_offset / 1.hour) - 1
+    hours = (NSDate.new.utc_offset / 1.hour)
     created_at = formatter.dateFromString(@item.created_at).delta(hours:hours)
-    puts created_at
     pgraph = NSMutableParagraphStyle.alloc.init
     pgraph.lineBreakMode = NSLineBreakByTruncatingTail
     @timeStr = SORelativeDateTransformer.registeredTransformer.transformedValue(created_at).nsattributedstring({
@@ -187,7 +186,7 @@ class DispatchCell < PM::TableViewCell
     CGRectMake(58, pad_top(25), self.frame.size.width-80, 50)
   end
   def channel_action
-    $APP.open_event(@event, "dispatch") if @event
+    @controller.open_meetup(@event) if @event
   end
 
   def pad_top(val)

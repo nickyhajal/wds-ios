@@ -115,7 +115,7 @@ class HomeLayout < MK::Layout
       top 91
       left 0
       right "100%"
-      height.equals(:superview).minus(58)
+      height.equals(super_height-139)
     end
   end
   def filters_style

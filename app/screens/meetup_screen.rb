@@ -59,6 +59,7 @@ class MeetupScreen < PM::Screen
     @from = from
     0.02.seconds.later do
       @event = event
+      @post_screen.layout.get(:placeholder).text = "Share a message with "+@event.what
       @dispatch.clear
       @dispatch.setChannel('meetup', @event.event_id)
       @layout.get(:channel_nav).setButtonText 1, @event.what
@@ -73,7 +74,6 @@ class MeetupScreen < PM::Screen
   end
   def back_action
     close_screen
-    puts @from
     if !@from.nil? && @from
       page = 0
       if @from == "schedule"

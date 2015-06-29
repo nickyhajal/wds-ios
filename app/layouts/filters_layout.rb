@@ -105,8 +105,9 @@ class FiltersLayout < MK::Layout
     text 'Meetups'
   end
   def meetups_selector_style
-    target.insertSegmentWithTitle 'Show', atIndex:0, animated:false
-    target.insertSegmentWithTitle 'Hide', atIndex:1, animated:false
+    target.insertSegmentWithTitle 'All', atIndex:0, animated:false
+    target.insertSegmentWithTitle 'Mine', atIndex:1, animated:false
+    target.insertSegmentWithTitle 'None', atIndex:2, animated:false
     target.selectedSegmentIndex = 0
     #target.addTarget @controller, action: 'meetups_selector_action:', forControlEvents:UIControlEventValueChanged
     selector

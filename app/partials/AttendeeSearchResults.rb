@@ -15,7 +15,8 @@ class AttendeeSearchResults < PM::TableScreen
           arguments: { atn: atn },
           style: {
             name: atn['first_name']+' '+atn['last_name'],
-            avatar: atn['pic']
+            avatar: atn['user_id'],
+            friend: !Me.isFriend(atn['user_id'])
           }
         }
       end

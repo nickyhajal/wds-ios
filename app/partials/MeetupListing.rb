@@ -77,7 +77,7 @@ class MeetupListing < PM::TableScreen
       }
     }
   end
-  def update_meetups(events)
+  def update_meetups(events, scrollToTop = true)
     events[@day] = [] if events[@day].nil?
     tmp = events[@day]
     use = []
@@ -123,7 +123,9 @@ class MeetupListing < PM::TableScreen
     self.tableView.beginUpdates
     self.tableView.endUpdates
     UIView.setAnimationsEnabled true
-    self.tableView.setContentOffset(CGPointMake(0, -self.tableView.contentInset.top), animated: false)
+    if scrollToTop
+      self.tableView.setContentOffset(CGPointMake(0, -self.tableView.contentInset.top), animated: false)
+    end
   end
   def scrollViewDidScroll(scrollView)
     @lastY = scrollView.contentOffset.y if @lastY.nil?

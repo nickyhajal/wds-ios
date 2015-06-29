@@ -32,6 +32,7 @@ class PlaceListing < PM::TableScreen
       properties: {
         selectionStyle: UITableViewCellSelectionStyleNone,
         place: place,
+        onPicked: (@type.to_i == 999),
         checkinScreen: @checkinScreen,
         width: @width,
         controller: @controller
@@ -39,19 +40,7 @@ class PlaceListing < PM::TableScreen
     }
   end
   def isPicked(place)
-    picks = {
-
-    }
-    picks.each do |pick|
-      if pick[:place_id] == place[:place_id]
-        place[:staff] = pick[:staff]
-      end
-    end
-    if place[:staff].nil?
-      false
-    else
-      place
-    end
+    !place[:pick].nil? && place[:pick].length > 0
   end
   def processPositions(places)
     places.each do |place|
@@ -104,37 +93,11 @@ class PlaceListing < PM::TableScreen
     allPlaces.each do |place|
       if place[:place_type].to_s == @type.to_s || @type.to_i == 0 || (@type.to_i == 999 && isPicked(place))
         if @checkinScreen
-          puts '>>> '
-          puts 'CHECKIN SCREEN'
           if place[:order_distance].to_i < 750
             @places << make_cell(place)
           end
         else
           @places << make_cell(place)
-        end
-      elsif @type.to_i == 998
-        pl_evs = []
-        events = Assets.get("events")
-        events.each do |event|
-          if !event[:what].nil? && !event[:lat].nil? && !event[:lon].nil? && !event[:address].nil?
-            place = {
-              place_id: event[:event_id],
-              type: 998,
-              name: event[:what],
-              address: event[:address],
-              lat: event[:lat],
-              lon: event[:lon]
-            }
-            pl_evs << place
-          end
-        end
-        processPositions(pl_evs)
-        puts 'DONE PROCESSING'
-        puts pl_evs
-        sortPlaces(pl_evs)
-        puts "SORTED"
-        pl_evs.each do |ev|
-          @places << make_cell(ev)
         end
       end
     end

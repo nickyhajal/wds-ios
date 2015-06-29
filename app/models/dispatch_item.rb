@@ -29,7 +29,8 @@ class DispatchItem
     else
       formatter = NSDateFormatter.alloc.init
       formatter.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-      time = formatter.dateFromString(@created_at).delta(hours:NSDate.new.utc_offset/1.hour)
+      hours = (NSDate.new.utc_offset / 1.hour)
+      time = formatter.dateFromString(@created_at).delta(hours:hours)
       SORelativeDateTransformer.registeredTransformer.transformedValue(time)
     end
   end

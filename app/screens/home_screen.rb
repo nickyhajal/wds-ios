@@ -16,6 +16,7 @@ class HomeScreen < PM::Screen
     UIApplication.sharedApplication.setStatusBarStyle UIStatusBarStyleLightContent
   end
   def on_load
+    @meetup_screen = MeetupScreen.new(nav_bar: false)
     @dispatch_screen = DispatchItemScreen.new(nav_bar: false)
     @attendee_screen = AttendeeScreen.new(nav_bar: false)
     @filters_screen = FiltersScreen.new(nav_bar: false)
@@ -43,6 +44,10 @@ class HomeScreen < PM::Screen
     @dispatch.setNewPostsBtn @layout.get(:new_posts), @layout.new_posts_y, self.view
     @post_screen.dispatch = @dispatch
     true
+  end
+  def open_meetup(meetup)
+    @meetup_screen.setMeetup(meetup)
+    open_modal @meetup_screen
   end
   def open_profile(user_id)
     @attendee_screen.setAttendee user_id
@@ -77,6 +82,7 @@ class HomeScreen < PM::Screen
     @layout.get(:channel_nav).setHidden false
     @layout.get(:channel_nav).setButtonText 1, community.interest
     @layout.get(:dispatch_nav).setHidden true
+    @post_screen.layout.get(:placeholder).text = "Share a post with the "+community.interest+" community"
     @community_screen.close_screen
     UIApplication.sharedApplication.setStatusBarStyle(UIStatusBarStyleLightContent)
   end
@@ -84,6 +90,7 @@ class HomeScreen < PM::Screen
     @dispatch.leaveChannel
     @layout.get(:channel_nav).setHidden true
     @layout.get(:dispatch_nav).setHidden false
+    @post_screen.layout.get(:placeholder).text = "Type here to share a post!"
     UIApplication.sharedApplication.setStatusBarStyle(UIStatusBarStyleLightContent)
   end
   def cancel_filters_action

@@ -119,7 +119,6 @@ class PlaceTypeListing < PM::TableScreen
       {id: '3', name: "Spots for Food"},
       {id: '4', name: "Bars & Hangouts"},
       {id: '5', name: "Portland Classics"},
-      {id: '998', name: "Meetups & Academies"},
       {id: '999', name: "Staff Picks"}
     ]
     @selected = @types[0]

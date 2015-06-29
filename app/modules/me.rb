@@ -147,23 +147,27 @@ module Me
       end
     end
     def toggleFriendship(atn, &block)
+      user_id = atn
+      unless atn.is_a? Integer
+        user_id = atn.user_id
+      end
       friends = Me.get('connected_ids')
-      if Me.isFriend(atn.user_id)
-        Api.delete 'user/connection', {to_id: atn.user_id} do |rsp|
+      if Me.isFriend(user_id)
+        Api.delete 'user/connection', {to_id: user_id} do |rsp|
           if rsp.is_err
             $APP.offline_alert
           else
-            friends.delete(atn.user_id)
+            friends.delete(user_id)
             Me.set('friends', friends)
             block.call
           end
         end
       else
-        Api.post 'user/connection', {to_id: atn.user_id} do |rsp|
+        Api.post 'user/connection', {to_id: user_id} do |rsp|
           if rsp.is_err
             $APP.offline_alert
           else
-            friends << atn.user_id
+            friends << user_id
             Me.set('friends', friends)
             block.call
           end

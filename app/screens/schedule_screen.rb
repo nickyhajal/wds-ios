@@ -12,11 +12,13 @@ class ScheduleScreen < PM::Screen
     })
   end
   def on_load
+    @meetup_screen = MeetupScreen.new(nav_bar: false)
     @layout = ScheduleLayout.new(root: self.view)
     @schedule_table = ScheduleListing.new
     @layout.schedule_view = @schedule_table.view
     @layout.setController self
     @schedule_table.layout = @layout
+    @schedule_table.controller = self
     @layout.build
     if @day.nil?
       days = Assets.get('days')
@@ -24,6 +26,10 @@ class ScheduleScreen < PM::Screen
       setDay(day[:day], day[:dayStr])
     end
     true
+  end
+  def open_meetup(meetup)
+    @meetup_screen.setMeetup(meetup)
+    open_modal @meetup_screen
   end
   def will_appear
     update_schedule

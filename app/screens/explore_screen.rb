@@ -14,11 +14,17 @@ class ExploreScreen < PM::Screen
     @timer = false
     @updating_started = false
     @checkin_screen = CheckInScreen.new(nav_bar: false)
+    @place_screen = PlaceScreen.new(nav_bar: false)
     @placeList = PlaceListing.new
     @placeList.controller = self
+    @lastClosest = false
   end
   def check_in_action
     open @checkin_screen
+  end
+  def open_place(place)
+    @place_screen.setPlace(place)
+    open @place_screen
   end
   def change_sort_action(sender)
     selector = @layout.get(:sort_selector)
@@ -49,13 +55,15 @@ class ExploreScreen < PM::Screen
     if BW::Location.enabled?
       BW::Location.get_significant(purpose: "We'd like to use your location to help you explore Portland and connect with other WDSers!") do |result|
         @updating_started = true
-        puts '>> SIG'
-        puts result.inspect
-        puts result[:to].inspect
         @placeList.position = result[:to]
         @checkin_screen.placeList.position = result[:to]
         update_places
-        do_checkin
+        if @lastClosest == @placeList.closest
+          if @lastClosest
+            do_checkin
+          end
+          @lastClosest = @placeList.closest
+        end
       end
     end
   end
@@ -93,7 +101,7 @@ class ExploreScreen < PM::Screen
       if @lastCheckin != place
         @lastCheckin = place
         params = {location_id: place[:place_id], location_type: 'place'}
-        puts '>> CHECKIN'
+        puts '>> DO AUTO CHECKIN TO: '
         puts params
         Api.post 'user/checkin', params do |rsp|
         end
@@ -104,7 +112,6 @@ class ExploreScreen < PM::Screen
     @update = false
   end
   def update_checkins
-    puts 'UPDATE CHECKINS'
     Api.get "checkins/recent", {by_id: 1} do |rsp|
       unless rsp.is_err
         @placeList.checkins = rsp.checkins

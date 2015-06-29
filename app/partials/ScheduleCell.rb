@@ -1,5 +1,5 @@
 class ScheduleCell < PM::TableViewCell
-  attr_accessor :event, :width
+  attr_accessor :event, :width, :controller
   def initWithStyle(style, reuseIdentifier:id)
     singleFingerTap = UITapGestureRecognizer.alloc.initWithTarget(self, action:'singleTap:')
     self.addGestureRecognizer(singleFingerTap)
@@ -11,7 +11,7 @@ class ScheduleCell < PM::TableViewCell
   end
   def getHeight
     size = self.frame.size
-    size.width = @width - 70
+    size.width = @width - 50
     size.height = Float::MAX
     if @navView.nil?
       @navView = UIButton.alloc.initWithFrame([[0,0], [18,18]])
@@ -30,23 +30,26 @@ class ScheduleCell < PM::TableViewCell
     elsif type == 'academy'
       what = 'Academy: '+what
     end
+    puts what
+    wrap_p = NSMutableParagraphStyle.alloc.init
+    wrap_p.lineBreakMode = NSLineBreakByWordWrapping
     @whatStr = what.nsattributedstring({
       NSFontAttributeName => Font.Vitesse_Medium(19),
+      NSParagraphStyleAttributeName => wrap_p,
       UITextAttributeTextColor => Color.blue
     })
     @what = @whatStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     pgraph = NSMutableParagraphStyle.alloc.init
     pgraph.lineBreakMode = NSLineBreakByTruncatingTail
     @placeStr = @event['place'].nsattributedstring({
-      NSFontAttributeName => Font.Karla_Bold(17),
+      NSFontAttributeName => Font.Karla(16),
       UITextAttributeTextColor => Color.dark_gray
     })
-    size.width -= 40
+    size.width -= 25
     @place = @placeStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     return 10+10+8+@what.size.height+@place.size.height
   end
   def nav_action
-    puts 'nav_action'
     chrome = "comgooglemaps://"
     chromeURL = NSURL.URLWithString(chrome)
     destination = @event['lat'].to_s+','+@event['lon'].to_s
@@ -65,7 +68,7 @@ class ScheduleCell < PM::TableViewCell
   end
   def open_meetup_action
     if @event['type'] == 'meetup'
-      $APP.open_event(Event.new(@event), "schedule")
+      @controller.open_meetup(Event.new(@event))
     end
   end
   def singleTap(theEvent)
@@ -103,8 +106,8 @@ class ScheduleCell < PM::TableViewCell
     white.setFill
     bgPath.fill
 
-    @whatStr.drawInRect(CGRectMake(15, 12, size.width-70, Float::MAX))
-    @placeStr.drawInRect(CGRectMake(40, 17+@what.size.height, size.width-95, Float::MAX))
+    @whatStr.drawInRect(CGRectMake(15, 12, size.width-50, Float::MAX))
+    @placeStr.drawInRect(CGRectMake(40, 17+@what.size.height, size.width-75, Float::MAX))
     unless @navView.nil?
       frame = @navView.frame
       frame.origin.x = 15

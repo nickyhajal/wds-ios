@@ -297,13 +297,17 @@ class Disptch < PM::TableScreen
           if rsp.feed_contents.length > 0
             prepend_content rsp.feed_contents
           else
-            showNullMsg
+            if (@channel_type == 'meetup')
+              showNullMsg
+            end
           end
         else
           if rsp.feed_contents.length > 0
             update_content rsp.feed_contents
           else
-            showNullMsg
+            if (@channel_type == 'meetup')
+              showNullMsg
+            end
           end
         end
         if @scrollWhenLoaded

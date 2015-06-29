@@ -26,7 +26,7 @@ class MeetupsScreen < PM::Screen
     if @day.nil?
       days = Assets.get('days')
       day = days[0]
-      today = NSDate.new + 14.days
+      today = NSDate.new
       if today.string_with_format(:ymd) >= '2015-07-07'
         ends = ['th','st','nd','rd','th','th','th','th','th','th']
         dayNum = today.string_with_format("d").to_i
@@ -42,7 +42,7 @@ class MeetupsScreen < PM::Screen
     true
   end
   def will_appear
-    update_meetups
+    update_meetups(false)
     checkIfNullState
   end
   def setDay(day, dayString)
@@ -80,9 +80,9 @@ class MeetupsScreen < PM::Screen
     @meetup_screen.setMeetup meetup, from
     open_modal @meetup_screen
   end
-  def update_meetups
+  def update_meetups(scrollToTop = true)
     Assets.getSmart 'meetups' do |events, status|
-      @meetup_table.update_meetups events
+      @meetup_table.update_meetups events, scrollToTop
     end
   end
   def change_view_action(sender)
