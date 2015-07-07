@@ -1,5 +1,6 @@
 class DispatchCell < PM::TableViewCell
   attr_accessor :item, :layout, :width, :controller
+  attr_reader :authorStr, :timeStr, :likeStr, :commentStr
   def will_display
     updateImages
     self.setNeedsDisplay
@@ -12,6 +13,7 @@ class DispatchCell < PM::TableViewCell
     super
   end
   def updateImages
+
     unless @avatar.nil?
       @avatar.removeFromSuperview
       @avatar = nil
@@ -23,7 +25,9 @@ class DispatchCell < PM::TableViewCell
     shapeLayer.path = path.CGPath
     @avatar.layer.mask = shapeLayer
     @avatar.setImageWithURL @item.author.pic, placeholderImage:"default-avatar.png".uiimage
-    self.addSubview(@avatar)
+    unless @cardView.nil?
+      @cardView.addSubview(@avatar)
+    end
   end
   def prepareText
     @event = false
@@ -31,6 +35,8 @@ class DispatchCell < PM::TableViewCell
     size.width = @width - 32
     size.height = Float::MAX
     if @contentView.nil?
+      @cardView = DispatchCellInnerView.alloc.initWithFrame([[0,0], [self.frame.size.width, self.frame.size.height]])
+      @cardView.cell = self
       @contentView = UITextView.alloc.initWithFrame([[4,pad_top(45)], [size.width+16,0]]) if @contentView.nil?
       @contentView.setTextColor Color.coffee
       @contentView.setFont Font.Karla(15)
@@ -38,7 +44,8 @@ class DispatchCell < PM::TableViewCell
       @contentView.setEditable false
       @contentView.setTintColor Color.orange
       @contentView.scrollEnabled = false
-      self.addSubview @contentView
+      self.addSubview @cardView
+      @cardView.addSubview @contentView
     end
     @contentStr = @item.content.nsattributedstring({
       NSFontAttributeName => Font.Karla(15),
@@ -197,7 +204,34 @@ class DispatchCell < PM::TableViewCell
   def drawRect(rect)
     # Init
     prepareText
-    rect.size.width = @width
+
+    unless @cardView.nil?
+      @cardView.setFrame(rect)
+      @cardView.setNeedsDisplay
+    end
+    # if $IS8
+    #   @authorStr.drawAtPoint(authorRect.origin)
+    #   @timeStr.drawInRect(timeRect)
+    #   @likeStr.drawAtPoint(likeRect.origin)
+    #   @commentStr.drawAtPoint(commentRect.origin)
+    # else
+    #   puts 'draw7'
+    #   puts Color.orange
+    #   puts Font.Vitesse_Bold(15)
+    #   puts authorRect.inspect
+    #   @item.author.full_name.drawInRect(authorRect, withAttributes:{
+    #     NSFontAttributeName => Font.Vitesse_Bold(15),
+    #     NSForegroundColorAttributeName => Color.orange
+    #   })
+    # end
+  end
+
+end
+
+class DispatchCellInnerView < UIView
+  attr_accessor :cell
+  def drawRect(rect)
+    rect.size.width = @cell.width
     size = rect.size
     textSize = CGSizeMake(size.width - 32, Float::MAX)
     # Colors
@@ -213,14 +247,13 @@ class DispatchCell < PM::TableViewCell
 
     # Card
     cardBg.setFill
-    cardRect = CGRectMake(3, pad_top(0), size.width-6, size.height-4-item.top_padding)
+    cardRect = CGRectMake(3, @cell.pad_top(0), size.width-6, size.height-4-@cell.item.top_padding)
     cardW = cardRect.size.width
     cardPath = UIBezierPath.bezierPathWithRoundedRect(cardRect, cornerRadius:0.0)
     cardPath.fill
-    @authorStr.drawAtPoint(authorRect.origin)
-    @timeStr.drawInRect(timeRect)
-    @likeStr.drawAtPoint(likeRect.origin)
-    @commentStr.drawAtPoint(commentRect.origin)
+    @cell.authorStr.drawAtPoint(@cell.authorRect.origin)
+    @cell.timeStr.drawInRect(@cell.timeRect)
+    @cell.likeStr.drawAtPoint(@cell.likeRect.origin)
+    @cell.commentStr.drawAtPoint(@cell.commentRect.origin)
   end
-
 end

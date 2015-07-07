@@ -31,7 +31,6 @@ class CheckInScreen < PM::Screen
     end
   end
   def auto_change
-    puts @layout.get(:auto_switch).isOn
     Me.setSetting('auto_checkin', @layout.get(:auto_switch).isOn)
   end
   def on_disappear

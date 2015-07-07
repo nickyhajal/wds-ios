@@ -139,7 +139,7 @@ class PlaceCell < PM::TableViewCell
   end
   def more_rect
     size = self.frame.size
-    if @addStr.nil?
+    if !@addStr.nil?
       width = size.width - @addr.size.width
     else
       width = size.width - 50

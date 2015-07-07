@@ -278,9 +278,9 @@ class PlaceLayout < MK::Layout
       else
         pinView = MKAnnotationView.alloc.initWithAnnotation(annotation, reuseIdentifier:"LocationView")
         pinView.canShowCallout = true
-        rightButton = UIButton.alloc.initWithFrame(CGRectMake(0,0,30,30))
+        rightButton = UIButton.alloc.initWithFrame(CGRectMake(0,0,40,40))
         rightButton.addTarget @controller, action:'go_to_directions_action', forControlEvents:UIControlEventTouchDown
-        rightButton.setImage(Ion.image(:ios_navigate, color:"#B0BA1E".uicolor), forState:UIControlStateNormal)
+        rightButton.setImage(Ion.imageByFont(:ios_navigate, size:24.5, color:"#B0BA1E".uicolor), forState:UIControlStateNormal)
         pinView.rightCalloutAccessoryView = rightButton
       end
       pinView

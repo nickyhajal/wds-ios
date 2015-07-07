@@ -11,6 +11,7 @@ class Comment
         email: @email
       }
       atn[:user_name] = @user_name unless @user_name.nil?
+      atn[:user_id] = @user_id unless @user_id.nil?
       atn[:pic] = @pic unless @pic.nil?
       @author = Attendee.new(atn)
     end

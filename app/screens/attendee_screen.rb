@@ -1,6 +1,9 @@
 class AttendeeScreen < PM::Screen
   status_bar :light
   attr_accessor :from
+  def on_init
+    @notes_screen = NotesScreen.new(nav_bar: false)
+  end
   def on_load
     @layout = AttendeeLayout.new(root: self.view)
     @atn = false
@@ -24,6 +27,10 @@ class AttendeeScreen < PM::Screen
       @atn = atn
       @layout.updateAttendee @atn
     end
+  end
+  def show_notes_action
+    @notes_screen.setAttendee(@atn)
+    open_modal @notes_screen
   end
   def back_action
     close_screen

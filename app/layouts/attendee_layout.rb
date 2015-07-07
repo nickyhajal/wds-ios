@@ -18,6 +18,9 @@ class AttendeeLayout < MK::Layout
       end
       add UIScrollView, :scrollview do
         add UITextView, :name
+        add UIButton, :notes_btn do
+            add UIImageView, :notes_open
+          end
         add UIView, :line_after_name
         add ButtonList, :connect_buttons
         add UITextView, :about_title
@@ -36,6 +39,32 @@ class AttendeeLayout < MK::Layout
   end
   def main_style
     background_color Color.light_tan
+  end
+  def notes_btn_style
+    target.addTarget @controller, action:'show_notes_action', forControlEvents:UIControlEventTouchDown
+    constraints do
+      top.equals(:name, :bottom).minus(5)
+      left.equals(:name)
+      height 32
+      width.equals(:name)
+    end
+    contentHorizontalAlignment UIControlContentHorizontalAlignmentLeft
+    contentEdgeInsets UIEdgeInsetsMake(0, 10, 0, 0)
+    backgroundColor Color.light_gray(0.4)
+    titleColor Color.orange
+    font Font.Karla_Bold(14)
+    reapply do
+      title "Your Notes on "+@atn.first_name
+    end
+  end
+  def notes_open_style
+    constraints do
+      right 0
+      top 6
+      height 20
+      width 18
+    end
+    target.setImage Ion.imageByFont(:ios_arrow_forward, size:24, color:Color.orange)
   end
   def header_style
     background_color Color.green
@@ -162,7 +191,7 @@ class AttendeeLayout < MK::Layout
   end
   def name_style
     constraints do
-      top 110
+      top 125
       left 15
       @name_height = height 0
       width.equals(:superview).minus(40)
@@ -186,7 +215,7 @@ class AttendeeLayout < MK::Layout
       left.equals(:name)
       width.equals(:name)
       height 6
-      top.equals(:name, :bottom).plus(5)
+      top.equals(:notes_btn, :bottom).plus(5)
     end
   end
   def connect_buttons_style

@@ -4,6 +4,10 @@ class AttendeeSearchResults < PM::TableScreen
   row_height :auto, estimated: 44
   def on_load
     @attendees = []
+    @width = 0
+  end
+  def on_appear
+    @width = self.tableView.frame.size.width
   end
   def table_data
     [{
@@ -14,6 +18,7 @@ class AttendeeSearchResults < PM::TableScreen
           action: :show_atn_profile_action,
           arguments: { atn: atn },
           style: {
+            width: self.tableView.frame.size.width,
             name: atn['first_name']+' '+atn['last_name'],
             avatar: atn['user_id'],
             friend: !Me.isFriend(atn['user_id'])

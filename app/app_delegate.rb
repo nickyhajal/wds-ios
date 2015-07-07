@@ -1,6 +1,8 @@
 class AppDelegate < PM::Delegate
 	attr_accessor :login, :meetup, :home, :meetups
 	def on_load(app, options)
+		$IS7 = (UIDevice.currentDevice.systemVersion.floatValue < 8.0)
+		$IS8 = (UIDevice.currentDevice.systemVersion.floatValue >= 8.0)
 		$APP = self
 		@tab_bar = false
 		init_api
@@ -11,6 +13,8 @@ class AppDelegate < PM::Delegate
 		init_screens
 		open_loading
 		## Used for testing walkthrough ## Store.set('walkthrough', '0')
+		## Used for testing walkthrough
+		Store.set('walkthrough', '8')
 		step = Me.checkWalkthrough
 		if step < 7
 			open_walkthrough step
@@ -47,7 +51,7 @@ class AppDelegate < PM::Delegate
 		@loading = LoadingScreen.new(nav_bar:false)
 		@walkthrough = WalkthroughScreen.new(nav_bar:false)
 		if BW::Location.enabled? && BW::Location.authorized?
-			@explore.start_location_services
+			@explore.location_ping
 		end
 	end
 	def init_api
@@ -74,7 +78,9 @@ class AppDelegate < PM::Delegate
 		})
 		tab_bar = UITabBar.appearance
 		tab_bar.setBarStyle UIBarStyleBlack
-		tab_bar.setTranslucent false
+		if $IS8
+			tab_bar.setTranslucent false
+		end
 		tab_bar.setBarTintColor "#21170A".uicolor
 		tab_bar.setTintColor UIColor.blackColor
 		tab_bar_item = UITabBarItem.appearance
@@ -102,7 +108,9 @@ class AppDelegate < PM::Delegate
 	end
 	def open_tabs
 		if @tab_bar
+			@tab_bar.translucent = false
 			open_root_screen @tab_bar
+			open_notification_content_if_exists
 		else
 			open_loading
 			Assets.sync do |err|
@@ -139,15 +147,22 @@ class AppDelegate < PM::Delegate
 		Me.saveDeviceToken device_token
 	end
 	def application(application, didReceiveRemoteNotification: data)
-		link = data[:link]
-		content = BW::JSON.parse(data[:content])
-		if link[0] == '~'
-			open_tab(@home)
-			@home.open_profile content[:from_id]
-		elsif link.include? 'dispatch'
-			id = link.split('/').last
-			open_tab(@home)
-			@home.open_dispatch id, is_id: true
+		@notification_data = data
+	end
+	def open_notification_content_if_exists
+		if !@notification_data.nil? && @notification_data
+			data = @notification_data
+			link = data[:link]
+			content = BW::JSON.parse(data[:content])
+			if link[0] == '~'
+				open_tab(@home)
+				@home.open_profile content[:from_id]
+			elsif link.include? 'dispatch'
+				id = link.split('/').last
+				open_tab(@home)
+				@home.open_dispatch id, is_id: true
+			end
+			@notification_data = false
 		end
 	end
 	def offline_alert

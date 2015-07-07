@@ -35,7 +35,7 @@ Motion::Project::App.setup do |app|
   app.name = 'WDS App'
   app.frameworks += ["QuartzCore", "CoreImage"]
   app.identifier = 'com.worlddominationsummit.wdsios'
-  app.version = '1.2'
+  app.version = '1.3'
   app.development do
     app.provisioning_profile = '/nky/secure_files/WDS_App_Dev.mobileprovision'
     app.codesign_certificate = 'iPhone Developer: Nick Hajal (TS4DVF4YGA)'
@@ -47,9 +47,8 @@ Motion::Project::App.setup do |app|
   end
   app.entitlements['application-identifier'] = "#{app.seed_id}.#{app.identifier}"
   app.info_plist['UIViewControllerBasedStatusBarAppearance'] = false
-  app.info_plist['UIRequiredDeviceCapabilities'] = false
-  app.info_plist['NSLocationAlwaysUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers'
-  app.info_plist['NSLocationWhenInUseUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers'
+  app.info_plist['NSLocationAlwaysUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers.'
+  app.info_plist['NSLocationWhenInUseUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers.'
   app.libs += ['/usr/lib/libsqlite3.dylib']
   app.vendor_project 'vendor/FMDB', :static
   app.interface_orientations = [:portrait]

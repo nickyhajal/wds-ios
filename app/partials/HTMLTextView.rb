@@ -4,7 +4,7 @@ class HTMLTextView < UIWebView
     self.delegate = self
   end
   def setText(str)
-    str = str.gsub("\n", "<br>")
+    str = str.gsub("\n", "<br>").gsub("\\'", "\'").gsub('\\"', '\"')
     str = "<html><head></head><body><div id='content'>"+styles+str+"</div></body></html>"
     str = process_links(str)
     self.loadHTMLString(str, baseURL:NSURL.fileURLWithPath(NSBundle.mainBundle.bundlePath));

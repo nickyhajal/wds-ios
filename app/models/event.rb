@@ -1,8 +1,17 @@
 class Event
   attr_accessor :event_id, :what, :place, :descr, :start, :end, :note, :hosts, :lat, :lon, :address, :who, :active, :ignored, :num_rsvps, :max, :startTime, :startDay, :startStr, :dayStr, :endTime, :type, :ints, :because, :becauseStr
   def initialize(event)
+    @who = ""
+    @descr = ""
+    @place = ""
+    @start = ""
+    @address = ""
+    @lat = 0.0
+    @lon = 0.0
     event.each do |key, value|
-      self.instance_variable_set("@#{key}".to_sym, value)
+      unless value.nil?
+        self.instance_variable_set("@#{key}".to_sym, value)
+      end
     end
     if self.respond_to?('hosts') && self.hosts[0].is_a?(Hash)
       _hosts = []

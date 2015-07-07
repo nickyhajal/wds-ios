@@ -107,13 +107,13 @@ module Me
       Me.checkLoggedIn
     end
     def isFriend(user_id)
-      get('connected_ids').include? user_id
+      get('connected_ids').include? user_id || Me.atn.user_id.to_i == user_id.to_i
     end
     def isAttendingEvent(event)
       if event.type == 'program'
         true
       else
-        get('rsvps').include? event.event_id
+        get('rsvps').include? event.event_id.to_i
       end
     end
     def likesFeedItem(item_id)
@@ -151,6 +151,7 @@ module Me
       unless atn.is_a? Integer
         user_id = atn.user_id
       end
+      return if Me.atn.user_id.to_i == user_id.to_i
       friends = Me.get('connected_ids')
       if Me.isFriend(user_id)
         Api.delete 'user/connection', {to_id: user_id} do |rsp|

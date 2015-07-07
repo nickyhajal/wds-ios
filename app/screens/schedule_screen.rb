@@ -39,7 +39,7 @@ class ScheduleScreen < PM::Screen
     elm = @layout.get(:null_msg)
     dayStr = @schedule_table.dayStr.split(', ')[1]
     if @schedule_table.events.length == 0
-      elm.text = "You don't have anything schedule for "+dayStr+"...yet!"
+      elm.text = "You don't have anything scheduled for "+dayStr+"...yet!"
       elm.hidden = false
     else
       elm.hidden = true

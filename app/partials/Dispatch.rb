@@ -307,6 +307,8 @@ class Disptch < PM::TableScreen
           else
             if (@channel_type == 'meetup')
               showNullMsg
+            else
+              update_content([])
             end
           end
         end

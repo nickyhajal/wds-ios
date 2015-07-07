@@ -7,12 +7,11 @@ module Api
   ####
   ####
   if Device.simulator?
-    @@url = 'http://wds.nky/api/'
-    # @@url = 'http://worlddominationsummit.com/api/'
+    # @@url = 'http://wds.nky/api/'
+    @@url = 'http://worlddominationsummit.com/api/'
   else
     @@url = 'http://worlddominationsummit.com/api/'
   end
-  # @@url = 'http://wds.nky/api/'
   class << self
     attr_accessor :url
     def init

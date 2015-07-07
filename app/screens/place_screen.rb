@@ -27,13 +27,15 @@ class PlaceScreen < PM::Screen
   def go_to_directions_action
     chrome = "comgooglemaps://"
     chromeURL = NSURL.URLWithString(chrome)
-    destination = @event.lat.to_s+','+@event.lon.to_s
+    lat = @place[:lat].to_s
+    lon = @place[:lon].to_s
+    destination = lat+','+lon
     if UIApplication.sharedApplication.canOpenURL(chromeURL)
       UIApplication.sharedApplication.openURL(NSURL.URLWithString(chrome+'?daddr='+destination+'&directionsmode=walking'))
     else
-      place = MKPlacemark.alloc.initWithCoordinate(CLLocationCoordinate2DMake(@event.lat, @event.lon), addressDictionary: nil)
+      place = MKPlacemark.alloc.initWithCoordinate(CLLocationCoordinate2DMake(lat, lon), addressDictionary: nil)
       item = MKMapItem.alloc.initWithPlacemark(place)
-      item.setName(@event.place)
+      item.setName(@place[:name])
       currentLocationMapItem = MKMapItem.mapItemForCurrentLocation
       launchOptions = {
         MKLaunchOptionsDirectionsModeKey => MKLaunchOptionsDirectionsModeWalking

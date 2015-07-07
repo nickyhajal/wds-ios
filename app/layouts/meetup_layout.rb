@@ -435,9 +435,11 @@ class MeetupLayout < MK::Layout
     textView = target
     reapply do
       who = @event.who
-      text "A meetup for " + who[0, 1].downcase + who[1..-1]
-      newSize =  textView.sizeThatFits(CGSizeMake(fixedWidth, Float::MAX))
-      @who_height.equals(newSize.height)
+      if who.length() > 0
+        text "A meetup for " + who[0, 1].downcase + who[1..-1]
+        newSize =  textView.sizeThatFits(CGSizeMake(fixedWidth, Float::MAX))
+        @who_height.equals(newSize.height)
+      end
     end
   end
   def rsvps_style
@@ -613,9 +615,9 @@ class MeetupLayout < MK::Layout
       else
         pinView = MKAnnotationView.alloc.initWithAnnotation(annotation, reuseIdentifier:"LocationView")
         pinView.canShowCallout = true
-        rightButton = UIButton.alloc.initWithFrame(CGRectMake(0,0,30,30))
+        rightButton = UIButton.alloc.initWithFrame(CGRectMake(0,0,45,45))
         rightButton.addTarget @controller, action:'go_to_directions_action', forControlEvents:UIControlEventTouchDown
-        rightButton.setImage(Ion.image(:ios_navigate, color:"#B0BA1E".uicolor), forState:UIControlStateNormal)
+        rightButton.setImage(Ion.imageByFont(:ios_navigate, size:24.5, color:"#B0BA1E".uicolor), forState:UIControlStateNormal)
         pinView.rightCalloutAccessoryView = rightButton
       end
       pinView

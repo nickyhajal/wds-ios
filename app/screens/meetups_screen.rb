@@ -10,11 +10,13 @@ class MeetupsScreen < PM::Screen
         selected: selected,
         unselected: unselected
       },
-      title: 'Meetups'
+      title: '  Meetups  '
     })
+    self.tabBarItem.titlePositionAdjustment = UIOffsetMake(8, 0)
     @meetup_screen = MeetupScreen.new(nav_bar: false)
   end
   def on_load
+
     @layout = MeetupsLayout.new(root: self.view)
     @layout.setController self
     @meetup_table = MeetupListing.new

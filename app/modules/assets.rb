@@ -6,7 +6,6 @@ module Assets
         'me' => 0,
         'events' => 5,
         'interests' => 300,
-        'speakers' => 300,
         'places' => 300
       }
       @aliases = {

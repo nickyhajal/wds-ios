@@ -30,7 +30,6 @@ class ScheduleCell < PM::TableViewCell
     elsif type == 'academy'
       what = 'Academy: '+what
     end
-    puts what
     wrap_p = NSMutableParagraphStyle.alloc.init
     wrap_p.lineBreakMode = NSLineBreakByWordWrapping
     @whatStr = what.nsattributedstring({
@@ -105,6 +104,10 @@ class ScheduleCell < PM::TableViewCell
     bgPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 0, rect.size.width, rect.size.height), cornerRadius:0.0)
     white.setFill
     bgPath.fill
+
+    linePath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, rect.size.height-1, rect.size.width, 1), cornerRadius:0.0)
+    tan.setFill
+    linePath.fill
 
     @whatStr.drawInRect(CGRectMake(15, 12, size.width-50, Float::MAX))
     @placeStr.drawInRect(CGRectMake(40, 17+@what.size.height, size.width-75, Float::MAX))

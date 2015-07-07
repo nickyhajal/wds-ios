@@ -1,4 +1,5 @@
 class AttendeeSearchCell < PM::TableViewCell
+  attr_accessor :width
   def name=(name)
     @name_view ||= begin
       v = add UILabel.alloc.initWithFrame([[ 50, 7 ], [ self.frame.size.width-54-30, 30 ]])
@@ -23,7 +24,7 @@ class AttendeeSearchCell < PM::TableViewCell
   def friend=(show)
     @btn_view ||= begin
       frame = self.frame
-      btn = add UIButton.alloc.initWithFrame([[ frame.size.width+15, 8 ], [ 28, 28]])
+      btn = add UIButton.alloc.initWithFrame([[ @width-28-4, 8 ], [ 28, 28]])
       btn.setImage Ion.image(:person_add, color:Color.blue), forState:UIControlStateNormal
       btn.addTarget self, action: 'friend_action', forControlEvents:UIControlEventTouchDown
       btn
