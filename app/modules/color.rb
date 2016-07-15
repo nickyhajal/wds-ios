@@ -11,6 +11,7 @@ module Color
         tan: "#EAEADC",
         light_tan: "#FCFCFA",
         yellowish_tan: "#F2F2E8",
+        dark_yellow_tan: "#D6D6CC",
         bright_tan: "#FCFCF3",
         gray: "#8A8A7D",
         light_gray: "#D8D8D4",

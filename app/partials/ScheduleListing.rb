@@ -20,6 +20,37 @@ class ScheduleListing < PM::TableScreen
     @day = day
     @dayStr = dayStr
   end
+  # def scrollToHour
+  #   today = NSDate.new.string_with_format(:ymd)
+  #   now = NSDate.new.string_with_format(:iso8601).sub(" ", "T")+"Z"
+  #   # today = '2015-07-10'
+  #   # now = "2015-07-10T12:39:28.067Z"
+  #   count = 0
+  #   found = 0
+  #   section = 0
+  #   if (today == @day)
+  #     if @events.length > 0
+  #       @events.each do |event|
+  #         puts event
+  #         if (section != event[:section])
+  #           section = event[:section]
+  #           count += 1
+  #         end
+  #         start = event[:cells][0][:arguments][:event]["start"]
+  #         puts start
+  #         puts now
+  #         if start > now
+  #           found = count
+  #           break
+  #         end
+  #       end
+  #       0.1.seconds.later do
+  #         puts found
+  #         self.tableView.scrollToRowAtIndexPath(NSIndexPath.indexPathForRow(0, inSection: found), atScrollPosition: UITableViewScrollPositionTop, animated: true)
+  #       end
+  #     end
+  #   end
+  # end
   def make_cell(event)
     @width ||= begin
       @layout.super_width
@@ -53,7 +84,7 @@ class ScheduleListing < PM::TableScreen
       day = {}
       day[:title] = key
       day[:cells] = val
-      day[:title_view] = MeetupSectionHeading
+      day[:title_view] = EventSectionHeading
       final << day
     end
     @events = final

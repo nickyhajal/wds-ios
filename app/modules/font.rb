@@ -7,6 +7,8 @@ module Font
       UIFont.fontWithName(font, size:size)
     end
     def method_missing(name, *args, &block)
+      # puts '>> MET MISS'
+      # puts name
       unless args.empty?
         args = [name] + args
         self.send('get', args)

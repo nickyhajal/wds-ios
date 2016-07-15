@@ -12,7 +12,8 @@ class ScheduleScreen < PM::Screen
     })
   end
   def on_load
-    @meetup_screen = MeetupScreen.new(nav_bar: false)
+    set_nav_bar_button :right, title: "Registration", action: :open_reg
+    @event_screen = EventScreen.new(nav_bar: false)
     @layout = ScheduleLayout.new(root: self.view)
     @schedule_table = ScheduleListing.new
     @layout.schedule_view = @schedule_table.view
@@ -21,19 +22,45 @@ class ScheduleScreen < PM::Screen
     @schedule_table.controller = self
     @layout.build
     if @day.nil?
-      days = Assets.get('days')
-      day = days[0]
-      setDay(day[:day], day[:dayStr])
+      setDefaultDay
     end
     true
   end
-  def open_meetup(meetup)
-    @meetup_screen.setMeetup(meetup)
-    open_modal @meetup_screen
+  def setDefaultDay
+    days = Assets.get('days')
+
+    # Set the default day to August 11th, 2016
+    day = days[0]
+    days.each do |d|
+      if d[:day] == '2016-08-12'
+        day = d
+      end
+    end
+
+    # If we are between the dates of WDS, start showing the current day by default
+    today = NSDate.new+10.hours
+    if today.string_with_format(:ymd) >= '2016-08-08' && today.string_with_format(:ymd) < '2016-08-16'
+      ends = ['th','st','nd','rd','th','th','th','th','th','th']
+      dayNum = today.string_with_format("d").to_i
+      if (dayNum % 100) >= 11 && (dayNum % 100) <= 13
+         dayNum = dayNum.to_s + 'th'
+      else
+         dayNum = dayNum.to_s + ends[dayNum % 10]
+       end
+      day = {day: today.string_with_format(:ymd), dayStr: today.string_with_format("EEEE")+", "+today.string_with_format("MMMM")+" "+dayNum}
+    end
+    setDay(day[:day], day[:dayStr])
+  end
+  def open_event(event)
+    @event_screen.setEvent(event)
+    open_modal @event_screen
   end
   def will_appear
     update_schedule
     checkIfNullState
+  end
+  def open_reg
+    open RegistrationScreen
   end
   def checkIfNullState
     elm = @layout.get(:null_msg)
@@ -45,10 +72,15 @@ class ScheduleScreen < PM::Screen
       elm.hidden = true
     end
   end
-  def setDay(day, dayStr)
-    @schedule_table.setDay(day, dayStr)
-    update_schedule
-    checkIfNullState
+  def setDay(day, dayString)
+    if @day != day
+      @day = day
+      @schedule_table.setDay day, dayString
+      @layout.get(:day_selector).setDay(dayString)
+      update_schedule
+      #@schedule_table.scrollToHour
+      checkIfNullState
+    end
   end
   def update_schedule
     Assets.getSmart 'schedule' do |events, status|

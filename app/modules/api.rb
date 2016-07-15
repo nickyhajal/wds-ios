@@ -7,10 +7,10 @@ module Api
   ####
   ####
   if Device.simulator?
-    # @@url = 'http://wds.nky/api/'
-    @@url = 'http://worlddominationsummit.com/api/'
+    @@url = 'http://wds.nky/api/'
+    # @@url = 'https://worlddominationsummit.com/api/'
   else
-    @@url = 'http://worlddominationsummit.com/api/'
+    @@url = 'https://worlddominationsummit.com/api/'
   end
   class << self
     attr_accessor :url
@@ -38,6 +38,8 @@ module Api
         params['user_token'] = Me.user_token
         params['nopic'] = 1
       end
+      puts url
+      puts params
       @client.send method, url, params do |response|
         block.call Response.new(response)
       end

@@ -109,9 +109,12 @@ module Me
     def isFriend(user_id)
       get('connected_ids').include? user_id || Me.atn.user_id.to_i == user_id.to_i
     end
+    def hasPermissionForEvent(event)
+      (event.for_type == 'all') || (event.for_type == Me.atn.ticket_type)
+    end
     def isAttendingEvent(event)
       if event.type == 'program'
-        true
+        hasPermissionForEvent(event)
       else
         get('rsvps').include? event.event_id.to_i
       end

@@ -16,7 +16,7 @@ class HomeScreen < PM::Screen
     UIApplication.sharedApplication.setStatusBarStyle UIStatusBarStyleLightContent
   end
   def on_load
-    @meetup_screen = MeetupScreen.new(nav_bar: false)
+    @event_screen = EventScreen.new(nav_bar: false)
     @dispatch_screen = DispatchItemScreen.new(nav_bar: false)
     @attendee_screen = AttendeeScreen.new(nav_bar: false)
     @filters_screen = FiltersScreen.new(nav_bar: false)
@@ -45,9 +45,9 @@ class HomeScreen < PM::Screen
     @post_screen.dispatch = @dispatch
     true
   end
-  def open_meetup(meetup)
-    @meetup_screen.setMeetup(meetup)
-    open_modal @meetup_screen
+  def open_event(event)
+    @event_screen.setEvent(event)
+    open_modal @event_screen
   end
   def open_profile(user_id)
     @attendee_screen.setAttendee user_id
@@ -104,7 +104,7 @@ class HomeScreen < PM::Screen
     stored[:twitter] = filters.get(:twitter_selector).selectedSegmentIndex
     stored[:following] = filters.get(:friends_selector).selectedSegmentIndex
     stored[:communities] = filters.get(:communities_selector).selectedSegmentIndex
-    stored[:meetups] = filters.get(:meetups_selector).selectedSegmentIndex
+    stored[:events] = filters.get(:events_selector).selectedSegmentIndex
     Store.set('dispatch_filters', stored, true)
     @dispatch.setFilters(stored)
     @filters_screen.close_screen

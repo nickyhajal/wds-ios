@@ -1,5 +1,5 @@
 class ScheduleCell < PM::TableViewCell
-  attr_accessor :event, :width, :controller
+  attr_accessor :event, :width, :controller, :what, :whatStr, :placeStr
   def initWithStyle(style, reuseIdentifier:id)
     singleFingerTap = UITapGestureRecognizer.alloc.initWithTarget(self, action:'singleTap:')
     self.addGestureRecognizer(singleFingerTap)
@@ -10,6 +10,11 @@ class ScheduleCell < PM::TableViewCell
     self.setNeedsDisplay
   end
   def getHeight
+    if @cardView.nil?
+      @cardView = ScheduleCellInnerView.alloc.initWithFrame([[0,0], [self.frame.size.width, self.frame.size.height]])
+      @cardView.cell = self
+      self.addSubview(@cardView)
+    end
     size = self.frame.size
     size.width = @width - 50
     size.height = Float::MAX
@@ -17,23 +22,21 @@ class ScheduleCell < PM::TableViewCell
       @navView = UIButton.alloc.initWithFrame([[0,0], [18,18]])
       @navView.setImage Ion.image(:navigate, color:Color.orangish_gray), forState:UIControlStateNormal
       @navView.addTarget self, action: 'nav_action', forControlEvents: UIControlEventTouchDown
-      self.addSubview @navView
+      @cardView.addSubview @navView
       @moreView = UIButton.alloc.initWithFrame([[0,0], [24,24]])
       @moreView.setImage Ion.image(:ios_arrow_forward, color:Color.orange), forState:UIControlStateNormal
-      @moreView.addTarget self, action: 'open_meetup_action', forControlEvents: UIControlEventTouchDown
-      self.addSubview @moreView
+      @moreView.addTarget self, action: 'open_event_action', forControlEvents: UIControlEventTouchDown
+      @cardView.addSubview @moreView
     end
     what = @event['what']
     type = @event['type']
-    if type == 'meetup'
-      what = 'Meetup: '+what
-    elsif type == 'academy'
-      what = 'Academy: '+what
+    if EventTypes.types.include?(type)
+      what = EventTypes.byId(type)[:single]+': '+what
     end
     wrap_p = NSMutableParagraphStyle.alloc.init
     wrap_p.lineBreakMode = NSLineBreakByWordWrapping
     @whatStr = what.nsattributedstring({
-      NSFontAttributeName => Font.Vitesse_Medium(19),
+      NSFontAttributeName => Font.Vitesse_Medium(17),
       NSParagraphStyleAttributeName => wrap_p,
       UITextAttributeTextColor => Color.blue
     })
@@ -65,9 +68,9 @@ class ScheduleCell < PM::TableViewCell
       MKMapItem.openMapsWithItems([currentLocationMapItem, item], launchOptions: launchOptions)
     end
   end
-  def open_meetup_action
-    if @event['type'] == 'meetup'
-      @controller.open_meetup(Event.new(@event))
+  def open_event_action
+    if EventTypes.types.include?(@event['type'])
+      @controller.open_event(Event.new(@event))
     end
   end
   def singleTap(theEvent)
@@ -80,7 +83,7 @@ class ScheduleCell < PM::TableViewCell
 
     if x > 10 && x < width - 30
       if y > 10 && y < @what.size.height+10 && x < @what.size.width+10
-        open_meetup_action
+        open_event_action
       end
       if y > @what.size.height+10 && y < height - 10 && x < @place.size.width+10
         nav_action
@@ -91,8 +94,33 @@ class ScheduleCell < PM::TableViewCell
     # Init
     @_event = Event.new(@event)
     height = getHeight
+    unless @cardView.nil?
+      @cardView.setFrame(rect)
+      @cardView.setNeedsDisplay
+    end
     size = rect.size
+    unless @navView.nil?
+      frame = @navView.frame
+      frame.origin.x = 15
+      frame.origin.y = 19+@what.size.height
+      @navView.setFrame frame
+      if (EventTypes.types.include?(@event['type']))
+        frame = @moreView.frame
+        frame.origin.x = @width-28
+        frame.origin.y = height/2 - 10
+        @moreView.setFrame frame
+        @moreView.setHidden false
+      else
+        @moreView.setHidden true
+      end
+    end
 
+  end
+end
+
+class ScheduleCellInnerView < UIView
+  attr_accessor :cell
+  def drawRect(rect)
     # Colors
     orange = Color.orange
     white = Color.white
@@ -109,22 +137,7 @@ class ScheduleCell < PM::TableViewCell
     tan.setFill
     linePath.fill
 
-    @whatStr.drawInRect(CGRectMake(15, 12, size.width-50, Float::MAX))
-    @placeStr.drawInRect(CGRectMake(40, 17+@what.size.height, size.width-75, Float::MAX))
-    unless @navView.nil?
-      frame = @navView.frame
-      frame.origin.x = 15
-      frame.origin.y = 19+@what.size.height
-      @navView.setFrame frame
-      if (@event['type'] == "meetup")
-        frame = @moreView.frame
-        frame.origin.x = @width-28
-        frame.origin.y = height/2 - 10
-        @moreView.setFrame frame
-        @moreView.setHidden false
-      else
-        @moreView.setHidden true
-      end
-    end
+    @cell.whatStr.drawInRect(CGRectMake(15, 12, size.width-50, Float::MAX))
+    @cell.placeStr.drawInRect(CGRectMake(40, 17+@cell.what.size.height, size.width-75, Float::MAX))
   end
 end

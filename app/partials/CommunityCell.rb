@@ -1,5 +1,5 @@
 class CommunityCell < PM::TableViewCell
-  attr_accessor :community, :layout, :width, :controller
+  attr_accessor :community, :layout, :width, :controller, :nameStr, :membersStr, :joinStr, :member
   def will_display
     self.setNeedsDisplay
   end
@@ -11,6 +11,11 @@ class CommunityCell < PM::TableViewCell
     super
   end
   def prepareText
+    if @cardView.nil?
+      @cardView = CommunityCellInnerView.alloc.initWithFrame([[0,0], [self.frame.size.width, self.frame.size.height]])
+      @cardView.cell = self
+      self.addSubview(@cardView)
+    end
     @nameStr = @community.interest.nsattributedstring({
       NSFontAttributeName => Font.Karla_Bold(16),
       UITextAttributeTextColor => Color.dark_gray
@@ -68,29 +73,10 @@ class CommunityCell < PM::TableViewCell
   def drawRect(rect)
     # Init
     prepareText
-    size = rect.size
-    bg = Color.light_tan
-    btnBg = @member ? Color.green : Color.orange
-    cardBg = Color.white
-    lineBg = Color.light_gray(0.3)
-
-    # Background
-    bgPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 0, size.width, size.height), cornerRadius:0.0)
-    bg.setFill
-    bgPath.fill
-    @nameStr.drawAtPoint(nameRect.origin)
-    @membersStr.drawAtPoint(membersRect.origin)
-
-    # Join
-    joinBtnPath = UIBezierPath.bezierPathWithRoundedRect(joinRect, cornerRadius:0.0)
-    btnBg.setFill
-    joinBtnPath.fill
-    @joinStr.drawAtPoint(CGPointMake(joinRect.origin.x+((joinRect.size.width/2) - (@joinStr.size.width/2)), (joinRect.size.height/2)-(@joinStr.size.height/2)))
-
-    # Line
-    linePath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, rect.size.height-1, rect.size.width, 1), cornerRadius:0.0)
-    lineBg.setFill
-    linePath.fill
+    unless @cardView.nil?
+      @cardView.setFrame(rect)
+      @cardView.setNeedsDisplay
+    end
   end
 
   def join_action
@@ -99,4 +85,33 @@ class CommunityCell < PM::TableViewCell
     end
   end
 
+end
+
+class CommunityCellInnerView < UIView
+  attr_accessor :cell
+  def drawRect(rect)
+    size = rect.size
+    bg = Color.light_tan
+    btnBg = @cell.member ? Color.green : Color.orange
+    cardBg = Color.white
+    lineBg = Color.light_gray(0.3)
+
+    # Background
+    bgPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 0, size.width, size.height), cornerRadius:0.0)
+    bg.setFill
+    bgPath.fill
+    @cell.nameStr.drawAtPoint(@cell.nameRect.origin)
+    @cell.membersStr.drawAtPoint(@cell.membersRect.origin)
+
+    # Join
+    joinBtnPath = UIBezierPath.bezierPathWithRoundedRect(@cell.joinRect, cornerRadius:0.0)
+    btnBg.setFill
+    joinBtnPath.fill
+    @cell.joinStr.drawAtPoint(CGPointMake(@cell.joinRect.origin.x+((@cell.joinRect.size.width/2) - (@cell.joinStr.size.width/2)), (@cell.joinRect.size.height/2)-(@cell.joinStr.size.height/2)))
+
+    # Line
+    linePath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, rect.size.height-1, rect.size.width, 1), cornerRadius:0.0)
+    lineBg.setFill
+    linePath.fill
+  end
 end

@@ -9,7 +9,7 @@ class ScheduleLayout < MK::Layout
     root :main do
       add schedule_view, :schedule
       add UITextView, :null_msg
-      add MeetupDaySelect, :day_selector
+      add EventDaySelect, :day_selector
     end
   end
   def super_height
@@ -30,6 +30,7 @@ class ScheduleLayout < MK::Layout
   end
   def null_msg_style
     hidden true
+    editable false
     text "Nothing scheduled...yet!"
     font Font.Vitesse_Medium(17)
     textColor Color.orangish_gray
@@ -48,10 +49,14 @@ class ScheduleLayout < MK::Layout
       left 0
       right "100%"
       top 100
-      height.equals(:superview).minus(100)
+      if $IS8
+        height.equals(:superview).minus(100)
+      else
+        height.equals(:superview).minus(148)
+      end
     end
   end
   def main_style
-    background_color "#000000".uicolor
+    background_color "#F2F2EA".uicolor
   end
 end

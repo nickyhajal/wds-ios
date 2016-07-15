@@ -88,7 +88,11 @@ class ExploreLayout < MK::Layout
       left 0
       right "100%"
       @listTop = top 146
-      @listHeight = height.equals(:superview).minus(146)
+      if $IS8
+        @listHeight = height.equals(:superview).minus(146)
+      else
+        @listHeight = height.equals(:superview).minus(193)
+      end
     end
   end
 end

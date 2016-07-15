@@ -13,14 +13,14 @@ class Disptch < PM::TableScreen
         twitter: 1,
         following: 0,
         communities: 0,
-        meetups: 0
+        events: 0
       }
     end
     setFilters filters
     layout.get(:twitter_selector).setSelectedSegmentIndex filters[:twitter]
     layout.get(:friends_selector).setSelectedSegmentIndex filters[:following]
     layout.get(:communities_selector).setSelectedSegmentIndex filters[:communities]
-    layout.get(:meetups_selector).setSelectedSegmentIndex filters[:meetups]
+    layout.get(:events_selector).setSelectedSegmentIndex filters[:events]
   end
   def setFilters(filters = false, do_update = true)
     unless filters
@@ -30,7 +30,7 @@ class Disptch < PM::TableScreen
     if do_update
       update
       15.seconds.later do
-        fetchUpdates
+        fetchUpdates(false)
       end
     end
   end
@@ -222,7 +222,7 @@ class Disptch < PM::TableScreen
       @newBtn.hidden = true
     end
   end
-  def fetchUpdates()
+  def fetchUpdates(continueFetch = true)
     params = @params.clone
     feed_ids = @items.map do |i|
       i[:properties][:item].feed_id
@@ -253,8 +253,10 @@ class Disptch < PM::TableScreen
         update_table_data
       end
     end
-    10.seconds.later do
-      fetchUpdates
+    if continueFetch
+      10.seconds.later do
+        fetchUpdates
+      end
     end
   end
   def fetchContent(before = false, waitForScrollStop = false)
@@ -297,7 +299,7 @@ class Disptch < PM::TableScreen
           if rsp.feed_contents.length > 0
             prepend_content rsp.feed_contents
           else
-            if (@channel_type == 'meetup')
+            if (EventTypes.types.include?(@channel_type))
               showNullMsg
             end
           end
@@ -305,7 +307,7 @@ class Disptch < PM::TableScreen
           if rsp.feed_contents.length > 0
             update_content rsp.feed_contents
           else
-            if (@channel_type == 'meetup')
+            if (EventTypes.types.include?(@channel_type))
               showNullMsg
             else
               update_content([])

@@ -8,11 +8,18 @@ class PostLayout < MK::Layout
         add UIImageView, :avatar
         add UITextView, :input do
           add UILabel, :placeholder
+          get(:input).layoutIfNeeded
         end
       end
       add UIButton, :cancel
       add UIButton, :post
     end
+  end
+  def super_height
+    get(:main).frame.size.height
+  end
+  def super_width
+    get(:main).frame.size.width
   end
   def main_style
     background_color "#F2F2EA".uicolor
@@ -46,8 +53,8 @@ class PostLayout < MK::Layout
     backgroundColor Color.white
     constraints do
       top 58
-      height.equals(:superview).minus(58)
-      width.equals(:superview)
+      height (super_height-58)
+      width super_width
       left 0
     end
   end
@@ -73,6 +80,7 @@ class PostLayout < MK::Layout
       width.equals(:superview)
       height 40
     end
+    get(:input).layoutIfNeeded
   end
   def avatar_style
     imageWithURL(Me.atn.pic, placeholderImage:"default-avatar.png".uiimage)
@@ -90,6 +98,7 @@ class PostLayout < MK::Layout
     else
       get(:placeholder).hidden = false
     end
+    get(:input).layoutIfNeeded
   end
   def textViewDidEndEditing(textView)
     updatePlaceholder

@@ -39,7 +39,7 @@ class CheckInScreen < PM::Screen
   def update_places
     Assets.getSmart "places" do |places, status|
       @placeList.allPlaces = places
-      @placeList.update
+      @placeList.update_items
     end
   end
 end

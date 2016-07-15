@@ -10,7 +10,11 @@ module Assets
       }
       @aliases = {
         "schedule" => "events",
-        "meetups" => "events"
+        "meetup" => "events",
+        "academy" => "events",
+        "spark_session" => "events",
+        "activity" => "events",
+        "registration" => "events"
       }
     end
     def sync(&block)
@@ -64,7 +68,8 @@ module Assets
       end
     end
     def get(asset)
-      Store.get(asset, true, true)
+      asset = Store.get(asset, true, true)
+      asset
     end
     def set(asset, val)
       Store.set(asset, val, true, true)
@@ -93,14 +98,17 @@ module Assets
     def process_events(events)
       return false unless events
       schedule = {}
-      meetups = {}
+      byType = {}
       lastDay = ''
       byDay = {}
       days = []
+      reg = {}
       existingDays = {}
       events.sort! {|x, y| x['start'] <=> y['start']}
       events.each do |event|
         event = Event.new(event)
+        type = event.type
+        day = event.startDay
         if existingDays[event.startDay].nil?
           existingDays[event.startDay] = true;
           days << {day: event.startDay, dayStr: event.dayStr}
@@ -111,16 +119,21 @@ module Assets
           end
           schedule[event.startDay] << event.to_hash
         end
-        if event.type == 'meetup'
-          if meetups[event.startDay].nil?
-            meetups[event.startDay] = []
-          end
-          meetups[event.startDay] << event.to_hash
+        if byType[type].nil?
+          byType[type] = {}
+        end
+        if byType[type][day].nil?
+          byType[type][day] = []
+        end
+        if Me.hasPermissionForEvent event
+          byType[type][day] << event.to_hash
         end
       end
       set 'days', days
       set 'events', events
-      set 'meetups', meetups
+      byType.each do |type, evs|
+        set type, byType[type]
+      end
       set 'schedule', schedule
     end
     def process_schedule

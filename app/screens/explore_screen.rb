@@ -45,6 +45,7 @@ class ExploreScreen < PM::Screen
     val = @layout.get(:selector).selected
     @placeList.type = val[:id]
     @lastCheckin = false
+    @layout.get(:place_list).setContentOffset(CGPointMake(0, -@layout.get(:place_list).contentInset.top), animated:false)
     update_places
   end
   def on_load
@@ -98,27 +99,23 @@ class ExploreScreen < PM::Screen
     @pinging = true
     if BW::Location.enabled?
       BW::Location.get_once(purpose: "We'd like to use your location to help you explore Portland and connect with other WDSers!") do |result|
-        puts 'SHOULD?'
-        if Me.shouldAutoCheckIn
-          puts 'should!'
-          if result.is_a?(CLLocation)
-            @placeList.position = result
-            @checkin_screen.placeList.position = result
-            update_places
-            @checkin_screen.update_places
-            now = NSDate.new.timeIntervalSince1970
-            if (now - @lastCheck) > 40
-              @lastCheck = now
-              if @lastPingClosest == @placeList.closest
-                if @lastPingClosest
-                  do_checkin
-                end
+        if result.is_a?(CLLocation)
+          @placeList.position = result
+          @checkin_screen.placeList.position = result
+          update_places(true)
+          @checkin_screen.update_places
+          now = NSDate.new.timeIntervalSince1970
+          if (now - @lastCheck) > 40 && Me.shouldAutoCheckIn
+            @lastCheck = now
+            if @lastPingClosest == @placeList.closest
+              if @lastPingClosest
+                do_checkin
               end
-              @lastPingClosest = @placeList.closest
             end
-          else
-            puts "ERROR: #{result[:error]}"
+            @lastPingClosest = @placeList.closest
           end
+        else
+          puts "ERROR: #{result[:error]}"
         end
       end
     end
@@ -150,7 +147,7 @@ class ExploreScreen < PM::Screen
         @placeList.checkins = rsp.checkins
         update_places
         if @update
-          10.seconds.later do
+          15.seconds.later do
             update_checkins
           end
         else
@@ -159,10 +156,10 @@ class ExploreScreen < PM::Screen
       end
     end
   end
-  def update_places
+  def update_places(soft_update = false)
     Assets.getSmart "places" do |places, status|
       @placeList.allPlaces = places
-      @placeList.update
+      @placeList.update_items(soft_update)
     end
   end
 end

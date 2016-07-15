@@ -2,7 +2,6 @@ class DispatchCell < PM::TableViewCell
   attr_accessor :item, :layout, :width, :controller
   attr_reader :authorStr, :timeStr, :likeStr, :commentStr
   def will_display
-    updateImages
     self.setNeedsDisplay
   end
   def initWithStyle(style, reuseIdentifier:id)
@@ -13,17 +12,14 @@ class DispatchCell < PM::TableViewCell
     super
   end
   def updateImages
-
-    unless @avatar.nil?
-      @avatar.removeFromSuperview
-      @avatar = nil
+    if @avatar.nil?
+      @avatar = UIImageView.alloc.initWithFrame(avatarRect)
+      @avatar.contentMode = UIViewContentModeScaleAspectFill
+      path = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 0, avatarRect.size.width, avatarRect.size.height), cornerRadius:0)
+      shapeLayer = CAShapeLayer.layer
+      shapeLayer.path = path.CGPath
+      @avatar.layer.mask = shapeLayer
     end
-    @avatar = UIImageView.alloc.initWithFrame(avatarRect)
-    @avatar.contentMode = UIViewContentModeScaleAspectFill
-    path = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 0, avatarRect.size.width, avatarRect.size.height), cornerRadius:0)
-    shapeLayer = CAShapeLayer.layer
-    shapeLayer.path = path.CGPath
-    @avatar.layer.mask = shapeLayer
     @avatar.setImageWithURL @item.author.pic, placeholderImage:"default-avatar.png".uiimage
     unless @cardView.nil?
       @cardView.addSubview(@avatar)
@@ -47,6 +43,7 @@ class DispatchCell < PM::TableViewCell
       self.addSubview @cardView
       @cardView.addSubview @contentView
     end
+    updateImages
     @contentStr = @item.content.nsattributedstring({
       NSFontAttributeName => Font.Karla(15),
       UITextAttributeTextColor => Color.coffee
@@ -81,8 +78,13 @@ class DispatchCell < PM::TableViewCell
     if type == 'global' || type == 'twitter'
       channel_str += type
     elsif type == 'interest'
-      channel_str += Interests.interestById(@item.channel_id).interest
-    elsif type == 'meetup'
+      inst = Interests.interestById(@item.channel_id)
+      if inst.nil?
+        channel_str += 'interest'
+      else
+        channel_str += inst.interest
+      end
+    elsif EventTypes.types.include?(type)
       events = Assets.get("events")
       events.each do |event|
         if event[:event_id] == @item.channel_id
@@ -90,7 +92,11 @@ class DispatchCell < PM::TableViewCell
           break
         end
       end
-      channel_str += 'Meetup: '+@event.what
+      if @event
+        channel_str += EventTypes.byId(@event.type)[:single]+': '+@event.what
+      else
+        channel_str += EventTypes.byId(@event.type)[:single].downcase
+      end
     end
     @channelStr = channel_str.attrd({
       NSFontAttributeName => Font.Karla_Italic(14),
@@ -193,7 +199,7 @@ class DispatchCell < PM::TableViewCell
     CGRectMake(58, pad_top(25), self.frame.size.width-80, 50)
   end
   def channel_action
-    @controller.open_meetup(@event) if @event
+    @controller.open_event(@event) if @event
   end
 
   def pad_top(val)
@@ -209,21 +215,6 @@ class DispatchCell < PM::TableViewCell
       @cardView.setFrame(rect)
       @cardView.setNeedsDisplay
     end
-    # if $IS8
-    #   @authorStr.drawAtPoint(authorRect.origin)
-    #   @timeStr.drawInRect(timeRect)
-    #   @likeStr.drawAtPoint(likeRect.origin)
-    #   @commentStr.drawAtPoint(commentRect.origin)
-    # else
-    #   puts 'draw7'
-    #   puts Color.orange
-    #   puts Font.Vitesse_Bold(15)
-    #   puts authorRect.inspect
-    #   @item.author.full_name.drawInRect(authorRect, withAttributes:{
-    #     NSFontAttributeName => Font.Vitesse_Bold(15),
-    #     NSForegroundColorAttributeName => Color.orange
-    #   })
-    # end
   end
 
 end

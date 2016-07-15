@@ -176,4 +176,4 @@ class LoginLayout < MK::Layout
   def email_label_style
     text "Email Address"
   end
-end  
+end

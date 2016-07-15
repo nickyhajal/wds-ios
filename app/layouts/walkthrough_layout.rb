@@ -130,10 +130,14 @@ class WalkthroughLayout < MK::Layout
     add_walkthrough :communities, 'Communities', "Join communities to have discussions with other WDSers about your shared interests.",{image: "community_big_icon", ratio: 3}
   end
   def add_meetups
-    add_walkthrough :meetups, 'Meetups', "Browse and RSVP to the wide-range of attendee-hosted meetups during WDS.\n\nWe'll even make some suggestions based on your communities.", {image: "meetups_big_icon", ratio: 3}
+    title = 'Meetups & Academies'
+    if Device.is4
+      title = 'Events'
+    end
+    add_walkthrough :meetups, title, "Browse and RSVP to the wide-range of WDS Activities as well as attendee-hosted meetups.\n\nWe'll even make some suggestions based on your communities.", {image: "meetups_big_icon", ratio: 3}
   end
   def add_schedule
-    add_walkthrough :schedule, 'Your Schedule', "Stay on top of your schedule!\n\nEverything you care about is clearly outlined — even your meetups!",{image: "schedule_big_icon", ratio: 4}
+    add_walkthrough :schedule, 'Your Schedule', "Stay on top of your schedule!\n\nEverything you care about is clearly outlined — even your academies, activities and meetups!",{image: "schedule_big_icon", ratio: 4}
   end
   def add_attendees
     add_walkthrough :attendees, 'Browse Attendees', "Search WDSers, browse their profiles and friend them to easily stay connected in the future.",{image: "attendee_big_icon", ratio: 2}
@@ -218,13 +222,15 @@ class WalkthroughLayout < MK::Layout
     get(:shell).setContentOffset(CGPointMake(step*(super_width-40), 0), animated:false)
   end
   def scrollViewDidScroll(scrollView)
-    page = (scrollView.contentOffset.x / scrollView.frame.size.width)
-    if page > 6.3
-      Store.set('walkthrough', 7)
-      @controller.finish_action
-    elsif page == page.floor
-      Store.set('walkthrough', page)
-      get(:progress).setSelected(page)
+    if scrollView.frame.size.width > 0
+      page = (scrollView.contentOffset.x / scrollView.frame.size.width)
+      if page > 6.3
+        Store.set('walkthrough', 7)
+        @controller.finish_action
+      elsif page == page.floor
+        Store.set('walkthrough', page)
+        get(:progress).setSelected(page)
+      end
     end
   end
 end

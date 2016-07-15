@@ -1,5 +1,5 @@
 class NoteCell < PM::TableViewCell
-  attr_accessor :note, :width, :controller
+  attr_accessor :note, :width, :controller, :noteStr
   def initWithStyle(style, reuseIdentifier:id)
     @checkinMessage = "Check In"
     super
@@ -8,6 +8,11 @@ class NoteCell < PM::TableViewCell
     self.setNeedsDisplay
   end
   def getHeight
+    if @cardView.nil?
+      @cardView = NoteCellInnerView.alloc.initWithFrame([[0,0], [self.frame.size.width, self.frame.size.height]])
+      @cardView.cell = self
+      self.addSubview(@cardView)
+    end
     size = self.frame.size
     size.width = @width - 36
     size.height = Float::MAX
@@ -33,7 +38,17 @@ class NoteCell < PM::TableViewCell
     height = getHeight
     size = rect.size
     @size = size
+    unless @cardView.nil?
+      @cardView.setFrame(rect)
+      @cardView.setNeedsDisplay
+    end
+  end
+end
 
+
+class NoteCellInnerView < UIView
+  attr_accessor :cell
+  def drawRect(rect)
     # Colors
     orange = Color.orange
     white = Color.white
@@ -48,6 +63,6 @@ class NoteCell < PM::TableViewCell
     white.setFill
     cardPath.fill
 
-    @noteStr.drawInRect(note_rect)
+    @cell.noteStr.drawInRect(@cell.note_rect)
   end
 end

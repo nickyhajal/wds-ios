@@ -5,27 +5,30 @@ class AttendeeLayout < MK::Layout
   def updateAttendee(atn)
     @atn = atn
     self.reapply!
-    0.05.seconds.later do
+    0.08.seconds.later do
       updateScrollSize
     end
+    get(:scrollview).setContentOffset(CGPointMake(0, -get(:scrollview).contentInset.top), animated:false)
   end
   def layout
     root :main do
+      add UIView, :anchor
       add UIView, :header do
         add UIButton, :header_back
       #  add UILabel, :header_name
         add UIButton, :header_friend
       end
       add UIScrollView, :scrollview do
-        add UITextView, :name
-        add UIButton, :notes_btn do
-            add UIImageView, :notes_open
-          end
-        add UIView, :line_after_name
-        add ButtonList, :connect_buttons
-        add UITextView, :about_title
-        add HTMLTextView, :about_content
-        add UIView, :anchor
+        add UIView, :scrollshell do
+          add UITextView, :name
+          add UIButton, :notes_btn do
+              add UIImageView, :notes_open
+            end
+          add UIView, :line_after_name
+          add ButtonList, :connect_buttons
+          add UITextView, :about_title
+          add HTMLTextView, :about_content
+        end
       end
       add UIImageView, :dots
       add Avatar, :avatar
@@ -177,6 +180,16 @@ class AttendeeLayout < MK::Layout
       width super_width
     end
   end
+  def scrollshell_style
+    constraints do
+      top 0
+      left 0
+      bottom 0
+      right 0
+      width.equals(:superview)
+      @scroll_height = height 1
+    end
+  end
   def scrollview_style
     scrollEnabled true
     delegate self
@@ -276,7 +289,7 @@ class AttendeeLayout < MK::Layout
   end
   def anchor_style
     constraints do
-      top.equals(:about_content, :bottom).plus(10)
+      top.equals(:about_content, :bottom)
       height 1
       width.equals(:superview)
       left 0
@@ -287,7 +300,10 @@ class AttendeeLayout < MK::Layout
     bot_padding = 50
     height = frame.origin.y + frame.size.height + bot_padding
     @contentHeight = height
-    get(:scrollview).setContentSize([super_width, height])
+    if (height < 0)
+      height = 50
+    end
+    @scroll_height.equals(height)
   end
   def shiftContent(shift)
     @scrollview_top.minus(shift)
@@ -318,6 +334,7 @@ class AttendeeLayout < MK::Layout
         @avatar_height.equals(55)
       end
     else
+      get(:dots).setAlpha(1.0)
       size = 125 + (y * -1)
       if size < super_width - 10
         @avatar_width.equals(size)

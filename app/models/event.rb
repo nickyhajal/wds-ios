@@ -1,13 +1,17 @@
 class Event
-  attr_accessor :event_id, :what, :place, :descr, :start, :end, :note, :hosts, :lat, :lon, :address, :who, :active, :ignored, :num_rsvps, :max, :startTime, :startDay, :startStr, :dayStr, :endTime, :type, :ints, :because, :becauseStr
+  attr_accessor :event_id, :slug, :for_type, :format, :what, :place, :venue_note, :descr, :start, :end, :note, :hosts, :lat, :lon, :address, :who, :active, :ignored, :num_rsvps, :max, :startTime, :startDay, :startStr, :dayStr, :endTime, :type, :ints, :because, :becauseStr, :isAttending
   def initialize(event)
     @who = ""
     @descr = ""
     @place = ""
+    @venue_note = ""
+    @format = ""
+    @slug = ""
     @start = ""
     @address = ""
     @lat = 0.0
     @lon = 0.0
+    @for_type = "all"
     event.each do |key, value|
       unless value.nil?
         self.instance_variable_set("@#{key}".to_sym, value)

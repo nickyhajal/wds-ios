@@ -1,5 +1,5 @@
 class AppDelegate < PM::Delegate
-	attr_accessor :login, :meetup, :home, :meetups
+	attr_accessor :login, :event , :home, :events
 	def on_load(app, options)
 		$IS7 = (UIDevice.currentDevice.systemVersion.floatValue < 8.0)
 		$IS8 = (UIDevice.currentDevice.systemVersion.floatValue >= 8.0)
@@ -12,9 +12,8 @@ class AppDelegate < PM::Delegate
 		init_appearance
 		init_screens
 		open_loading
-		## Used for testing walkthrough ## Store.set('walkthrough', '0')
-		## Used for testing walkthrough
-		Store.set('walkthrough', '8')
+		## Used for testing walkthrough ##
+		# Store.set('walkthrough', '0')
 		step = Me.checkWalkthrough
 		if step < 7
 			open_walkthrough step
@@ -40,9 +39,11 @@ class AppDelegate < PM::Delegate
 	end
 	def init_screens
 		@home = HomeScreen.new(nav_bar: false)
-		@explore = ExploreScreen.new(nav_bar: true)
-		@meetups = MeetupsScreen.new(nav_bar: true)
-		@meetup = MeetupScreen.new(nav_bar: false)
+		# @explore = ExploreScreen.new(nav_bar: true)
+		@events = EventsScreen.new(nav_bar: true)
+		@event = EventScreen.new(nav_bar: false)
+		@eventTypes = EventTypesScreen.new(nav_bar: true)
+		# @event = EventScreen.new(nav_bar: false)
 		@dispatchItem = DispatchItemScreen.new(nav_bar: false)
 		@profile = AttendeeScreen.new(nav_bar: false)
 		@schedule = ScheduleScreen.new(nav_bar: true)
@@ -50,9 +51,9 @@ class AppDelegate < PM::Delegate
 		@login = LoginScreen.new(nav_bar: false)
 		@loading = LoadingScreen.new(nav_bar:false)
 		@walkthrough = WalkthroughScreen.new(nav_bar:false)
-		if BW::Location.enabled? && BW::Location.authorized?
-			@explore.location_ping
-		end
+		# if BW::Location.enabled? && BW::Location.authorized?
+		# 	@explore.location_ping
+		# end
 	end
 	def init_api
 		Api.init
@@ -108,13 +109,14 @@ class AppDelegate < PM::Delegate
 	end
 	def open_tabs
 		if @tab_bar
-			@tab_bar.translucent = false
 			open_root_screen @tab_bar
-			open_notification_content_if_exists
 		else
 			open_loading
 			Assets.sync do |err|
-				@tab_bar = open_tab_bar @home, @schedule, @meetups, @explore#, @more
+				@tab_bar = open_tab_bar @home, @schedule, @eventTypes #, @explore#, @more
+				0.05.seconds.later do
+					open_notification_content_if_exists
+				end
 				0.8.seconds.later do
 					init_notifications
 				end
@@ -123,7 +125,7 @@ class AppDelegate < PM::Delegate
 	end
 	def open_event(event, from = false)
 		open_tab(2)
-		@meetups.open_meetup(event, from)
+		@events.open_event(event, from)
 	end
 	def open_tab(tab)
 		open_tabs
@@ -147,22 +149,29 @@ class AppDelegate < PM::Delegate
 		Me.saveDeviceToken device_token
 	end
 	def application(application, didReceiveRemoteNotification: data)
-		@notification_data = data
+		if(application.applicationState == UIApplicationStateActive)
+
+		else
+			@notification_data = data
+			open_notification_content_if_exists
+		end
 	end
 	def open_notification_content_if_exists
-		if !@notification_data.nil? && @notification_data
+		if !@notification_data.nil? && @notification_data && @tab_bar
 			data = @notification_data
+			@notification_data = false
 			link = data[:link]
 			content = BW::JSON.parse(data[:content])
 			if link[0] == '~'
+				open_root_screen @tab_bar
 				open_tab(@home)
 				@home.open_profile content[:from_id]
 			elsif link.include? 'dispatch'
 				id = link.split('/').last
+				open_root_screen @tab_bar
 				open_tab(@home)
 				@home.open_dispatch id, is_id: true
 			end
-			@notification_data = false
 		end
 	end
 	def offline_alert

@@ -7,6 +7,7 @@ begin
   Bundler.require
   require 'sugarcube'
   require 'sugarcube-nsdate'
+  require 'sugarcube-nsdata'
   require 'sugarcube-timer'
   require 'sugarcube-foundation'
   require 'sugarcube-attributedstring'
@@ -27,6 +28,7 @@ begin
   require 'ProMotion'
   require 'motion-cocoapods'
   require 'map-kit-wrapper'
+  require 'motion-markdown-it'
 rescue LoadError
 end
 
@@ -35,7 +37,7 @@ Motion::Project::App.setup do |app|
   app.name = 'WDS App'
   app.frameworks += ["QuartzCore", "CoreImage"]
   app.identifier = 'com.worlddominationsummit.wdsios'
-  app.version = '1.3'
+  app.version = '1.7'
   app.development do
     app.provisioning_profile = '/nky/secure_files/WDS_App_Dev.mobileprovision'
     app.codesign_certificate = 'iPhone Developer: Nick Hajal (TS4DVF4YGA)'
@@ -49,8 +51,11 @@ Motion::Project::App.setup do |app|
   app.info_plist['UIViewControllerBasedStatusBarAppearance'] = false
   app.info_plist['NSLocationAlwaysUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers.'
   app.info_plist['NSLocationWhenInUseUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers.'
+  app.info_plist['NSAppTransportSecurity'] = { 'NSAllowsArbitraryLoads' => true }
+  app.info_plist['NSAppTransportSecurity'] = { 'NSAllowsArbitraryLoads' => true }
   app.libs += ['/usr/lib/libsqlite3.dylib']
   app.vendor_project 'vendor/FMDB', :static
+  app.vendor_project 'vendor/MMMarkdown/Source', :static
   app.interface_orientations = [:portrait]
   app.icons = ['Icon.png', 'Icon@2x.png', 'Icon@3x.png']
   app.deployment_target = "7.0"

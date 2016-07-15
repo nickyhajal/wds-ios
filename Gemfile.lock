@@ -28,7 +28,7 @@ GEM
     afmotion (2.5)
       motion-cocoapods (>= 1.4.1)
       motion-require (>= 0.1)
-    bubble-wrap (1.8.0)
+    bubble-wrap (1.9.5)
     claide (0.8.1)
     cocoapods (0.36.4)
       activesupport (>= 3.2.15)
@@ -61,10 +61,13 @@ GEM
     escape (0.0.4)
     fuzzy_match (2.0.4)
     i18n (0.7.0)
-    json (1.8.2)
+    json (1.8.3)
+    linkify-it-rb (1.1.1.0)
+      uc.micro-rb (~> 1.0)
     map-kit-wrapper (0.0.5)
       codependency (= 2.0.0)
       rake
+    mdurl-rb (1.0.0.3)
     methadone (1.9.0)
       bundler
     minitest (5.6.0)
@@ -73,6 +76,10 @@ GEM
       cocoapods (>= 0.34)
     motion-kit (0.17.0)
       dbt (~> 1.1.5)
+    motion-markdown-it (4.2.2.0)
+      linkify-it-rb (~> 1.0)
+      mdurl-rb (~> 1.0)
+      uc.micro-rb (~> 1.0)
     motion-require (0.2.0)
     motion-support (0.2.6)
       motion-require (>= 0.0.6)
@@ -84,6 +91,7 @@ GEM
     thread_safe (0.3.5)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    uc.micro-rb (1.0.0)
     xcodeproj (0.23.1)
       activesupport (>= 3)
       colored (~> 1.2)
@@ -94,11 +102,15 @@ PLATFORMS
 DEPENDENCIES
   ProMotion
   afmotion
-  bubble-wrap
+  bubble-wrap (~> 1.9.5)
   ion_in_motion!
   map-kit-wrapper
   motion-cocoapods
   motion-kit
+  motion-markdown-it
   motion_model!
   rake (~> 10.4)
   sugarcube
+
+BUNDLED WITH
+   1.12.5

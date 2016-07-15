@@ -17,9 +17,9 @@ class FiltersLayout < MK::Layout
         add UILabel, :communities
         add UISegmentedControl, :communities_selector
       end
-      add UIView, :meetups_row do
-        add UILabel, :meetups
-        add UISegmentedControl, :meetups_selector
+      add UIView, :events_row do
+        add UILabel, :events
+        add UISegmentedControl, :events_selector
       end
       add UIButton, :submit
       add UIButton, :cancel
@@ -93,18 +93,18 @@ class FiltersLayout < MK::Layout
     #target.addTarget @controller, action: 'communities_selector_action:', forControlEvents:UIControlEventValueChanged
     selector
   end
-  def meetups_row_style
+  def events_row_style
     row
     backgroundColor Color.white(0.4)
     constraints do
       top.equals(:communities_row, :bottom)
     end
   end
-  def meetups_style
+  def events_style
     label
-    text 'Meetups'
+    text 'Events'
   end
-  def meetups_selector_style
+  def events_selector_style
     target.insertSegmentWithTitle 'All', atIndex:0, animated:false
     target.insertSegmentWithTitle 'Mine', atIndex:1, animated:false
     target.insertSegmentWithTitle 'None', atIndex:2, animated:false
@@ -120,7 +120,7 @@ class FiltersLayout < MK::Layout
     target.addTarget @controller, action: 'apply_filters_action', forControlEvents:UIControlEventTouchDown
     constraints do
       left 0
-      top.equals(:meetups_row, :bottom)
+      top.equals(:events_row, :bottom)
       width.equals(:superview)
       height 40
     end

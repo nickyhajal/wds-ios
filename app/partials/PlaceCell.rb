@@ -1,5 +1,5 @@
 class PlaceCell < PM::TableViewCell
-  attr_accessor :place, :width, :controller, :checkinScreen, :checkinMessage, :onPicked
+  attr_accessor :place, :width, :controller, :checkinScreen, :checkinMessage, :onPicked, :checkin, :checkinStr, :nameStr, :addrStr, :metaStr, :pickStr
   def initWithStyle(style, reuseIdentifier:id)
     singleFingerTap = UITapGestureRecognizer.alloc.initWithTarget(self, action:'singleTap:')
     self.addGestureRecognizer(singleFingerTap)
@@ -10,6 +10,11 @@ class PlaceCell < PM::TableViewCell
     self.setNeedsDisplay
   end
   def getHeight
+    if @cardView.nil?
+      @cardView = PlaceCellInnerView.alloc.initWithFrame([[0,0], [self.frame.size.width, self.frame.size.height]])
+      @cardView.cell = self
+      self.addSubview(@cardView)
+    end
     size = self.frame.size
     size.width = @width - 6 - 40
     if @checkinScreen
@@ -24,12 +29,12 @@ class PlaceCell < PM::TableViewCell
       @navView = UIButton.alloc.initWithFrame([[0,0], [18,18]])
       @navView.setImage Ion.image(:navigate, color:Color.orangish_gray), forState:UIControlStateNormal
       @navView.addTarget self, action: 'nav_action', forControlEvents: UIControlEventTouchDown
-      self.addSubview @navView
+      @cardView.addSubview @navView
       @moreView = UIButton.alloc.initWithFrame([[0,0], [24,24]])
       @moreView.setImage Ion.image(:ios_arrow_forward, color:Color.orange), forState:UIControlStateNormal
       @moreView.addTarget self, action: 'open_place_action', forControlEvents: UIControlEventTouchDown
       @moreView.setHidden true
-      self.addSubview @moreView
+      @cardView.addSubview @moreView
     end
 
     # Name
@@ -87,6 +92,8 @@ class PlaceCell < PM::TableViewCell
       })
       @pick = @pickStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
       height += @pick.size.height+4
+    else
+      @pickStr = nil
     end
 
     @checkinStr = @checkinMessage.attrd({
@@ -134,7 +141,11 @@ class PlaceCell < PM::TableViewCell
     CGRectMake(10, @meta_top, @meta.size.width, @meta.size.height)
   end
   def pick_rect
-    @pick_top = @meta_top + @meta.size.height + 4
+    if @meta.nil?
+      @pick_top = @addr_top + @addr.size.height + 4
+    else
+      @pick_top = @meta_top + @meta.size.height + 4
+    end
     CGRectMake(10, @pick_top, @pick.size.width, @pick.size.height)
   end
   def more_rect
@@ -186,40 +197,9 @@ class PlaceCell < PM::TableViewCell
     height = getHeight
     size = rect.size
     @size = size
-
-    # Colors
-    orange = Color.orange
-    white = Color.white
-    tan = Color.tan
-
-    # Background
-    bgPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 0, rect.size.width, rect.size.height), cornerRadius:0.0)
-    white.setFill
-    bgPath.fill
-
-    linePath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, rect.size.height-1, rect.size.width, 1), cornerRadius:0.0)
-    tan.setFill
-    linePath.fill
-
-    if @checkinScreen
-      bRect = button_rect
-      btnPath = UIBezierPath.bezierPathWithRoundedRect(bRect, cornerRadius:3.0)
-      tan.setFill
-      btnPath.fill
-      x = bRect.origin.x + (bRect.size.width/2) - @checkin.size.width/2
-      y = bRect.origin.y + (bRect.size.height/2) - @checkin.size.height/2
-      @checkinStr.drawAtPoint(CGPointMake(x,y))
-    end
-
-    @nameStr.drawInRect(name_rect)
-    unless @checkinScreen
-      @addrStr.drawInRect(addr_rect)
-    end
-    unless @metaStr.nil?
-      @metaStr.drawInRect(meta_rect)
-    end
-    unless @pickStr.nil?
-      @pickStr.drawInRect(pick_rect)
+    unless @cardView.nil?
+      @cardView.setFrame(rect)
+      @cardView.setNeedsDisplay
     end
     unless @navView.nil?
       frame = @navView.frame
@@ -235,6 +215,46 @@ class PlaceCell < PM::TableViewCell
       else
         @moreView.setHidden true
       end
+    end
+  end
+end
+
+class PlaceCellInnerView < UIView
+  attr_accessor :cell
+  def drawRect(rect)
+    # Colors
+    orange = Color.orange
+    white = Color.white
+    tan = Color.tan
+
+    # Background
+    bgPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 0, rect.size.width, rect.size.height), cornerRadius:0.0)
+    white.setFill
+    bgPath.fill
+
+    linePath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, rect.size.height-1, rect.size.width, 1), cornerRadius:0.0)
+    tan.setFill
+    linePath.fill
+
+    if @cell.checkinScreen
+      bRect = @cell.button_rect
+      btnPath = UIBezierPath.bezierPathWithRoundedRect(bRect, cornerRadius:3.0)
+      tan.setFill
+      btnPath.fill
+      x = bRect.origin.x + (bRect.size.width/2) - @cell.checkin.size.width/2
+      y = bRect.origin.y + (bRect.size.height/2) - @cell.checkin.size.height/2
+      @cell.checkinStr.drawAtPoint(CGPointMake(x,y))
+    end
+
+    @cell.nameStr.drawInRect(@cell.name_rect)
+    unless @cell.checkinScreen
+      @cell.addrStr.drawInRect(@cell.addr_rect)
+    end
+    unless @cell.metaStr.nil?
+      @cell.metaStr.drawInRect(@cell.meta_rect)
+    end
+    unless @cell.pickStr.nil?
+      @cell.pickStr.drawInRect(@cell.pick_rect)
     end
   end
 end

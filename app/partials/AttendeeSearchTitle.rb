@@ -137,7 +137,7 @@ class AttendeeSearchTitleLayout < MK::Layout
   def ready_to_search
     diff = NSDate.new.timeIntervalSince1970 - @lastKeyTime
     if diff > 1
-      Api.get 'users', {search: @query} do |rsp|
+      Api.get 'users', {search: @query, years: '16', types: '360,connect'} do |rsp|
         if rsp.is_err
           $APP.offline_alert
         else

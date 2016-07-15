@@ -1,5 +1,5 @@
 class Attendee
-  attr_accessor :user_id, :first_name, :last_name, :full_name, :email, :user_name, :twitter, :instagram, :facebook, :pic, :location, :lat, :lon, :distance, :qnaStr, :isQna
+  attr_accessor :user_id, :first_name, :last_name, :full_name, :ticket_type, :email, :user_name, :twitter, :instagram, :facebook, :pic, :location, :lat, :lon, :distance, :qnaStr, :isQna
   def initialize(atn)
     if atn == 'default'
       @first_name = '░░░░░░░░░'
@@ -58,9 +58,20 @@ class Attendee
       if !@location.nil? && @location.length > 0
         location = 'from '+@location
       end
-      qs = ['', 'Why did you decide to travel '+@distance+' miles '+location+' to the World Domination Summit?', 'What are you excited about these days?', 'What\'s your super power?', 'What\'s your goal for WDS 2015?']
+      qs = ['',
+        'Why did you decide to travel '+@distance+' miles '+location+' to the World Domination Summit?',
+        'What are you excited about these days?',
+        'What\'s your super power?',
+        'What\'s your goal for WDS 2016?',
+        'What\'s your favorite song?',
+        'What\'s your favorite treat?',
+        'What\'s your favorite quote?',
+        'What are you looking forward to during your time in Portland?'
+      ]
       answers.each do |answer|
-        str += ' <b style="margin-bottom:14px;">'+qs[answer[:question_id]]+'</b> <div style="margin-bottom:20px">'+answer[:answer]+'</div>'
+        unless qs[answer[:question_id]].nil?
+          str += ' <b style="margin-bottom:14px;">'+qs[answer[:question_id]]+'</b> <div style="margin-bottom:20px">'+answer[:answer]+'</div>'
+        end
       end
       str
     else

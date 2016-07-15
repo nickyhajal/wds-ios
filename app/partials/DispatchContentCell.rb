@@ -1,7 +1,6 @@
 class DispatchContentCell < PM::TableViewCell
-  attr_accessor :item, :layout, :width, :top_padding, :type, :num_comments, :controller
+  attr_accessor :item, :layout, :width, :top_padding, :type, :num_comments, :controller, :timeStr, :authorStr, :type
   def will_display
-    updateImages
     self.setNeedsDisplay
   end
   def initWithStyle(style, reuseIdentifier:id)
@@ -12,24 +11,31 @@ class DispatchContentCell < PM::TableViewCell
     super
   end
   def updateImages
-    unless @avatar.nil?
-      @avatar.removeFromSuperview
-      @avatar = nil
-    end
-    if @item.respond_to?('author') && item.author.respond_to?('pic') && @item.author.pic.length > 0
+    if @avatar.nil?
       @avatar = UIImageView.alloc.initWithFrame(avatarRect)
       @avatar.contentMode = UIViewContentModeScaleAspectFill
       path = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 0, avatarRect.size.width, avatarRect.size.height), cornerRadius:0)
       shapeLayer = CAShapeLayer.layer
       shapeLayer.path = path.CGPath
       @avatar.layer.mask = shapeLayer
+    end
+    if @item.respond_to?('author') && item.author.respond_to?('pic') && @item.author.pic.length > 0
       @avatar.setImageWithURL @item.author.pic, placeholderImage:"default-avatar.png".uiimage
-      self.addSubview(@avatar)
+      @cardView.addSubview(@avatar)
+    else
+      @avatar.removeFromSuperview
+      @avatar = nil
     end
   end
   def prepareText
     author = false
     date = false
+    if @cardView.nil?
+      @cardView = DispatchContentCellInnerView.alloc.initWithFrame([[0,0], [self.frame.size.width, self.frame.size.height]])
+      @cardView.cell = self
+      self.addSubview @cardView
+    end
+    updateImages
     if @type == 'dispatch'
       makeAuthorStr @item.author
       makeContentStr @item.content
@@ -58,7 +64,7 @@ class DispatchContentCell < PM::TableViewCell
       @contentView.setEditable false
       @contentView.setTintColor Color.orange
       @contentView.scrollEnabled = false
-      self.addSubview @contentView
+      @cardView.addSubview @contentView
     end
     @contentStr = content.nsattributedstring({
       NSFontAttributeName => msg ? Font.Vitesse_Medium(14) : Font.Karla(15),
@@ -76,8 +82,11 @@ class DispatchContentCell < PM::TableViewCell
     })
   end
   def makeTimeStr(time, channel = false)
+    pgraph = NSMutableParagraphStyle.alloc.init
+    pgraph.lineBreakMode = NSLineBreakByTruncatingTail
     @timeStr = time.nsattributedstring({
       NSFontAttributeName => Font.Karla_Bold(14),
+      NSParagraphStyleAttributeName => pgraph,
       UITextAttributeTextColor => Color.orangish_gray
     })
     if channel
@@ -85,17 +94,41 @@ class DispatchContentCell < PM::TableViewCell
     end
   end
   def makeChannelStr(type)
+    pgraph = NSMutableParagraphStyle.alloc.init
+    pgraph.lineBreakMode = NSLineBreakByTruncatingTail
     channel_str = ' - '
-    if type == 'global' || type == 'twitter' || type == 'loading'
+    if type == 'global' || type == 'twitter'
       channel_str += type
     elsif type == 'interest'
-      channel_str += Interests.interestById(@item.channel_id).interest
+      inst = Interests.interestById(@item.channel_id)
+      if inst.nil?
+        channel_str = 'interest'
+      else
+        channel_str += inst.interest
+      end
+    elsif EventTypes.types.include?(type)
+      events = Assets.get("events")
+      events.each do |event|
+        if event[:event_id] == @item.channel_id
+          @event = Event.new(event)
+          break
+        end
+      end
+      if @event.nil?
+        channel_str = EventTypes.byId(@event.type)[:single].downcase
+      else
+        channel_str += EventTypes.byId(@event.type)[:single]+': '+@event.what
+      end
     end
     @channelStr = channel_str.attrd({
         NSFontAttributeName => Font.Karla_Italic(14),
+        NSParagraphStyleAttributeName => pgraph,
         UITextAttributeTextColor => Color.orangish_gray
     })
     @timeStr = @timeStr + @channelStr
+    @timeStr = @timeStr.attrd({
+      NSParagraphStyleAttributeName => pgraph
+    })
   end
   def makeLikeStr
     num_likes = @item.num_likes.to_i
@@ -181,6 +214,9 @@ class DispatchContentCell < PM::TableViewCell
   def avatarRect
     CGRectMake(10, 8+@top_padding, 38, 38)
   end
+  def timeRect
+    CGRectMake(58, 25+@top_padding, self.frame.size.width-80, 50)
+  end
 
   ## Draw the TableCell
   def drawRect(rect)
@@ -188,8 +224,28 @@ class DispatchContentCell < PM::TableViewCell
     prepareText
     rect.size.width = @width
     size = rect.size
+    bg = "#F2F2EA".uicolor
+    cardBg = Color.white
     textSize = CGSizeMake(size.width - 32, Float::MAX)
+    if @type == 'dispatch'
+      @contentView.setBackgroundColor(cardBg)
+    elsif @type == 'comment'
+      @contentView.setBackgroundColor(bg)
+    elsif @type == 'loading'
+      @contentView.setBackgroundColor(bg)
+    end
+    unless @cardView.nil?
+      @cardView.setFrame(rect)
+      @cardView.setNeedsDisplay
+    end
+  end
 
+end
+
+
+class DispatchContentCellInnerView < UIView
+  attr_accessor :cell
+  def drawRect(rect)
     # Colors
     bg = "#F2F2EA".uicolor
     btnBg = "#FDFDF8".uicolor
@@ -197,34 +253,25 @@ class DispatchContentCell < PM::TableViewCell
     lineBg = "#E8E8DE".uicolor
 
     # Background
-    bgPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 0, size.width, size.height+@top_padding), cornerRadius:0.0)
+    bgPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 0, size.width, size.height+@cell.top_padding), cornerRadius:0.0)
     bg.setFill
     bgPath.fill
 
     # Card
-    if @type == 'dispatch'
+    if @cell.type == 'dispatch'
       cardBg.setFill
-      cardRect = CGRectMake(3, 0+@top_padding, size.width-6, size.height-4-@top_padding)
+      cardRect = CGRectMake(3, 0+@cell.top_padding, size.width-6, size.height-4-@cell.top_padding)
       cardW = cardRect.size.width
       cardPath = UIBezierPath.bezierPathWithRoundedRect(cardRect, cornerRadius:0.0)
       cardPath.fill
-      @contentView.setBackgroundColor(cardBg)
-      # @contentStr.drawInRect(CGRectMake(11,58,textSize.width, @content.size.height+50))
-    elsif @type == 'comment'
-      @contentView.setBackgroundColor(bg)
-      # @contentStr.drawInRect(CGRectMake(11,58,textSize.width, @content.size.height+50))
-    elsif @type == 'loading'
-      @contentView.setBackgroundColor(bg)
-      # @contentStr.drawInRect(CGRectMake((rect.size.width/2)-(@content.size.width/2),18,textSize.width, @content.size.height+50))
     end
-    unless @authorStr.nil?
-      @authorStr.drawAtPoint(authorRect.origin)
+    unless @cell.authorStr.nil?
+      @cell.authorStr.drawAtPoint(@cell.authorRect.origin)
     end
-    unless @timeStr.nil?
-      @timeStr.drawAtPoint(CGPointMake(58, 25))
+    unless @cell.timeStr.nil?
+      @cell.timeStr.drawInRect(@cell.timeRect)
     end
     #@likeStr.drawAtPoint(likeRect.origin)
     #@commentStr.drawAtPoint(commentRect.origin)
   end
-
 end

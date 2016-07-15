@@ -5,9 +5,11 @@ class PostScreen < PM::Screen
     @layout = PostLayout.new(root: self.view)
     @layout.setController self
     @layout.build
+    @layout.get(:input).layoutIfNeeded
   end
   def will_appear
     @layout.get(:input).becomeFirstResponder
+    @layout.get(:input).layoutIfNeeded
   end
   def send_post_action
     text = @layout.get(:input).text

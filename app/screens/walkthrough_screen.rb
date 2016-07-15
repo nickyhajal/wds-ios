@@ -7,6 +7,9 @@ class WalkthroughScreen < PM::Screen
     @layout.build
     true
   end
+  def viewDidLayoutSubviews
+    @layout.calc_walkthrough_dimensions
+  end
   def on_appear
     0.05.seconds.later do
       @layout.fade_in
@@ -24,8 +27,12 @@ class WalkthroughScreen < PM::Screen
   def finish_action
     unless @finished
       @finished = true
-      @layout.fade_out
-      0.3.seconds.later do
+      if $IS8
+        @layout.fade_out
+        0.3.seconds.later do
+          $APP.open_login
+        end
+      else
         $APP.open_login
       end
     end

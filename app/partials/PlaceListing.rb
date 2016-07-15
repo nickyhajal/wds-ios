@@ -19,11 +19,10 @@ class PlaceListing < PM::TableScreen
     @layout = layout
   end
   def table_data
-    [{
-      cells: @places
-    }]
+    [{cells: @places}]
   end
   def make_cell(place)
+    height = calcCellHeight(place)
     @width = !@layout.nil? && !@layout.super_width.nil? ? @layout.super_width : 400
     {
       title: '',
@@ -32,6 +31,7 @@ class PlaceListing < PM::TableScreen
       properties: {
         selectionStyle: UITableViewCellSelectionStyleNone,
         place: place,
+        height: height,
         onPicked: (@type.to_i == 999),
         checkinScreen: @checkinScreen,
         width: @width,
@@ -42,8 +42,8 @@ class PlaceListing < PM::TableScreen
   def isPicked(place)
     !place[:pick].nil? && place[:pick].length > 0
   end
-  def processPositions(places)
-    places.each do |place|
+  def processPositions()
+    @allPlaces.each do |place|
       placePos = CLLocation.alloc.initWithLatitude(place[:lat], longitude: place[:lon])
       distance = placePos.distanceFromLocation(@position) * 3.28084
       place[:order_distance] = distance
@@ -66,8 +66,8 @@ class PlaceListing < PM::TableScreen
       end
     end
   end
-  def sortPlaces(places)
-    allPlaces.sort_by! do |hsh|
+  def sortPlaces()
+    @allPlaces.sort_by! do |hsh|
       if @checkinScreen
         @sort = :order_distance
       end
@@ -78,19 +78,19 @@ class PlaceListing < PM::TableScreen
       end
     end
     if @sort == :checkins
-      allPlaces.reverse!
+      @allPlaces.reverse!
     end
   end
-  def update
+  def update_items(soft_update = false)
     hideNullMsg
     @places = []
     @lastClosest = 9999999
     @closest = false
     if @position
-      processPositions(allPlaces)
-      sortPlaces(allPlaces)
+      processPositions()
+      sortPlaces()
     end
-    allPlaces.each do |place|
+    @allPlaces.each do |place|
       if place[:place_type].to_s == @type.to_s || @type.to_i == 0 || (@type.to_i == 999 && isPicked(place))
         if @checkinScreen
           if place[:order_distance].to_i < 750
@@ -104,7 +104,16 @@ class PlaceListing < PM::TableScreen
     if @places.length == 0 && @checkinScreen
       showNullMsg
     end
-    update_table_data
+    args = {}
+    if soft_update
+      cells = []
+      visible = self.tableView.visibleCells
+      visible.each do |cell|
+        cells << self.tableView.indexPathForCell(cell)
+      end
+      args = {index_paths: cells, animation: false}
+    end
+    update_table_data args
     UIView.setAnimationsEnabled false
     self.tableView.beginUpdates
     self.tableView.endUpdates
@@ -132,11 +141,81 @@ class PlaceListing < PM::TableScreen
     unless @nullHead.nil?
       @nullHead.removeFromSuperview
       @nullMsg.removeFromSuperview
+      @nullHead = nil
+      @nullMsg = nil
     end
   end
   def tableView(table_view, heightForRowAtIndexPath:index_path)
-    cell = self.tableView(table_view, cellForRowAtIndexPath:index_path)
-    height = cell.getHeight
-    height.to_f
+    cell = self.promotion_table_data.cell(index_path: index_path)
+    cell[:properties][:height]
+  end
+  def calcCellHeight(place)
+    @width = !@layout.nil? && !@layout.super_width.nil? ? @layout.super_width : 400
+    size = self.frame.size
+    size.width = @width - 6 - 40
+    if @checkinScreen
+      size.width -= 80
+    end
+    size.height = Float::MAX
+    metaHeight = 0
+    height = 10+10 # Top and bottom padding
+
+    # Name
+    @nameStr = place['name'].nsattributedstring({
+      NSFontAttributeName => Font.Vitesse_Medium(19),
+      UITextAttributeTextColor => Color.blue
+    })
+    @name = @nameStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+    pgraph = NSMutableParagraphStyle.alloc.init
+    pgraph.lineBreakMode = NSLineBreakByTruncatingTail
+    height += @name.size.height
+
+    # Address
+    if !@checkinScreen
+      @addrStr = place['address'].gsub(/, Portland[\,]? OR[\s0-9]*/, '').gsub(/, Portland, OR/, '').nsattributedstring({
+        NSFontAttributeName => Font.Karla_Bold(17),
+        NSParagraphStyleAttributeName => pgraph,
+        UITextAttributeTextColor => Color.dark_gray
+      })
+      @addr = @addrStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+      height += 4 + @addr.size.height
+    end
+
+    # Meta
+    unless place[:distance].nil?
+      units = place[:units]
+      bits = place[:distance].to_s.split(".")
+      str = ""
+      if units == 'ft'
+        str = bits[0]
+      else
+        unless bits[1].nil?
+          str = bits[0]+"."+bits[1][0..2]
+        end
+      end
+      str = str+" "+place[:units]+" away"
+      if place[:checkins] && !@checkinScreen
+        str+= ' - ' + place[:checkins].to_s+' WDSers there now'
+      end
+      @metaStr = str.nsattributedstring({
+        NSFontAttributeName => Font.Karla_Italic(15),
+        NSParagraphStyleAttributeName => pgraph,
+        UITextAttributeTextColor => Color.dark_gray
+      })
+      @meta = @metaStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+      height += @meta.size.height+4
+    end
+
+    if !place[:pick].nil? && place[:pick].length > 0 && (@type.to_i == 999)
+      pickStr = "Picked by " + place[:pick].to_s
+      @pickStr = pickStr.nsattributedstring({
+        NSFontAttributeName => Font.Karla_Bold(15),
+        NSParagraphStyleAttributeName => pgraph,
+        UITextAttributeTextColor => Color.green
+      })
+      @pick = @pickStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+      height += @pick.size.height+4
+    end
+    return height
   end
 end

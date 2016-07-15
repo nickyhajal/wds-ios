@@ -71,6 +71,7 @@ class NotesLayout < MK::Layout
   end
   def null_msg_style
     hidden true
+    editable false
     reapply do
       text "Add a note about "+@atn.first_name+" below.\n\nYour attendee notes are private to only you."
     end
