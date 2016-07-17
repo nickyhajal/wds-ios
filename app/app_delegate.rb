@@ -1,6 +1,7 @@
 class AppDelegate < PM::Delegate
 	attr_accessor :login, :event , :home, :events
 	def on_load(app, options)
+   	FIRApp.configure
 		$IS7 = (UIDevice.currentDevice.systemVersion.floatValue < 8.0)
 		$IS8 = (UIDevice.currentDevice.systemVersion.floatValue >= 8.0)
 		$APP = self

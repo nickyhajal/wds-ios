@@ -66,6 +66,7 @@ Motion::Project::App.setup do |app|
     pod 'OpenInChrome'
     pod 'SORelativeDateTransformer'
     pod 'Firebase'
+    pod 'Stripe'
   end
 
   # Push Notifications

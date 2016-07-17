@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gem 'rake', '~> 10.4'
 
 # Add your dependencies here:
-gem 'motion-cocoapods'
+gem 'motion-cocoapods', '~> 1.8.0'
 gem 'motion-kit'
 gem 'bubble-wrap', "~> 1.9.5"
 gem 'afmotion'
