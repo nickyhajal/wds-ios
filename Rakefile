@@ -65,6 +65,7 @@ Motion::Project::App.setup do |app|
     pod 'ionicons'
     pod 'OpenInChrome'
     pod 'SORelativeDateTransformer'
+    pod 'Firebase'
   end
 
   # Push Notifications

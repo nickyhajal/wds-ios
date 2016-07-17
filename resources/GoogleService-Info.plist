@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AD_UNIT_ID_FOR_BANNER_TEST</key>
+	<string>ca-app-pub-3940256099942544/2934735716</string>
+	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
+	<string>ca-app-pub-3940256099942544/4411468910</string>
+	<key>CLIENT_ID</key>
+	<string>1072064542998-7cu3fu25p5qn6h58rktn6j9d4jrd9a2l.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1072064542998-7cu3fu25p5qn6h58rktn6j9d4jrd9a2l</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCe-w022q9u_SdSrOjgRBvVSos3Gfn3jBM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1072064542998</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.worlddominationsummit.wdsios</string>
+	<key>PROJECT_ID</key>
+	<string>worlddominationsummit</string>
+	<key>STORAGE_BUCKET</key>
+	<string>worlddominationsummit.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<true/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1072064542998:ios:279df0b4c5e483d7</string>
+	<key>DATABASE_URL</key>
+	<string>https://worlddominationsummit.firebaseio.com</string>
+</dict>
+</plist>
