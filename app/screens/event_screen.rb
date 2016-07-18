@@ -113,19 +113,34 @@ class EventScreen < PM::Screen
   def open_confirm
     event = @event
     if event.type == 'academy'
-      modal = {
-        item: event,
-        title: 'Attend this Academy!',
-        content: "360 and Connect attendees may claim one complimentary
-        academy and purchase additional academies for $29.
+      if !Me.claimedAcademy and @event.hasClaimableTickets
+        modal = {
+          item: event,
+          title: 'Attend this Academy!',
+          content: "360 and Connect attendees may claim one complimentary
+          academy and purchase additional academies for $29.
 
-You'll need to complete this process through our site. Tap below to
-        continue.",
-        yes_action: 'openAcademy',
-        yes_text: 'Get a Ticket',
-        no_text: 'No, thanks.',
-        controller: self
-      }
+Would you like to claim this ticket? (You can't change this later)
+          continue.",
+          yes_action: 'claimAcademy',
+          yes_text: 'Claim Academy',
+          no_text: 'No, thanks.',
+          controller: self
+        }
+      else
+        modal = {
+          item: event,
+          title: 'Attend this Academy!',
+          content: "WDS Academies cost $59 but 360 and Connect attendees
+          can get access for just $29.
+
+Would you like to purchase this academy?",
+          yes_action: 'purchaseAcademy',
+          yes_text: 'Purchase Academy',
+          no_text: 'No, thanks.',
+          controller: self
+        }
+      end
     else
       type = @types[event.type.to_sym][:single]
       typelow = type.downcase
@@ -172,6 +187,21 @@ Please only RSVP if you're sure you will attend.
       url.open
     end
     @layout.get(:modal).close
+  end
+  def claimAcademy(event)
+    slug = event.slug
+    url = "https://worlddominationsummit.com/academy/#{slug}".nsurl
+    modal = {
+      item: event,
+      title: 'Claiming...',
+      content: "Hang tight while we claim your ticket...",
+      yes_action: 'claimAcademy',
+      yes_text: 'Claiming...',
+      no_text: 'No, thanks.',
+      controller: self
+    }
+    @layout.get(:modal).open(modal)
+    # @layout.get(:modal).close
   end
   def go_to_directions_action
     chrome = "comgooglemaps://"

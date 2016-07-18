@@ -1,5 +1,5 @@
 class Event
-  attr_accessor :event_id, :slug, :for_type, :format, :what, :place, :venue_note, :descr, :start, :end, :note, :hosts, :lat, :lon, :address, :who, :active, :ignored, :num_rsvps, :max, :startTime, :startDay, :startStr, :dayStr, :endTime, :type, :ints, :because, :becauseStr, :isAttending
+  attr_accessor :event_id, :slug, :for_type, :format, :what, :place, :venue_note, :descr, :start, :end, :note, :hosts, :lat, :lon, :address, :who, :active, :ignored, :num_rsvps, :num_free, :free_max, :max, :startTime, :startDay, :startStr, :dayStr, :endTime, :type, :ints, :because, :becauseStr, :isAttending
   def initialize(event)
     @who = ""
     @descr = ""
@@ -8,6 +8,8 @@ class Event
     @format = ""
     @slug = ""
     @start = ""
+    @num_free = ""
+    @free_max = ""
     @address = ""
     @lat = 0.0
     @lon = 0.0
@@ -42,6 +44,9 @@ class Event
   end
   def isFull
     @num_rsvps > (@max + (@max * 0.1))
+  end
+  def hasClaimableTickets
+    @num_free < @free_max
   end
   def to_hash
     hash = {}

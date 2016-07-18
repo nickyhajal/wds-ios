@@ -223,6 +223,9 @@ module Me
         end
       end
     end
+    def claimedAcademy
+      !Me.atn.academy.nil? and Me.atn.academy.to_s.length > 0
+    end
     def isInterestedInEvent(event)
       is = Assets.get('interests')
       interested = []

@@ -62,6 +62,7 @@ Motion::Project::App.setup do |app|
   app.fonts = ['Karla-Regular.ttf', 'Karla-Italic.ttf', 'Karla-Bold.ttf', 'Vitesse-Bold.otf', 'Vitesse-Book.otf', 'Vitesse-Light.otf', 'Vitesse-Medium.otf', 'ionicons.ttf']
   app.pods do
     pod 'SDWebImage', '~>3.7'
+    pod 'SZTextView'
     pod 'ionicons'
     pod 'OpenInChrome'
     pod 'SORelativeDateTransformer'

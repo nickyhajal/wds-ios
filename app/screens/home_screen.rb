@@ -43,6 +43,14 @@ class HomeScreen < PM::Screen
     @dispatch.initFilters(@filters_screen.layout)
     @dispatch.setNewPostsBtn @layout.get(:new_posts), @layout.new_posts_y, self.view
     @post_screen.dispatch = @dispatch
+    0.5.seconds.later do
+      Assets.getSmart 'academy', do |academies, status|
+        @cart = CartScreen.new(nav_bar: false)
+        puts academies['2016-08-12']
+        @cart.setProduct('academy', Event.new(academies['2016-08-12'][1]))
+        open_modal @cart
+      end
+    end
     true
   end
   def open_event(event)
