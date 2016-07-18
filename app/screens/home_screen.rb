@@ -46,7 +46,6 @@ class HomeScreen < PM::Screen
     0.5.seconds.later do
       Assets.getSmart 'academy', do |academies, status|
         @cart = CartScreen.new(nav_bar: false)
-        puts academies['2016-08-12']
         @cart.setProduct('academy', Event.new(academies['2016-08-12'][1]))
         open_modal @cart
       end

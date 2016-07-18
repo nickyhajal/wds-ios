@@ -44,6 +44,7 @@ PODS:
   - SDWebImage/Core (3.7.2)
   - SORelativeDateTransformer (1.1.10)
   - Stripe (8.0.2)
+  - SZTextView (1.2.2)
 
 DEPENDENCIES:
   - AFNetworking (~> 2.5.0)
@@ -53,6 +54,7 @@ DEPENDENCIES:
   - SDWebImage (~> 3.7)
   - SORelativeDateTransformer
   - Stripe
+  - SZTextView
 
 SPEC CHECKSUMS:
   AFNetworking: e1d86c2a96bb5d2e7408da36149806706ee122fe
@@ -67,7 +69,8 @@ SPEC CHECKSUMS:
   SDWebImage: 71b7cdc1d1721d6a82ed62889030225f2c249e29
   SORelativeDateTransformer: 307489386df4697780902bc16e99881d69a629b3
   Stripe: 3dfcde17037996e00db0a2f6dbfdedb7ad2ae55b
+  SZTextView: 3a81174dce0710a9ab069bc73a813e6df53b9c82
 
-PODFILE CHECKSUM: 931f29bc07f223a50bfdc58f7dea88dcd6d7d025
+PODFILE CHECKSUM: cd5d85e7456c8184e624fc17e9a5884527cf1f2f
 
 COCOAPODS: 1.0.1

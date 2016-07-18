@@ -1,17 +1,17 @@
 class CartLayout < MK::Layout
-  attr_accessor :isExisting, :card, :useExisting
+  attr_accessor :isExisting, :card, :useExisting, :month, :year
   def setController(controller)
     @controller = controller
   end
   def layout
+    @expShouldBeOpen = false
+    @expIsOpen = false
+    @month = false
+    @year = false
     @card = false
     @isExisting = false
     @useExisting = false
-    unless Me.atn.card.nil?
-      @isExisting = true
-      @useExisting = true
-      @card = Me.atn.card
-    end
+    updCard
     root :main do
       add UIView, :header do
         add UILabel, :header_title
@@ -30,15 +30,32 @@ class CartLayout < MK::Layout
         add UILabel, :card_exp
       end
       add UIView, :card_form do
-        add UITextField, :card_num
-        add ExpirationPicker, :card_exp
-        add UITextField, :card_cvv
-        add UITextField, :card_zip
+        add SZTextView, :card_num
+        add UIButton, :card_exp_btn
+        add SZTextView, :card_zip
+        add SZTextView, :card_cvv
       end
       add UIView, :card_existing_botline
+      add UIView, :card_new_botline
       add UIButton, :card_new_btn
       add UIButton, :submit
       add UIButton, :cancel
+      add UIView, :card_exp_shell do
+        add ExpirationPicker, :card_exp_picker
+        add UIButton, :card_exp_close
+      end
+    end
+  end
+  def syncCard
+    Me.sync do
+      updCard
+    end
+  end
+  def updCard
+    if !Me.atn.card.nil? and Me.atn.card
+      @isExisting = true
+      @useExisting = true
+      @card = Me.atn.card
     end
   end
   def updateVals(vals)
@@ -47,6 +64,24 @@ class CartLayout < MK::Layout
   end
   def toggleExisting
     @useExisting = !@useExisting
+    closeKeyboard
+    reapply!
+  end
+  def openExp
+    @expShouldBeOpen = true
+    closeKeyboard
+    reapply!
+  end
+  def closeExp
+    @expShouldBeOpen = false
+    reapply!
+  end
+  def closeKeyboard
+    get(:main).endEditing(true)
+  end
+  def updateExp(month, year)
+    @month = month
+    @year = year
     reapply!
   end
   def super_height
@@ -84,7 +119,7 @@ class CartLayout < MK::Layout
     textColor Color.light_tan
     constraints do
       center_x.equals(:superview)
-      top 32
+      top 30
     end
     target.sizeToFit
   end
@@ -98,7 +133,7 @@ class CartLayout < MK::Layout
     end
   end
   def item_name_style
-    font Font.Karla_Bold(18)
+    font Font.Karla_Bold(20)
     textColor Color.dark_gray
     constraints do
       top 16
@@ -116,14 +151,14 @@ class CartLayout < MK::Layout
     numberOfLines 1
     lineBreakMode NSLineBreakByTruncatingTail
     constraints do
-      top.equals(:item_name, :bottom).plus(5)
+      top.equals(:item_name, :bottom).plus(3)
       left.equals(:item_name)
       right.equals(:item_price_shell, :left).minus(16)
+      height 25
     end
     view = target
     reapply do
       text @vals[:descr]
-      view.sizeToFit
     end
   end
   def item_botline_style
@@ -167,7 +202,6 @@ class CartLayout < MK::Layout
     view = target
     reapply do
       text '$'+@vals[:price]
-      view.sizeToFit
     end
   end
   def card_existing_botline_style
@@ -177,6 +211,29 @@ class CartLayout < MK::Layout
       width.equals(:superview)
       height 2
       left 0
+    end
+    always do
+      if @useExisting
+        hidden false
+      else
+        hidden true
+      end
+    end
+  end
+  def card_new_botline_style
+    backgroundColor Color.dark_gray(0.15)
+    constraints do
+      top.equals(:card_form, :bottom)
+      width.equals(:superview)
+      height 2
+      left 0
+    end
+    always do
+      if @useExisting
+        hidden true
+      else
+        hidden false
+      end
     end
   end
   def card_new_btn_style
@@ -189,6 +246,13 @@ class CartLayout < MK::Layout
       right 0
       top.equals(:card_existing_botline, :bottom)
       height 36
+    end
+    always do
+      if @useExisting
+        hidden false
+      else
+        hidden true
+      end
     end
     target.addTarget self, action: 'toggleExisting', forControlEvents:UIControlEventTouchDown
   end
@@ -220,19 +284,21 @@ class CartLayout < MK::Layout
     reapply do
       paragraphStyle = NSMutableParagraphStyle.alloc.init
       paragraphStyle.lineSpacing = 3
-      str = (@card['brand']+' ending in '+@card['last4'])+
-      ' (Exp: '+@card['exp_month']+'/'+@card['exp_year']+')'
-      str = str.attrd({
-        NSFontAttributeName => Font.Karla_Bold(15),
-        UITextAttributeTextColor => Color.dark_gray,
-        NSParagraphStyleAttributeName => paragraphStyle
-      })
-      str = "CHARGE TO\n".attrd({
-        NSFontAttributeName => Font.Vitesse_Bold(12),
-        UITextAttributeTextColor => Color.dark_gray(0.6),
-        NSParagraphStyleAttributeName => paragraphStyle
-      })+str
-      view.setAttributedText str
+      if @useExisting
+        str = (@card['brand']+' ending in '+@card['last4'])+
+        ' (Exp: '+@card['exp_month']+'/'+@card['exp_year']+')'
+        str = str.attrd({
+          NSFontAttributeName => Font.Karla_Bold(15),
+          UITextAttributeTextColor => Color.dark_gray,
+          NSParagraphStyleAttributeName => paragraphStyle
+        })
+        str = "CHARGE TO\n".attrd({
+          NSFontAttributeName => Font.Vitesse_Bold(12),
+          UITextAttributeTextColor => Color.dark_gray(0.6),
+          NSParagraphStyleAttributeName => paragraphStyle
+        })+str
+        view.setAttributedText str
+      end
       view.sizeToFit
     end
   end
@@ -250,12 +316,12 @@ class CartLayout < MK::Layout
     end
   end
   def card_form_style
-    backgroundColor Color.tan
+    backgroundColor Color.bright_yellowish_tan
     constraints do
       left 0
       right 0
       top.equals(:item_shell, :bottom)
-      height 80
+      height 300
     end
     always do
       if @useExisting
@@ -266,16 +332,122 @@ class CartLayout < MK::Layout
     end
   end
   def card_num_style
+    font Font.Karla_Bold(16)
+    textColor Color.blue
+    placeholderTextColor Color.dark_gray
     keyboardType UIKeyboardTypeNumberPad
+    placeholder "Card Number"
+    backgroundColor Color.orangish_gray(0.2)
+    textContainerInset UIEdgeInsetsMake(10,7,0,0)
+    delegate self
+    constraints do
+      top 16
+      left 16
+      width.equals(:superview).minus(32)
+      height 40
+    end
   end
-  def card_cvv_style
-    keyboardType UIKeyboardTypeNumberPad
+  def card_exp_btn_style
+    font Font.Karla_Bold(16)
+    backgroundColor Color.orangish_gray(0.2)
+    titleColor Color.dark_gray
+    title "Exp. Date"
+    contentHorizontalAlignment UIControlContentHorizontalAlignmentLeft
+    contentEdgeInsets UIEdgeInsetsMake(3,7,0,0)
+    target.addTarget self, action: 'openExp', forControlEvents:UIControlEventTouchDown
+    constraints do
+      top.equals(:card_num, :bottom).plus(16)
+      left.equals(:card_num, :left)
+      width.equals(:superview).divided_by(3)
+      height.equals(:card_num)
+    end
+    reapply do
+      if @month and @year
+        title "Exp: "+@month + "/"+ @year
+        titleColor Color.blue
+      else
+        titleColor Color.dark_gray
+        title "Exp. Date"
+      end
+    end
   end
   def card_zip_style
+    placeholder "Billing Zip"
+    font Font.Karla_Bold(16)
+    textColor Color.blue
+    placeholderTextColor Color.dark_gray
     keyboardType UIKeyboardTypeNumberPad
+    backgroundColor Color.orangish_gray(0.2)
+    delegate self
+    textContainerInset UIEdgeInsetsMake(10,7,0,0)
+    constraints do
+      top.equals(:card_exp_btn)
+      left.equals(:card_exp_btn, :right).plus(16)
+      right -16
+      height.equals(:card_num)
+    end
   end
-  def card_exp_style
+  def card_cvv_style
+    placeholder "Card CVV"
+    font Font.Karla_Bold(16)
+    textColor Color.blue
+    placeholderTextColor Color.dark_gray
     keyboardType UIKeyboardTypeNumberPad
+    backgroundColor Color.orangish_gray(0.2)
+    delegate self
+    textContainerInset UIEdgeInsetsMake(10,7,0,0)
+    constraints do
+      top.equals(:card_exp_btn, :bottom).plus(16)
+      left.equals(:card_num)
+      width.equals(120)
+      height 40
+    end
+  end
+  def card_exp_shell_style
+    backgroundColor Color.dark_yellow_tan
+    constraints do
+      @exp_b = bottom 220
+      left 0
+      right 0
+      height 220
+    end
+    view = target
+    reapply do
+      if @expShouldBeOpen != @expIsOpen
+        dir = :down
+        finishPoint = 220
+        if @expShouldBeOpen
+          finishPoint = 0
+          dir = :up
+        end
+        view.slide dir, 220
+        @expIsOpen = @expShouldBeOpen
+        0.5.seconds.later do
+          @exp_b.equals(finishPoint)
+        end
+      end
+    end
+  end
+  def card_exp_close_style
+    title "Done"
+    target.addTarget self, action: 'closeExp', forControlEvents:UIControlEventTouchDown
+    font Font.Karla_Bold(16)
+    titleColor Color.coffee(0.8)
+    constraints do
+      top 12
+      right (-8)
+      width 60
+      height 20
+    end
+  end
+  def card_exp_picker_style
+    target.controller = self
+    constraints do
+      top 20
+      left 0
+      right 0
+      bottom 0
+    end
   end
   def updatePlaceholder
     textView = get(:input)
@@ -286,10 +458,23 @@ class CartLayout < MK::Layout
     end
     get(:input).layoutIfNeeded
   end
+  def textViewShouldBeginEditing(textView)
+    flexibleSpace = UIBarButtonItem.alloc.initWithBarButtonSystemItem(UIBarButtonSystemItemFlexibleSpace, target:self, action:nil)
+    barButton = UIBarButtonItem.alloc.initWithTitle("Done",
+      style:UIBarButtonItemStylePlain, target:self, action:'closeKeyboard')
+    barButton.setTitleTextAttributes({
+     NSFontAttributeName => Font.Karla_Bold(16),
+     NSForegroundColorAttributeName => Color.blue
+    }, forState:UIControlStateNormal)
+    toolbar = UIToolbar.alloc.initWithFrame(CGRectMake(0, 0, super_width, 44))
+    toolbar.items = NSArray.arrayWithObjects(flexibleSpace, barButton, nil);
+    textView.inputAccessoryView = toolbar;
+  end
+  def textViewDidBeginEditing(textView)
+    closeExp
+  end
   def textViewDidEndEditing(textView)
-    updatePlaceholder
   end
   def textViewDidChange(textView)
-    updatePlaceholder
   end
 end

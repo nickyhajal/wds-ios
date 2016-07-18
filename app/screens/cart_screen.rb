@@ -7,6 +7,7 @@ class CartScreen < PM::Screen
     @layout.build
     @code = false
     @meta = false
+    @syncCard = false
   end
   def init_layout
     # @layout.get(:input).layoutIfNeeded
@@ -40,11 +41,26 @@ class CartScreen < PM::Screen
     else
       card_num = @layout.get(:card_num).text
       card_cvv = @layout.get(:card_cvv).text
-      card_zip = @layout.get(:card_zip).text
+      month = @layout.month
+      year = @layout.year
+      card = STPCardParams.new
+      card.number = card_num
+      card.cvc = card_cvv
+      card.expMonth = month
+      card.expYear = year
+      STPAPIClient.sharedClient.createTokenWithCard(card, completion: -> rsp, err {
+        if err.nil? and !rsp.nil? and !rsp.tokenId.nil?
+          charge(rsp.tokenId)
+          @syncCard = true # If this card charges, we want it for future purchases within app
+        else
+          handleErrors(err)
+        end
+      })
     end
     # @layout.get(:input).resignFirstResponder
   end
-
+  def handleErrors(errs)
+  end
   def charge(token)
     puts 'charge'
     puts token
@@ -61,6 +77,10 @@ class CartScreen < PM::Screen
         puts 'declined'
       else
         puts 'success!'
+        if @syncCard
+          @layout.syncCard
+          @syncCard = false
+        end
       end
     end
   end
