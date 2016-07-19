@@ -37,7 +37,8 @@ class EventCell < PM::TableViewCell
       UITextAttributeTextColor => "#21170A".uicolor(@opacity)
     })
     if @event.type == 'meetup' and !@event.format.nil?
-      @whoStr = (@event.format.ucfirst+": ").attrd({
+      format = @event.format.gsub(/(\w+)/) { |s| s.capitalize }
+      @whoStr = (format+": ").attrd({
         NSFontAttributeName => Font.Karla_Bold(14),
         UITextAttributeTextColor => "#21170A".uicolor(@opacity)
       })+@whoStr
