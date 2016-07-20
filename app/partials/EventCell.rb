@@ -73,7 +73,7 @@ class EventCell < PM::TableViewCell
         event = @event.clone
         event.isAttending = @isAttending
         if !@isAttending || @event.type != 'academy'
-          @controller.open_confirm event
+          @controller.open_confirm event, self
         end
       else
         @controller.open_event @event

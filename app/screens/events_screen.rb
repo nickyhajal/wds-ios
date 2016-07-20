@@ -119,7 +119,8 @@ class EventsScreen < PM::Screen
   def open_host
     @layout.open_host
   end
-  def open_confirm(event)
+  def open_confirm(event, cell)
+    @activeCell = cell
     if event.type == 'academy'
       modal = {
         item: event,
@@ -167,7 +168,7 @@ Please only RSVP if you're sure you will attend.
   end
   def doRsvp(event)
     Me.toggleRsvp event do
-      update_events
+      @activeCell.setNeedsDisplay
     end
     @layout.get(:modal).close
   end

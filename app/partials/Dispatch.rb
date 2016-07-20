@@ -232,7 +232,6 @@ class Disptch < PM::TableScreen
     if params[:channel_type] == 'global'
       params[:filters] = @filters
     end
-    puts 'FETCH UPDATES'
     Api.get 'feed/updates', params do |rsp|
       if !rsp.is_err && rsp[:count]
         displayNewPostNotification rsp.count
@@ -254,10 +253,7 @@ class Disptch < PM::TableScreen
         update_table_data
       end
     end
-    puts 'CONTINUE FETCH?'
-    puts continueFetch
     if continueFetch
-      puts 'CONTINUEIN'
       10.seconds.later do
         fetchUpdates
       end

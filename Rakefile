@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+
+
+### CRASH SYMBOLICATING
+# ./symbolicatecrash -o /nky/wds-ios/crashes/l3.3.txt /nky/wds-ios/crashes/logs3/4.crash
 $:.unshift("/Library/RubyMotion/lib")
 require 'motion/project/template/ios'
 
@@ -37,7 +41,7 @@ Motion::Project::App.setup do |app|
   app.name = 'WDS App'
   app.frameworks += ["QuartzCore", "CoreImage"]
   app.identifier = 'com.worlddominationsummit.wdsios'
-  app.version = '1.7'
+  app.version = '1.9'
   app.development do
     app.provisioning_profile = '/nky/secure_files/WDS_App_Dev.mobileprovision'
     app.codesign_certificate = 'iPhone Developer: Nick Hajal (TS4DVF4YGA)'
@@ -53,6 +57,7 @@ Motion::Project::App.setup do |app|
   app.info_plist['NSLocationWhenInUseUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers.'
   app.info_plist['NSAppTransportSecurity'] = { 'NSAllowsArbitraryLoads' => true }
   app.info_plist['NSAppTransportSecurity'] = { 'NSAllowsArbitraryLoads' => true }
+  app.info_plist['ITSAppUsesNonExemptEncryption'] = false
   app.libs += ['/usr/lib/libsqlite3.dylib']
   app.vendor_project 'vendor/FMDB', :static
   app.vendor_project 'vendor/MMMarkdown/Source', :static
