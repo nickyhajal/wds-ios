@@ -7,8 +7,8 @@ module Api
   ####
   ####
   if Device.simulator?
-    @@url = 'http://wds.nky/api/'
-    # @@url = 'https://worlddominationsummit.com/api/'
+    # @@url = 'http://wds.nky/api/'
+    @@url = 'https://worlddominationsummit.com/api/'
   else
     @@url = 'https://worlddominationsummit.com/api/'
   end

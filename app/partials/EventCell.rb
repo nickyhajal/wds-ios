@@ -37,7 +37,8 @@ class EventCell < PM::TableViewCell
       UITextAttributeTextColor => "#21170A".uicolor(@opacity)
     })
     if @event.type == 'meetup' and !@event.format.nil?
-      @whoStr = (@event.format.ucfirst+": ").attrd({
+      format = @event.format.gsub(/(\w+)/) { |s| s.capitalize }
+      @whoStr = (format+": ").attrd({
         NSFontAttributeName => Font.Karla_Bold(14),
         UITextAttributeTextColor => "#21170A".uicolor(@opacity)
       })+@whoStr
@@ -72,7 +73,7 @@ class EventCell < PM::TableViewCell
         event = @event.clone
         event.isAttending = @isAttending
         if !@isAttending || @event.type != 'academy'
-          @controller.open_confirm event
+          @controller.open_confirm event, self
         end
       else
         @controller.open_event @event

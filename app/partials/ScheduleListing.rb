@@ -58,7 +58,7 @@ class ScheduleListing < PM::TableScreen
     {
       title: '',
       cell_class: ScheduleCell,
-      action: :meetup_tap_action,
+      action: 'meetup_tap_action',
       arguments: { event: event, width: @width },
       properties: {
         selectionStyle: UITableViewCellSelectionStyleNone,

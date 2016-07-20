@@ -72,7 +72,6 @@ class EventListing < PM::TableScreen
     {
       title: '',
       cell_class: EventCell,
-      # action: :event_tap_action,
       arguments: { event: event },
       properties: {
         selectionStyle: UITableViewCellSelectionStyleNone,

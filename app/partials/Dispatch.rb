@@ -16,13 +16,13 @@ class Disptch < PM::TableScreen
         events: 0
       }
     end
-    setFilters filters
+    setFilters filters, true, true
     layout.get(:twitter_selector).setSelectedSegmentIndex filters[:twitter]
     layout.get(:friends_selector).setSelectedSegmentIndex filters[:following]
     layout.get(:communities_selector).setSelectedSegmentIndex filters[:communities]
     layout.get(:events_selector).setSelectedSegmentIndex filters[:events]
   end
-  def setFilters(filters = false, do_update = true)
+  def setFilters(filters = false, do_update = true, continueUpdating = false)
     unless filters
       filters = Store.get('dispatch_filters', true)
     end
@@ -30,7 +30,7 @@ class Disptch < PM::TableScreen
     if do_update
       update
       15.seconds.later do
-        fetchUpdates(false)
+        fetchUpdates(continueUpdating)
       end
     end
   end
@@ -266,7 +266,7 @@ class Disptch < PM::TableScreen
     if params[:channel_type] == 'global'
       params[:filters] = @filters
     end
-    Api.get 'feed', params, do |rsp|
+    Api.get 'feed', params do |rsp|
       if rsp.is_err
         stop_refreshing
         frame = self.tableView.frame
@@ -351,7 +351,7 @@ class Disptch < PM::TableScreen
     end
   end
   def on_refresh
-    loadMore
+    loadNew
   end
   def scrollViewDidScroll(scrollView)
     height = scrollView.contentSize.height

@@ -1,6 +1,6 @@
 GIT
-  remote: git://github.com/Brian-Egan/ion_in_motion.git
-  revision: b5106d730d9cd9f268556a1e53286d1178b48bd8
+  remote: git://github.com/nickyhajal/ion_in_motion.git
+  revision: f2561a3adccc9d66fc75274ac54284813c1097f2
   specs:
     ion_in_motion (0.2.0)
 
@@ -17,7 +17,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    ProMotion (2.6.0)
+    ProMotion (2.4.2)
       methadone (~> 1.7)
       motion_print (~> 1.0)
     activesupport (5.0.0)
@@ -81,6 +81,8 @@ GEM
     molinillo (0.4.5)
     motion-cocoapods (1.8.0)
       cocoapods (>= 1.0.0)
+    motion-fabric (0.6)
+      motion-cocoapods (~> 1.8)
     motion-kit (1.0.0)
       dbt (~> 1.1, >= 1.1.5)
     motion-markdown-it (4.2.2.0)
@@ -108,12 +110,13 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  ProMotion
+  ProMotion (~> 2.4.0)
   afmotion
   bubble-wrap (~> 1.9.5)
   ion_in_motion!
   map-kit-wrapper
   motion-cocoapods (~> 1.8.0)
+  motion-fabric
   motion-kit
   motion-markdown-it
   motion_model!
