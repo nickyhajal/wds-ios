@@ -20,6 +20,9 @@ PODS:
   - AFNetworking/UIKit (2.5.3):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
+  - Crashlytics (3.7.2):
+    - Fabric (~> 1.6.3)
+  - Fabric (1.6.7)
   - Firebase (3.3.0):
     - Firebase/Core (= 3.3.0)
   - Firebase/Analytics (3.3.0):
@@ -47,6 +50,8 @@ PODS:
 
 DEPENDENCIES:
   - AFNetworking (~> 2.5.0)
+  - Crashlytics (~> 3.7)
+  - Fabric (~> 1.6)
   - Firebase
   - ionicons
   - OpenInChrome
@@ -56,6 +61,8 @@ DEPENDENCIES:
 
 SPEC CHECKSUMS:
   AFNetworking: e1d86c2a96bb5d2e7408da36149806706ee122fe
+  Crashlytics: 130ab943f8c78cda7a814b434f270b2e2c8a3cba
+  Fabric: caf7580c725e64db144f610ac65cd60956911dc7
   Firebase: 6250071f0e2440a5c4c67b8cb6b868f868237ac3
   FirebaseAnalytics: 0fd6532cb2c3d03cd5cf26ad295ccb091efd3104
   FirebaseInstanceID: a9d923f3d0b6fbf9fac89310860357aaadc34be5
@@ -68,6 +75,6 @@ SPEC CHECKSUMS:
   SORelativeDateTransformer: 307489386df4697780902bc16e99881d69a629b3
   Stripe: 3dfcde17037996e00db0a2f6dbfdedb7ad2ae55b
 
-PODFILE CHECKSUM: 931f29bc07f223a50bfdc58f7dea88dcd6d7d025
+PODFILE CHECKSUM: 6a0c7c8285b37abed3e27b4d93f1cd0790bd2945
 
 COCOAPODS: 1.0.1

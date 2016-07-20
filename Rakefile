@@ -41,7 +41,7 @@ Motion::Project::App.setup do |app|
   app.name = 'WDS App'
   app.frameworks += ["QuartzCore", "CoreImage"]
   app.identifier = 'com.worlddominationsummit.wdsios'
-  app.version = '1.9'
+  app.version = '1.10.1'
   app.development do
     app.provisioning_profile = '/nky/secure_files/WDS_App_Dev.mobileprovision'
     app.codesign_certificate = 'iPhone Developer: Nick Hajal (TS4DVF4YGA)'
@@ -50,6 +50,11 @@ Motion::Project::App.setup do |app|
     app.provisioning_profile = '/nky/secure_files/WDS_App_Production.mobileprovision'
     app.codesign_certificate = 'iPhone Distribution: Nicholas Hajal (B2D7N48CG9)'
     app.entitlements['beta-reports-active'] = true
+  end
+  app.fabric do |config|
+    config.api_key = "3a3d44766f7f51cc70d2bf6049548f46da107e09"
+    config.build_secret = "b174cc4665c9f14925fd436158f0f20f57225f1e2eacfa36258bf169e8ce9c1e"
+    config.kit 'Crashlytics'
   end
   app.entitlements['application-identifier'] = "#{app.seed_id}.#{app.identifier}"
   app.info_plist['UIViewControllerBasedStatusBarAppearance'] = false
@@ -83,6 +88,9 @@ Motion::Project::App.setup do |app|
   end
 end
 
+Rake::Task["archive:distribution"].enhance do
+  Rake::Task["fabric:dsym:device"].invoke
+end
 
 desc "Run simulator on iPhone"
 task :iphone4 do

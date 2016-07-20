@@ -81,6 +81,8 @@ GEM
     molinillo (0.4.5)
     motion-cocoapods (1.8.0)
       cocoapods (>= 1.0.0)
+    motion-fabric (0.6)
+      motion-cocoapods (~> 1.8)
     motion-kit (1.0.0)
       dbt (~> 1.1, >= 1.1.5)
     motion-markdown-it (4.2.2.0)
@@ -114,6 +116,7 @@ DEPENDENCIES
   ion_in_motion!
   map-kit-wrapper
   motion-cocoapods (~> 1.8.0)
+  motion-fabric
   motion-kit
   motion-markdown-it
   motion_model!

@@ -5,6 +5,7 @@ gem 'rake', '~> 10.4'
 # Add your dependencies here:
 gem 'motion-cocoapods', '~> 1.8.0'
 gem 'motion-kit'
+gem 'motion-fabric'
 gem 'bubble-wrap', "~> 1.9.5"
 gem 'afmotion'
 gem "sugarcube"
