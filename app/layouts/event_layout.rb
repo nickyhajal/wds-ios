@@ -577,7 +577,8 @@ class EventLayout < MK::Layout
           error:error_ptr
         )
         if (@event.type == "meetup" and !@event.format.nil?)
-          content = (@event.format.ucfirst+": ").attrd({
+          format = @event.format.gsub(/(\w+)/) { |s| s.capitalize }
+          content = (format+": ").attrd({
             NSFontAttributeName => Font.Karla_Bold(15),
             UITextAttributeTextColor => "#21170A".uicolor(@opacity)
           })+content

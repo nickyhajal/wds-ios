@@ -3,7 +3,7 @@ class AppDelegate < PM::Delegate
 	def on_load(app, options)
 		Stripe.setDefaultPublishableKey('pk_test_8WKTIWKXB6T1eFT9sFqrymCM')
    	FIRApp.configure
-		if RUBYMOTION_ENV == 'release' || CRASHLYTICS_BETA == true
+		if RUBYMOTION_ENV == 'release'
 		  Fabric.with([Crashlytics])
 		end
 		$IS7 = (UIDevice.currentDevice.systemVersion.floatValue < 8.0)

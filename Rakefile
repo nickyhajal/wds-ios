@@ -41,7 +41,8 @@ Motion::Project::App.setup do |app|
   app.name = 'WDS App'
   app.frameworks += ["QuartzCore", "CoreImage"]
   app.identifier = 'com.worlddominationsummit.wdsios'
-  app.version = '1.10.1'
+  app.version = '1.11'
+  app.short_version = '1.11.3'
   app.development do
     app.provisioning_profile = '/nky/secure_files/WDS_App_Dev.mobileprovision'
     app.codesign_certificate = 'iPhone Developer: Nick Hajal (TS4DVF4YGA)'
