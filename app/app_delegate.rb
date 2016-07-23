@@ -2,7 +2,7 @@ class AppDelegate < PM::Delegate
 	attr_accessor :login, :event , :home, :events
 	def on_load(app, options)
    	FIRApp.configure
-		if RUBYMOTION_ENV == 'release' || CRASHLYTICS_BETA == true
+		if RUBYMOTION_ENV == 'release'
 		  Fabric.with([Crashlytics])
 		end
 		$IS7 = (UIDevice.currentDevice.systemVersion.floatValue < 8.0)
