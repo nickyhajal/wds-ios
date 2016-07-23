@@ -278,17 +278,22 @@ class EventLayout < MK::Layout
       left 0
     end
     delegate self
+    map = target
     reapply do
       if !@event.lat.nil? && !@event.lon.nil? && @updateMap
         @updateMap = false
-        target.region = CoordinateRegion.new([@event.lat.to_f+0.0004, @event.lon], [0.1, 0.1])
-        target.set_zoom_level(15)
-        target.removeAnnotations(target.annotations)
-        pin = MKPointAnnotation.alloc.init
-        pin.coordinate = CLLocationCoordinate2DMake(@event.lat, @event.lon)
-        pin.title = @event.place
-        pin.subtitle = @event.address.gsub(/, Portland, OR[\s0-9]*/, '')
-        target.addAnnotation pin
+        map.region = CoordinateRegion.new([@event.lat.to_f+0.0004, @event.lon], [0.1, 0.1])
+        map.set_zoom_level(15)
+        0.1.seconds.later do
+          map.region = CoordinateRegion.new([@event.lat.to_f+0.0004, @event.lon], [0.1, 0.1])
+          map.set_zoom_level(15)
+          map.removeAnnotations(map.annotations)
+          pin = MKPointAnnotation.alloc.init
+          pin.coordinate = CLLocationCoordinate2DMake(@event.lat, @event.lon)
+          pin.title = @event.place
+          pin.subtitle = @event.address.gsub(/, Portland, OR[\s0-9]*/, '')
+          map.addAnnotation pin
+        end
       end
     end
   end
@@ -324,22 +329,22 @@ class EventLayout < MK::Layout
     view = target
     target.on_tap do |gesture|
       x = gesture.locationInView(get(:superview)).x
-      y = gesture.locationInView(get(:superview)).y - get(:name).frame.size.height
+      y = gesture.locationInView(get(:superview)).y
       atnY = gesture.locationInView(get(:superview)).y - get(:name).frame.size.height - get(:who).frame.size.height
       hOr = get(:hosts).frame.origin
-      hStart = hOr.y + 195
+      hStart = hOr.y + 273
       hEnd = hStart + 31
-      if (!@slid_open && y > hStart && y < hEnd)
+      if ((!@slid_open || @slid_open.nil?) && y > hStart && y < hEnd)
         x = x - 78
         if x > 0
           get(:hosts).openByX(x)
         end
       end
       dOr = get(:dispatch_btn).frame.origin
-      dStart = dOr.y + 195
+      dStart = dOr.y + 273
       dEnd = dStart + 31
       rOr = get(:rsvps).frame.origin
-      rStart = rOr.y + 195
+      rStart = rOr.y + 273
       rEnd = rStart + 31
       if (!@slid_open && y > rStart && y < rEnd)
         open_atns
@@ -484,7 +489,7 @@ class EventLayout < MK::Layout
       @addr_top = top.equals(:venue, :bottom).minus(10)
       width.equals(:superview).minus(40)
       @addr_height = height 30
-      left.equals(:venue).minus(3)
+      left.equals(:venue).minus(0)
     end
   end
   def venue_note_style
@@ -510,7 +515,7 @@ class EventLayout < MK::Layout
       @venue_note_top = top.equals(:addr, :bottom).minus(12)
       width.equals(:superview).minus(40)
       @venue_note_height = height 30
-      left.equals(:venue).minus(4)
+      left.equals(:venue).minus(0)
     end
   end
   def line_after_when_style
