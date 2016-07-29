@@ -1,8 +1,8 @@
 class AppDelegate < PM::Delegate
 	attr_accessor :login, :event , :home, :events
 	def on_load(app, options)
-		Stripe.setDefaultPublishableKey('pk_test_8WKTIWKXB6T1eFT9sFqrymCM')
-   	FIRApp.configure
+		Stripe.setDefaultPublishableKey('pk_live_v32iH6nfQOgPmKgQiNOrnZCi')
+   	# FIRApp.configure
 		if RUBYMOTION_ENV == 'release'
 		  Fabric.with([Crashlytics])
 		end

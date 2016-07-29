@@ -20,6 +20,7 @@ PODS:
   - AFNetworking/UIKit (2.5.3):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
+  - CardIO (5.3.2)
   - Crashlytics (3.7.2):
     - Fabric (~> 1.6.3)
   - Fabric (1.6.7)
@@ -51,6 +52,7 @@ PODS:
 
 DEPENDENCIES:
   - AFNetworking (~> 2.5.0)
+  - CardIO
   - Crashlytics (~> 3.7)
   - Fabric (~> 1.6)
   - Firebase
@@ -63,6 +65,7 @@ DEPENDENCIES:
 
 SPEC CHECKSUMS:
   AFNetworking: e1d86c2a96bb5d2e7408da36149806706ee122fe
+  CardIO: 92c45caef0d986c4a303a7afba0c9b76ff2b1f6e
   Crashlytics: 130ab943f8c78cda7a814b434f270b2e2c8a3cba
   Fabric: caf7580c725e64db144f610ac65cd60956911dc7
   Firebase: 6250071f0e2440a5c4c67b8cb6b868f868237ac3
@@ -78,6 +81,6 @@ SPEC CHECKSUMS:
   Stripe: 3dfcde17037996e00db0a2f6dbfdedb7ad2ae55b
   SZTextView: 3a81174dce0710a9ab069bc73a813e6df53b9c82
 
-PODFILE CHECKSUM: 4bbf163c3b7e70c5acbca56dfe45abc3d625ebaa
+PODFILE CHECKSUM: 8fb279d410f80e3beb6adae13cea610daacf7607
 
 COCOAPODS: 1.0.1

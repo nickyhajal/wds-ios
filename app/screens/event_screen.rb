@@ -5,6 +5,7 @@ class EventScreen < PM::Screen
     @from = false
   end
   def on_load
+    @cart = CartScreen.new(nav_bar: false)
     @dispatch_screen = DispatchItemScreen.new(nav_bar: false)
     @attendee_screen = AttendeeScreen.new(nav_bar: false)
     @post_screen = PostScreen.new(nav_bar: false)
@@ -113,7 +114,7 @@ class EventScreen < PM::Screen
   def open_confirm
     event = @event
     if event.type == 'academy'
-      if !Me.claimedAcademy and @event.hasClaimableTickets
+      if !Me.claimedAcademy and event.hasClaimableTickets
         modal = {
           item: event,
           title: 'Attend this Academy!',
@@ -122,8 +123,22 @@ class EventScreen < PM::Screen
 
 Would you like to claim this ticket? (You can't change this later)
           continue.",
+          close_on_yes: false,
           yes_action: 'claimAcademy',
           yes_text: 'Claim Academy',
+          no_text: 'No, thanks.',
+          controller: self
+        }
+      elsif !Me.claimedAcademy and !event.hasClaimableTickets
+        modal = {
+          item: event,
+          title: 'Attend this Academy!',
+          content: "You still have 1 free academy to claim but unfortunately
+          there are no more insider access tickets available for this academy.
+
+You can still purchase a ticket for $29.",
+          yes_action: 'purchaseAcademy',
+          yes_text: 'Purchase',
           no_text: 'No, thanks.',
           controller: self
         }
@@ -136,7 +151,7 @@ Would you like to claim this ticket? (You can't change this later)
 
 Would you like to purchase this academy?",
           yes_action: 'purchaseAcademy',
-          yes_text: 'Purchase Academy',
+          yes_text: 'Purchase',
           no_text: 'No, thanks.',
           controller: self
         }
@@ -180,28 +195,51 @@ Please only RSVP if you're sure you will attend.
     end
     @layout.get(:modal).close
   end
-  def openAcademy(event)
-    slug = event.slug
-    url = "https://worlddominationsummit.com/academy/#{slug}".nsurl
-    if url.can_open?
-      url.open
-    end
-    @layout.get(:modal).close
-  end
   def claimAcademy(event)
     slug = event.slug
-    url = "https://worlddominationsummit.com/academy/#{slug}".nsurl
     modal = {
       item: event,
       title: 'Claiming...',
       content: "Hang tight while we claim your ticket...",
       yes_action: 'claimAcademy',
+      instant_appear: true,
       yes_text: 'Claiming...',
       no_text: 'No, thanks.',
       controller: self
     }
     @layout.get(:modal).open(modal)
-    # @layout.get(:modal).close
+    Api.post "event/claim-academy", {'event_id' => event.event_id} do |rsp|
+      modal = {
+        item: event,
+        title: 'Claimed!',
+        content: "Nice, you're Insider Access ticket has been claimed!",
+        yes_action: 'closeModal',
+        instant_appear: true,
+        yes_text: 'Claimed!',
+        no_text: ' ',
+        controller: self
+      }
+      @layout.get(:modal).open(modal)
+      Me.addRsvp(event.event_id)
+      Me.atn.academy = event.event_id
+      @layout.reapply!
+      8.seconds.later do
+        closeModal
+      end
+    end
+  end
+  def closeModal
+    @layout.get(:modal).close
+  end
+  def purchaseAcademy(event)
+    @cart.setProduct('academy', event)
+    @cart.setPurchasedCallback(self, 'academyPurchased', event)
+    closeModal
+    open_modal @cart
+  end
+  def academyPurchased(event)
+    Me.addRsvp(event.event_id)
+    @layout.reapply!
   end
   def go_to_directions_action
     chrome = "comgooglemaps://"

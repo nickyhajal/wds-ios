@@ -223,7 +223,7 @@ class EventLayout < MK::Layout
     reapply do
       if Me.isAttendingEvent @event
         if @event.type == 'academy'
-          title "Attending"
+          title "Joined"
         else
           title "unRSVP"
         end

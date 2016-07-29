@@ -195,6 +195,12 @@ module Me
         end
       end
     end
+    def addRsvp(event_id)
+      rsvps = Me.get('rsvps')
+      rsvps << event_id
+      Me.set('rsvps', rsvps)
+      Me.updateSchedule
+    end
     def updateSchedule
       Assets.process_schedule
     end

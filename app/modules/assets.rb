@@ -104,7 +104,7 @@ module Assets
       days = []
       reg = {}
       existingDays = {}
-      events.sort! {|x, y| x['start'] <=> y['start']}
+      events.sort! {|x, y| [x['start'], x['what']] <=> [y['start'], y['what']]}
       events.each do |event|
         event = Event.new(event)
         type = event.type

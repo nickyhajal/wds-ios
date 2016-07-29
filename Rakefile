@@ -17,6 +17,7 @@ begin
   require 'sugarcube-attributedstring'
   require 'sugarcube-animations'
   require 'sugarcube-notifications'
+  require 'sugarcube-localized'
   require 'sugarcube-color'
   require 'sugarcube-gestures'
   require 'sugarcube-ui'
@@ -41,8 +42,8 @@ Motion::Project::App.setup do |app|
   app.name = 'WDS App'
   app.frameworks += ["QuartzCore", "CoreImage"]
   app.identifier = 'com.worlddominationsummit.wdsios'
-  app.version = '1.12'
-  app.short_version = '1.12'
+  app.version = '1.13'
+  app.short_version = '1.13.1'
   app.development do
     app.provisioning_profile = '/nky/secure_files/WDS_App_Dev.mobileprovision'
     app.codesign_certificate = 'iPhone Developer: Nick Hajal (TS4DVF4YGA)'
@@ -79,6 +80,7 @@ Motion::Project::App.setup do |app|
     pod 'SORelativeDateTransformer'
     pod 'Firebase'
     pod 'Stripe'
+    pod 'CardIO'
   end
 
   # Push Notifications

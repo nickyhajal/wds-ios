@@ -1,9 +1,10 @@
 class CartLayout < MK::Layout
-  attr_accessor :isExisting, :card, :useExisting, :month, :year
+  attr_accessor :isExisting, :card, :useExisting, :month, :year, :charging
   def setController(controller)
     @controller = controller
   end
   def layout
+    @charging = false
     @expShouldBeOpen = false
     @expIsOpen = false
     @month = false
@@ -11,6 +12,7 @@ class CartLayout < MK::Layout
     @card = false
     @isExisting = false
     @useExisting = false
+    @status = 'waiting'
     updCard
     root :main do
       add UIView, :header do
@@ -30,20 +32,22 @@ class CartLayout < MK::Layout
         add UILabel, :card_exp
       end
       add UIView, :card_form do
+        add UIButton, :card_scan_btn
         add SZTextView, :card_num
         add UIButton, :card_exp_btn
-        add SZTextView, :card_zip
         add SZTextView, :card_cvv
       end
       add UIView, :card_existing_botline
       add UIView, :card_new_botline
       add UIButton, :card_new_btn
+      add UIButton, :card_existing_btn
       add UIButton, :submit
       add UIButton, :cancel
       add UIView, :card_exp_shell do
         add ExpirationPicker, :card_exp_picker
         add UIButton, :card_exp_close
       end
+      add ModalLayout, :modal
     end
   end
   def syncCard
@@ -74,6 +78,18 @@ class CartLayout < MK::Layout
   end
   def closeExp
     @expShouldBeOpen = false
+    reapply!
+  end
+  def setMonth(month)
+    @month = month
+    reapply!
+  end
+  def setYear(year)
+    @year = year
+    reapply!
+  end
+  def status=(status)
+    @status = status
     reapply!
   end
   def closeKeyboard
@@ -256,6 +272,30 @@ class CartLayout < MK::Layout
     end
     target.addTarget self, action: 'toggleExisting', forControlEvents:UIControlEventTouchDown
   end
+  def card_existing_btn_style
+    backgroundColor Color.tan(0.8)
+    titleColor Color.orange
+    font Font.Vitesse_Medium(14)
+    title "Use Existing Card"
+    constraints do
+      left 0
+      right 0
+      top.equals(:card_new_botline, :bottom)
+      height 36
+    end
+    always do
+      if @isExisting
+        if @useExisting
+          hidden true
+        else
+          hidden false
+        end
+      else
+        hidden true
+      end
+    end
+    target.addTarget self, action: 'toggleExisting', forControlEvents:UIControlEventTouchDown
+  end
   def card_existing_style
     backgroundColor Color.bright_yellowish_tan
     constraints do
@@ -279,14 +319,14 @@ class CartLayout < MK::Layout
       center_y.equals(:superview)
       left 16
     end
-    numberOfLines 2
+    numberOfLines 3
     view = target
     reapply do
       paragraphStyle = NSMutableParagraphStyle.alloc.init
       paragraphStyle.lineSpacing = 3
       if @useExisting
         str = (@card['brand']+' ending in '+@card['last4'])+
-        ' (Exp: '+@card['exp_month']+'/'+@card['exp_year']+')'
+        "\n"+'(Exp: '+@card['exp_month']+'/'+@card['exp_year']+')'
         str = str.attrd({
           NSFontAttributeName => Font.Karla_Bold(15),
           UITextAttributeTextColor => Color.dark_gray,
@@ -306,7 +346,18 @@ class CartLayout < MK::Layout
     backgroundColor Color.orange
     titleColor Color.light_tan
     font Font.Vitesse_Bold(17)
-    title "Complete Payment"
+    always do
+      case @status
+      when 'waiting'
+        title "Complete Payment"
+      when 'processing'
+        title "Processing Payment..."
+      when 'success'
+        title "Success!"
+      when 'error'
+        title "There was a problem."
+      end
+    end
     addTarget @controller, action: 'purchase_action', forControlEvents:UIControlEventTouchDown
     constraints do
       left 16
@@ -321,13 +372,37 @@ class CartLayout < MK::Layout
       left 0
       right 0
       top.equals(:item_shell, :bottom)
-      height 300
+      bottom.equals(:card_cvv, :bottom).plus(16)
     end
     always do
       if @useExisting
         hidden true
       else
         hidden false
+      end
+    end
+  end
+  def card_scan_btn_style
+    title "Scan Card"
+    titleColor Color.light_tan
+    backgroundColor Color.blue
+    font Font.Karla_Bold(15)
+    target.addTarget @controller, action: 'onCapture', forControlEvents:UIControlEventTouchDown
+    constraints do
+      left 16
+      right -16
+      @scanTop = top 0
+      @scanBtnH = height 0
+    end
+    reapply do
+      if CardIOUtilities.canReadCardWithCamera
+        @scanBtnH.equals(38)
+        @scanTop.equals(16)
+        hidden false
+      else
+        @scanBtnH.equals(0)
+        @scanTop.equals(0)
+        hidden true
       end
     end
   end
@@ -341,7 +416,7 @@ class CartLayout < MK::Layout
     textContainerInset UIEdgeInsetsMake(10,7,0,0)
     delegate self
     constraints do
-      top 16
+      top.equals(:card_scan_btn, :bottom).plus(16)
       left 16
       width.equals(:superview).minus(32)
       height 40
@@ -358,7 +433,7 @@ class CartLayout < MK::Layout
     constraints do
       top.equals(:card_num, :bottom).plus(16)
       left.equals(:card_num, :left)
-      width.equals(:superview).divided_by(3)
+      right.equals(:card_cvv, :left).minus(16)
       height.equals(:card_num)
     end
     reapply do
@@ -371,22 +446,6 @@ class CartLayout < MK::Layout
       end
     end
   end
-  def card_zip_style
-    placeholder "Billing Zip"
-    font Font.Karla_Bold(16)
-    textColor Color.blue
-    placeholderTextColor Color.dark_gray
-    keyboardType UIKeyboardTypeNumberPad
-    backgroundColor Color.orangish_gray(0.2)
-    delegate self
-    textContainerInset UIEdgeInsetsMake(10,7,0,0)
-    constraints do
-      top.equals(:card_exp_btn)
-      left.equals(:card_exp_btn, :right).plus(16)
-      right -16
-      height.equals(:card_num)
-    end
-  end
   def card_cvv_style
     placeholder "Card CVV"
     font Font.Karla_Bold(16)
@@ -397,10 +456,10 @@ class CartLayout < MK::Layout
     delegate self
     textContainerInset UIEdgeInsetsMake(10,7,0,0)
     constraints do
-      top.equals(:card_exp_btn, :bottom).plus(16)
-      left.equals(:card_num)
+      top.equals(:card_exp_btn)
+      right -16
+      height.equals(:card_num)
       width.equals(120)
-      height 40
     end
   end
   def card_exp_shell_style
@@ -447,6 +506,15 @@ class CartLayout < MK::Layout
       left 0
       right 0
       bottom 0
+    end
+  end
+  def modal_style
+    hidden true
+    constraints do
+      top.equals(0)
+      left.equals(0)
+      width.equals(super_width)
+      height.equals(super_height)
     end
   end
   def updatePlaceholder

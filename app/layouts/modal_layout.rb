@@ -8,6 +8,8 @@ class ModalLayout < MK::Layout
     @list = PopupList.new
     @list.controller = self
     @list.layout = self
+    @hide_no = false
+    @closeOnYes = false
     values = @list.view
     root :main do
       add UIView, :container_shell do
@@ -55,29 +57,40 @@ class ModalLayout < MK::Layout
     get(:no_button).title = opts[:no_text] unless opts[:no_text].nil?
     @yes_action = opts[:yes_action] unless opts[:yes_action].nil?
     @no_action = opts[:no_action] unless opts[:no_action].nil?
+    @hide_no = opts[:hide_no] unless opts[:hide_no].nil?
     @actionHandler = opts[:controller] unless opts[:controller].nil?
+    @closeOnYes = opts[:close_on_yes] unless opts[:close_on_yes].nil?
     updHeight
+    reapply!
 
     # Appear
     main = get(:main)
     container = get(:container_shell)
-    main.fade_out(0)
-    container.fade_out(0)
-    main.setHidden false
-    main.fade_in(duration: 0.1,
-      delay: 0,
-      options: UIViewAnimationOptionCurveLinear,
-      opacity: 1.0
-    )
-    container.fade_in(duration: 0.1,
-      delay: 0.1,
-      options: UIViewAnimationOptionCurveLinear,
-      opacity: 1.0
-    )
+    if opts[:instant_appear].nil? || !opts[:instant_appear]
+      main.fade_out(0)
+      container.fade_out(0)
+      main.setHidden false
+      main.fade_in(duration: 0.1,
+        delay: 0,
+        options: UIViewAnimationOptionCurveLinear,
+        opacity: 1.0
+      )
+      container.fade_in(duration: 0.1,
+        delay: 0.1,
+        options: UIViewAnimationOptionCurveLinear,
+        opacity: 1.0
+      )
+    else
+      main.fade_in(0)
+      container.fade_in(0)
+    end
   end
   def yes_action
     if !@actionHandler.nil? and !@yes_action.nil?
       @actionHandler.send(@yes_action, @item)
+    end
+    if @closeOnYes
+      close
     end
   end
   def no_action
@@ -139,7 +152,7 @@ class ModalLayout < MK::Layout
       left 0
       top 0
       height 50
-      width.equals(:superview).minus(10)
+      width.equals(:superview)
     end
     backgroundColor "#716B60".uicolor
   end
@@ -150,7 +163,7 @@ class ModalLayout < MK::Layout
     backgroundColor "#716B60".uicolor
     font Font.Vitesse_Bold(21.0)
     constraints do
-      left 10
+      left 0
       center_y.equals(:superview)
       height 50
       width.equals(:superview)
@@ -176,7 +189,15 @@ class ModalLayout < MK::Layout
       height 40
       left 0
       bottom.equals(:container, :bottom)
-      width.equals(:superview).divided_by(2)
+      @yesWidth = width.equals(get(:container).frame.size.width)
+    end
+    reapply do
+      w = get(:container).frame.size.width
+      if @hide_no
+        @yesWidth.equals(w)
+      else
+        @yesWidth.equals(w/2)
+      end
     end
   end
   def no_button_style
@@ -186,11 +207,20 @@ class ModalLayout < MK::Layout
     backgroundColor Color.dark_yellow_tan
     target.addTarget self, action: 'no_action', forControlEvents:UIControlEventTouchDown
     constraints do
-      width.equals(:superview).divided_by(2)
+      @noWidth = width.equals(get(:container).frame.size.width)
       height 40
       right 0
-      left.equals(:yes_button, :right)
+      @noLeft = left.equals(:yes_button, :right)
       bottom.equals(:container, :bottom)
+    end
+    reapply do
+      if @hide_no
+        @noWidth.equals(0)
+        hidden true
+      else
+        @noWidth.equals(get(:container).frame.size.width/2)
+        hidden false
+      end
     end
   end
 end

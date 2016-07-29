@@ -30,11 +30,6 @@ class ExpirationPicker < UIPickerView
     end
   end
   def pickerView(pickerView, titleForRow:row, forComponent:component)
-    puts @components[component][row]
     @components[component][row]
-  end
-  def submit
-    puts 'submit'
-    # totals.addTotals(myPicker.selectedRowInComponent(0))
   end
 end

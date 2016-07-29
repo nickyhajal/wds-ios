@@ -43,7 +43,11 @@ class Event
     end
   end
   def isFull
-    @num_rsvps > (@max + (@max * 0.1))
+    max = @max
+    if @type == 'meetup'
+      max += (max * 0.1)
+    end
+    @num_rsvps >= max
   end
   def hasClaimableTickets
     @num_free < @free_max
