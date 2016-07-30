@@ -1,12 +1,17 @@
 class DispatchItem
-  attr_accessor :feed_id, :content, :channel_type, :channel_id, :user_id, :num_comments, :num_likes, :created_at, :author, :top_padding
+  attr_accessor :feed_id, :content, :channel_type, :channel_id, :user_id, :num_comments, :num_likes, :created_at, :author, :top_padding, :type, :height, :format
   def initialize(event)
+    @type = 'item'
     if event == 'default'
       @content = 'Loading'
       @num_comments = '░░'
       @num_likes = '░░'
       @channel_type = 'loading'
       @author = Attendee.new('default')
+    elsif !event['type'].nil?
+      @type = event['type']
+      @height = event['height']
+      @format = event['format']
     else
       @top_padding = 0
       event.each do |key, value|

@@ -54,6 +54,12 @@ class CartScreen < PM::Screen
       @purchase_data = {
         event_id: @meta.event_id
       }
+    elsif @code == 'wds2017'
+      pkg = {
+        name: "WDS 2017",
+        descr: "360 Ticket to WDS 2017",
+        price: "547"
+      }
     end
     @layout.updateVals(pkg)
   end

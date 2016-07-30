@@ -4,6 +4,7 @@ module Font
       font = args[0]
       size = args[1]
       font = font.gsub('_', '-')
+      puts font
       UIFont.fontWithName(font, size:size)
     end
     def method_missing(name, *args, &block)

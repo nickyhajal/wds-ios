@@ -97,6 +97,8 @@ class Disptch < PM::TableScreen
   end
   def make_cell(item)
     height = calcCellHeight(item)
+    # puts 'MAKE CELL'
+    # puts height
     {
       title: '',
       cell_class: DispatchCell,
@@ -107,14 +109,33 @@ class Disptch < PM::TableScreen
         item: item,
         height: height,
         width: @width,
-        controller: @controller
+        controller: @controller,
+        type: item.type
       }
     }
+  end
+  def clean_items(items)
+    out = []
+    items.each do |item|
+      if item[:properties][:type] == 'item'
+        out << item
+      end
+    end
+    out
+  end
+  def add_special_tiles(items)
+    tckt = DispatchItem.new({
+      'type' => 'tckt',
+      'height' => 500,
+      'format' => 'open'
+    })
+    items.unshift(make_cell(tckt))
+    items
   end
   def update_content(items)
     cells = []
     items.each do |item|
-      unless item.class.to_s.include?('DispatchItem')
+      unless item.class.to_s.include?('Item')
         item = DispatchItem.new(item)
       end
       item = make_cell item
@@ -124,11 +145,17 @@ class Disptch < PM::TableScreen
       @items[0][:properties][:item].top_padding = 0
     end
     @items = cells + @items
+    @items = clean_items(@items)
+    @items = add_special_tiles(@items)
     if @items[0].nil?
       @since = 0
     else
-      @items[0][:properties][:item].top_padding = 3
-      @since = @items[0][:properties][:item].feed_id
+      i = 0
+      @items[i][:properties][:item].top_padding = 3
+      while @items[i][:properties][:type] != 'item'
+        i += 1
+      end
+      @since = @items[i][:properties][:item].feed_id
     end
     update_table_data
   end
@@ -143,23 +170,43 @@ class Disptch < PM::TableScreen
       cells << item
     end
     @items = @items + cells
+    # clean_items(@items)
+    # add_special_tiles(@items)
     update_table_data
   end
   def tableView(table_view, heightForRowAtIndexPath:index_path)
     cell = self.promotion_table_data.cell(index_path: index_path)
+    # puts 'hFRAtIP: '+cell[:properties][:height].to_s
+    # cell[:properties][:item].feed_id
     cell[:properties][:height]
   end
   def calcCellHeight(item)
-    contentStr = item.content.nsattributedstring({
-      NSFontAttributeName => Font.Karla(15),
-      UITextAttributeTextColor => Color.coffee
-    })
-    size = self.frame.size
-    size.width = @width - 32
-    size.height = Float::MAX
-    content = contentStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
-    height = 5 + 38 + 5 + content.size.height.ceil + 40 + item.top_padding
+    # puts 'CALC HEIGHT FOR '
+    if item.respond_to?('height') and !item.height.nil? and item.height > 0
+      # puts 'SPECIAL HEIGHTTTTTTT'
+      height = item.height
+    else
+      # puts 'ITEM HEIGHTTTTTTT'
+      contentStr = item.content.nsattributedstring({
+        NSFontAttributeName => Font.Karla(15),
+        UITextAttributeTextColor => Color.coffee
+      })
+      size = self.frame.size
+      size.width = @width - 32
+      size.height = Float::MAX
+      content = contentStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+      height = 5 + 38 + 5 + content.size.height.ceil + 40 + item.top_padding
+    end
     height.to_f
+  end
+  def on_cell_reused(cell, data)
+    super
+    # puts data[:properties][:item].feed_id
+    # puts data[:properties][:type]
+    # puts data[:properties][:height]
+    # puts data
+    # cell.my_cool_method(data[:properties][:my_property])
+    # cell.contentView.backgroundColor = UIColor.purpleColor
   end
   def post(text, &block)
     Api.post 'feed', {content: text, channel_type: @params[:channel_type], channel_id: @params[:channel_id]} do |rsp|
@@ -224,7 +271,8 @@ class Disptch < PM::TableScreen
   end
   def fetchUpdates(continueFetch = true)
     params = @params.clone
-    feed_ids = @items.map do |i|
+    feed_ids = @items.select{ |i| i[:properties][:item].respond_to?('feed_id')}
+    .map do |i|
       i[:properties][:item].feed_id
     end
     params[:since] = @since
@@ -240,13 +288,15 @@ class Disptch < PM::TableScreen
         updates = rsp.updates
         inx = 0
         @items.each do |item|
-          item = item[:properties][:item]
-          id = 'feed_'+item.feed_id.to_s
-          unless updates[id].nil?
-            item.num_likes = updates[id][:num_likes]
-            item.num_comments = updates[id][:num_comments]
-            @items[inx][:properties][:item] = item
-            @items[inx][:arguments][:item] = item
+          if item.respond_to?('feed_id')
+            item = item[:properties][:item]
+            id = 'feed_'+item.feed_id.to_s
+            unless updates[id].nil?
+              item.num_likes = updates[id][:num_likes]
+              item.num_comments = updates[id][:num_comments]
+              @items[inx][:properties][:item] = item
+              @items[inx][:arguments][:item] = item
+            end
           end
           inx += 1
         end

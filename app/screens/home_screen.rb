@@ -1,4 +1,4 @@
-class HomeScreen < PM::Screen
+ class HomeScreen < PM::Screen
   title 'Dispatch'
   status_bar :light
   attr_accessor :layout
@@ -43,6 +43,7 @@ class HomeScreen < PM::Screen
     @dispatch.initFilters(@filters_screen.layout)
     @dispatch.setNewPostsBtn @layout.get(:new_posts), @layout.new_posts_y, self.view
     @post_screen.dispatch = @dispatch
+    @cart = CartScreen.new(nav_bar: false)
 
     ## This is to auto-open the cart for testing
     # 0.5.seconds.later do
@@ -124,6 +125,13 @@ class HomeScreen < PM::Screen
   end
   def show_friended_action
     @layout.get(:attendee_search_layout).setSearch('friended me')
+  end
+  def tckt_purchase_action
+    @cart.setProduct('wds2017', {})
+    @cart.setPurchasedCallback(self, 'tckt_purchased', false)
+    open_modal @cart
+  end
+  def tckt_purchased
   end
   def show_potential_friends_action
     @layout.get(:attendee_search_layout).setSearch("match me")

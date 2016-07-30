@@ -1,11 +1,12 @@
 class DispatchCell < PM::TableViewCell
-  attr_accessor :item, :layout, :width, :controller
+  attr_accessor :item, :layout, :width, :controller, :type
   attr_reader :authorStr, :timeStr, :likeStr, :commentStr
   def will_display
     self.setNeedsDisplay
   end
   def initWithStyle(style, reuseIdentifier:id)
     @_item = false
+    @type = "item"
     @currentStr = ''
     singleFingerTap = UITapGestureRecognizer.alloc.initWithTarget(self, action:'singleTap:')
     self.addGestureRecognizer(singleFingerTap)
@@ -95,7 +96,7 @@ class DispatchCell < PM::TableViewCell
       if @event
         channel_str += EventTypes.byId(@event.type)[:single]+': '+@event.what
       else
-        channel_str += EventTypes.byId(@event.type)[:single].downcase
+        channel_str += ''
       end
     end
     @channelStr = channel_str.attrd({
@@ -150,21 +151,26 @@ class DispatchCell < PM::TableViewCell
   end
   def singleTap(theEvent)
     pnt = theEvent.locationInView(theEvent.view)
+
     y = pnt.y
     x = pnt.x
-    size = self.frame.size
-    width = size.width
-    height = size.height
-    rects = {
-      like: likeRect,
-      comment: commentRect,
-      author: authorRect,
-      channel: timeRect,
-      avatar: avatarRect
-    }
-    rects.each do |name, rect|
-      if CGRectContainsPoint(rect, pnt)
-        self.send(name+'_action')
+    if !@tcktView.nil?
+      @tcktView.on_tap(x, y)
+    else
+      size = self.frame.size
+      width = size.width
+      height = size.height
+      rects = {
+        like: likeRect,
+        comment: commentRect,
+        author: authorRect,
+        channel: timeRect,
+        avatar: avatarRect
+      }
+      rects.each do |name, rect|
+        if CGRectContainsPoint(rect, pnt)
+          self.send(name+'_action')
+        end
       end
     end
   end
@@ -208,15 +214,132 @@ class DispatchCell < PM::TableViewCell
 
   ## Draw the TableCell
   def drawRect(rect)
-    # Init
-    prepareText
 
-    unless @cardView.nil?
-      @cardView.setFrame(rect)
-      @cardView.setNeedsDisplay
+    # Init
+    if @type.nil?
+      @type = "item"
     end
+
+    # puts @type
+    # puts rect.inspect
+
+    if @type == 'item'
+      # puts @item.author.full_name
+      prepareText
+      unless @tcktView.nil?
+        @tcktView.removeFromSuperview
+        @tcktView = nil
+      end
+      unless @cardView.nil?
+        @cardView.setFrame(rect)
+        @cardView.setNeedsDisplay
+      end
+    elsif @type == 'tckt'
+      unless @cardView.nil?
+        @cardView.removeFromSuperview
+        @cardView = nil
+      end
+      if @tcktView.nil?
+        @tcktView = PreOrderCell.alloc.initWithFrame(rect)
+        self.addSubview @tcktView
+        @tcktView.cell = self
+      end
+      @tcktView.setFrame(rect)
+      @tcktView.setNeedsDisplay
+    end
+
   end
 
+end
+
+class PreOrderCell < UIView
+  attr_accessor :cell
+  def on_tap(x, y)
+    if y > self.frame.size.height - 64
+      @cell.controller.tckt_purchase_action
+    end
+  end
+  def drawRect(rect)
+    rect.size.width = @cell.width
+    size = rect.size
+    textSize = CGSizeMake(size.width - 32, Float::MAX)
+    # Colors
+    bg = "#F2F2EA".uicolor
+    btnBg = "#FDFDF8".uicolor
+    cardBg = Color.white
+    lineBg = "#E8E8DE".uicolor
+
+    # Background
+    bgPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 0, size.width, size.height), cornerRadius:0.0)
+    bg.setFill
+    bgPath.fill
+
+    # Card
+    cardBg.setFill
+    cardRect = CGRectMake(3, 4, size.width-6, size.height-4-4)
+    cardW = cardRect.size.width
+    cardPath = UIBezierPath.bezierPathWithRoundedRect(cardRect, cornerRadius:0.0)
+    cardPath.fill
+
+    iw = rect.size.width
+    ih = iw * 0.677
+    if @img.nil?
+      @img = UIImageView.alloc.initWithFrame(CGRectMake(0,3,iw-2,ih-8))
+      # @img.contentMode = UIViewContentModeScaleAspectFill
+      @img.setImage(UIImage.imageNamed("preorder"))
+      self.addSubview @img
+    end
+
+    cw = iw - 104
+    ch = cw * 0.397
+    cont_size = rect.size.height-ih-64
+    cy = ih + ((cont_size)/2) - (ch/2) - 2
+    if @cont.nil?
+      @cont = UIImageView.alloc.initWithFrame(CGRectMake(52, cy, cw, ch))
+      # @img.contentMode = UIViewContentModeScaleAspectFill
+      @cont.setImage(UIImage.imageNamed("preorder_content"))
+      self.addSubview @cont
+    end
+
+    # Background
+    btn_bg_h = 64
+    btn_bg_y = rect.size.height - btn_bg_h - 0
+    btn_bg_w = rect.size.width - 6
+    btn_bgPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(3, btn_bg_y, btn_bg_w, btn_bg_h), cornerRadius:0.0)
+    bg.setFill
+    btn_bgPath.fill
+
+    btn_sh_h = btn_bg_h - 12
+    btn_sh_y = btn_bg_y + 4
+    btn_shPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(3, btn_sh_y, btn_bg_w, btn_sh_h), cornerRadius:0.0)
+    "#D17E1C".uicolor.setFill
+    btn_shPath.fill
+
+    btn_h = btn_sh_h - 2
+    btn_y = btn_sh_y
+    btn_Path = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(3, btn_y, btn_bg_w, btn_h), cornerRadius:0.0)
+    Color.orange.setFill
+    btn_Path.fill
+
+    @btnStr = "Get Your Ticket!".attrd({
+      NSFontAttributeName => Font.Karla_Bold(24),
+      UITextAttributeTextColor => Color.light_tan
+    })
+    box = self.frame.size
+    box.width = btn_bg_w
+    box.height = Float::MAX
+    btnBox = @btnStr.boundingRectWithSize(box, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+    puts btnBox.inspect
+    pnt = CGPointMake((btn_bg_w/2)-(btnBox.size.width/2), btn_y + ((btn_h/2)-(btnBox.size.height/2)))
+    puts pnt.inspect
+    @btnStr.drawAtPoint(pnt)
+
+    # @join = "Join us in 2017!".attrd({
+    #   NSFontAttributeName => Font.Vitesse_Medium(36),
+    #   UITextAttributeTextColor => Color.blue
+    # })
+    # @join.drawAtPoint(CGPointMake(20,0))
+  end
 end
 
 class DispatchCellInnerView < UIView

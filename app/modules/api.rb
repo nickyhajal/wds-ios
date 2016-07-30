@@ -38,8 +38,8 @@ module Api
         params['user_token'] = Me.user_token
         params['nopic'] = 1
       end
-      puts url
-      puts params
+      # puts url
+      # puts params
       @client.send method, url, params do |response|
         block.call Response.new(response)
       end
