@@ -1,6 +1,6 @@
 module Me
   class << self
-    attr_accessor :first_name, :last_name, :user_token, :atn
+    attr_accessor :first_name, :last_name, :user_token, :atn, :fireUser
     def init(delegate)
       @delegate = delegate
       @user_token = false
@@ -18,6 +18,14 @@ module Me
         @atn = Attendee.new params
         params.each do |key, val|
           set key, val
+        end
+        puts @atn.user_id.to_s
+        puts $VERSION
+        if @user_token
+          Fire.auth @user_token do |user, error|
+            puts 'CALL BACK'
+            Fire.set('/users/'+@atn.user_id.to_s+'/version/', '16.2')
+          end
         end
       end
     end

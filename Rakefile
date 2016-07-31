@@ -44,6 +44,7 @@ Motion::Project::App.setup do |app|
   app.identifier = 'com.worlddominationsummit.wdsios'
   app.version = '1.13'
   app.short_version = '1.13.1'
+  $VERSION = app.short_version
   app.development do
     app.provisioning_profile = '/nky/secure_files/WDS_App_Dev.mobileprovision'
     app.codesign_certificate = 'iPhone Developer: Nick Hajal (TS4DVF4YGA)'
@@ -79,6 +80,8 @@ Motion::Project::App.setup do |app|
     pod 'OpenInChrome'
     pod 'SORelativeDateTransformer'
     pod 'Firebase'
+    pod 'Firebase/Database'
+    pod 'Firebase/Database/Auth'
     pod 'Stripe'
     pod 'CardIO'
   end

@@ -21,9 +21,12 @@ class AttendeeLayout < MK::Layout
       add UIScrollView, :scrollview do
         add UIView, :scrollshell do
           add UITextView, :name
+          add UIButton, :chat_btn do
+            add UIImageView, :chat_open
+          end
           add UIButton, :notes_btn do
-              add UIImageView, :notes_open
-            end
+            add UIImageView, :notes_open
+          end
           add UIView, :line_after_name
           add ButtonList, :connect_buttons
           add UITextView, :about_title
@@ -46,7 +49,7 @@ class AttendeeLayout < MK::Layout
   def notes_btn_style
     target.addTarget @controller, action:'show_notes_action', forControlEvents:UIControlEventTouchDown
     constraints do
-      top.equals(:name, :bottom).minus(5)
+      top.equals(:chat_btn, :bottom).plus(5)
       left.equals(:name)
       height 32
       width.equals(:name)
@@ -61,6 +64,32 @@ class AttendeeLayout < MK::Layout
     end
   end
   def notes_open_style
+    constraints do
+      right 0
+      top 6
+      height 20
+      width 18
+    end
+    target.setImage Ion.imageByFont(:ios_arrow_forward, size:24, color:Color.orange)
+  end
+  def chat_btn_style
+    target.addTarget @controller, action:'show_chat_action', forControlEvents:UIControlEventTouchDown
+    constraints do
+      top.equals(:name, :bottom).minus(5)
+      left.equals(:name)
+      height 32
+      width.equals(:name)
+    end
+    contentHorizontalAlignment UIControlContentHorizontalAlignmentLeft
+    contentEdgeInsets UIEdgeInsetsMake(0, 10, 0, 0)
+    backgroundColor Color.light_gray(0.4)
+    titleColor Color.orange
+    font Font.Karla_Bold(14)
+    reapply do
+      title "Send Message to "+@atn.first_name
+    end
+  end
+  def chat_open_style
     constraints do
       right 0
       top 6
