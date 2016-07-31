@@ -132,7 +132,6 @@ class Disptch < PM::TableScreen
   def add_special_tiles(items)
     pre = Store.get('preorder')
     today = NSDate.new.string_with_format(:iso8601)
-    puts today
     if !pre and today > '2016-07-30 14:00:00'
       tile = DispatchItem.new({
         'type' => 'tckt',
