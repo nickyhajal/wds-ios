@@ -1,6 +1,10 @@
 class Attendee
-  attr_accessor :user_id, :first_name, :last_name, :full_name, :card, :ticket_type, :email, :user_name, :twitter, :instagram, :facebook, :pic, :location, :lat, :lon, :distance, :qnaStr, :isQna, :academy
+  attr_accessor :user_id, :first_name, :last_name, :full_name, :card
+  attr_accessor :ticket_type, :email, :user_name, :twitter, :instagram
+  attr_accessor :facebook, :pic, :location, :lat, :lon, :distance
+  attr_accessor :qnaStr, :isQna, :academy, :attending17
   def initialize(atn)
+    @attending17 = 0
     if atn == 'default'
       @first_name = '░░░░░░░░░'
       @last_name = '░░░░░░░░'

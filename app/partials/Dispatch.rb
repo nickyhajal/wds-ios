@@ -1,5 +1,5 @@
 class Disptch < PM::TableScreen
-  attr_accessor :controller
+  attr_accessor :controller, :items
   title "Dispatch"
   row_height 144
   refreshable
@@ -123,13 +123,31 @@ class Disptch < PM::TableScreen
     end
     out
   end
+  def hideFirst
+    @items[0][:properties][:height] = 0
+    @items[1][:properties][:item].top_padding = 3
+    self.tableView.beginUpdates
+    self.tableView.endUpdates
+  end
   def add_special_tiles(items)
-    tckt = DispatchItem.new({
-      'type' => 'tckt',
-      'height' => 500,
-      'format' => 'open'
-    })
-    items.unshift(make_cell(tckt))
+    pre = Store.get('preorder')
+    today = NSDate.new.string_with_format(:iso8601)
+    puts today
+    if !pre and today > '2016-07-30 14:00:00'
+      tile = DispatchItem.new({
+        'type' => 'tckt',
+        'height' => @controller.layout.super_height - 86,
+        'format' => 'open'
+      })
+      items.unshift(make_cell(tile))
+    elsif pre == "purchased"
+      tile = DispatchItem.new({
+        'type' => 'post-tckt',
+        'height' => @controller.layout.super_height - 86,
+        'format' => 'open'
+      })
+      items.unshift(make_cell(tile))
+    end
     items
   end
   def update_content(items)

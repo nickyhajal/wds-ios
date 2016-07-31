@@ -131,7 +131,14 @@
     @cart.setPurchasedCallback(self, 'tckt_purchased', false)
     open_modal @cart
   end
+  def post_tckt_action
+    @dispatch.hideFirst
+    Store.set('preorder', 'post-hidden')
+  end
   def tckt_purchased
+    Store.set('preorder', 'purchased')
+    Me.atn.attending17 = 1
+    @dispatch.update_content([])
   end
   def show_potential_friends_action
     @layout.get(:attendee_search_layout).setSearch("match me")

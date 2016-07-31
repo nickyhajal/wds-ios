@@ -58,36 +58,74 @@ class CartScreen < PM::Screen
       pkg = {
         name: "WDS 2017",
         descr: "360 Ticket to WDS 2017",
-        price: "547"
+        price: "547",
+        confirm: true,
+        max_quantity: 3
+      }
+      @purchase_data = {
+        quantity: 1
       }
     end
     @layout.updateVals(pkg)
   end
-  def purchase_action
-    if !@layout.charging
-      @layout.charging = true
-      if (@layout.useExisting)
-        charge(@layout.card[:hash])
+  def change_quantity_action
+    quantity = @layout.get(:item_q).selectedSegmentIndex + 1
+    @purchase_data[:quantity] = quantity
+    @layout.setQuantity(quantity)
+  end
+  def confirm_action(item)
+    purchase_action true
+    @layout.get(:modal).close
+  end
+  def purchase_action(confirmed = false)
+    if confirmed.class.to_s.include?('UIButton')
+      confirmed = false
+    end
+    if @layout.vals[:confirm] and !confirmed
+      q = @layout.vals[:quantity]
+      if q == 1
+        tickets = "1 ticket to WDS 2017"
       else
-        card_num = @layout.get(:card_num).text
-        card_cvv = @layout.get(:card_cvv).text
-        month = @layout.month
-        year = @layout.year
-        card = STPCardParams.new
-        card.number = card_num
-        card.cvc = card_cvv
-        card.expMonth = month
-        card.expYear = year
-        @layout.status = "validating"
-        STPAPIClient.sharedClient.createTokenWithCard(card, completion: -> rsp, err {
-          if err.nil? and !rsp.nil? and !rsp.tokenId.nil?
-            charge(rsp.tokenId)
-            @syncCard = true # If this card charges, we want it for future purchases within app
-          else
-            @layout.charging = false
-            handleErrors(err)
-          end
-        })
+        tickets = q.to_s+" tickets to WDS 2017"
+      end
+      str = "Just to double-check, you'll be charged: "+@layout.get(:item_price).text
+      str += " for "+tickets+".\n\nSound good?"
+      modal = {
+        title: 'Confirm Purchase',
+        content: str,
+        close_on_yes: true,
+        yes_text: "Let's Do This!",
+        no_text: "Nevermind",
+        yes_action: 'confirm_action',
+        controller: self
+      }
+      @layout.get(:modal).open(modal)
+    else
+      if !@layout.charging
+        @layout.charging = true
+        if (@layout.useExisting)
+          charge(@layout.card[:hash])
+        else
+          card_num = @layout.get(:card_num).text
+          card_cvv = @layout.get(:card_cvv).text
+          month = @layout.month
+          year = @layout.year
+          card = STPCardParams.new
+          card.number = card_num
+          card.cvc = card_cvv
+          card.expMonth = month
+          card.expYear = year
+          @layout.status = "validating"
+          STPAPIClient.sharedClient.createTokenWithCard(card, completion: -> rsp, err {
+            if err.nil? and !rsp.nil? and !rsp.tokenId.nil?
+              charge(rsp.tokenId)
+              @syncCard = true # If this card charges, we want it for future purchases within app
+            else
+              @layout.charging = false
+              handleErrors(err)
+            end
+          })
+        end
       end
     end
   end
@@ -143,7 +181,11 @@ Can you try again?",
         @layout.status = "success"
         if @purchasedCallback
           pc = @purchasedCallback
-          pc[:owner].send(pc[:method], pc[:meta])
+          if pc[:meta]
+            pc[:owner].send(pc[:method], pc[:meta])
+          else
+            pc[:owner].send(pc[:method])
+          end
           @purchasedCallback = false
         end
         1.0.seconds.later do

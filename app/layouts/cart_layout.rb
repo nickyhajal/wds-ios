@@ -1,5 +1,5 @@
 class CartLayout < MK::Layout
-  attr_accessor :isExisting, :card, :useExisting, :month, :year, :charging
+  attr_accessor :isExisting, :card, :useExisting, :month, :year, :charging, :vals
   def setController(controller)
     @controller = controller
   end
@@ -25,7 +25,11 @@ class CartLayout < MK::Layout
           add UIView, :item_priceline
           add UILabel, :item_price
         end
-        add UIView, :item_botline
+      end
+      add UIView, :item_botline
+      add UIView, :item_q_shell do
+        add UISegmentedControl, :item_q
+        add UIView, :item_qline
       end
       add UIView, :card_existing do
         add UILabel, :card_ident
@@ -64,6 +68,16 @@ class CartLayout < MK::Layout
   end
   def updateVals(vals)
     @vals = vals
+    if (@vals[:quantity].nil?)
+      @vals[:quantity] = 1
+    end
+    if (@vals[:confirm].nil?)
+      @vals[:confirm] = false
+    end
+    reapply!
+  end
+  def setQuantity(q)
+    @vals[:quantity] = q
     reapply!
   end
   def toggleExisting
@@ -180,7 +194,50 @@ class CartLayout < MK::Layout
   def item_botline_style
     backgroundColor Color.dark_gray(0.15)
     constraints do
-      bottom 0
+      top.equals(:item_shell, :bottom)
+      width.equals(:superview)
+      height 2
+      left 0
+    end
+  end
+  def item_q_shell_style
+    constraints do
+      width.equals(:superview)
+      left 0
+      top.equals(:item_botline, :bottom)
+      height 46
+    end
+    reapply do
+      if @vals[:max_quantity].nil? or @vals[:max_quantity] == 0 or @vals[:max_quantity] == 1
+        setHidden true
+      else
+        setHidden false
+      end
+    end
+  end
+  def item_q_style
+    target.segmentedControlStyle = UISegmentedControlStyleBar
+    target.addTarget @controller, action: 'change_quantity_action', forControlEvents:UIControlEventValueChanged
+    target.insertSegmentWithTitle '1 Ticket', atIndex:0, animated:false
+    target.insertSegmentWithTitle '2 Tickets', atIndex:1, animated:false
+    target.insertSegmentWithTitle '3 Tickets', atIndex:2, animated:false
+    target.selectedSegmentIndex = 0
+    tintColor Color.dark_gray
+    attributes = {
+      UITextAttributeFont => UIFont.fontWithName('Karla-Bold', size:15)
+    }
+    titleTextAttributes attributes, forState:UIControlStateNormal
+    constraints do
+      top 5
+      left 5
+      right -5
+      bottom -8
+    end
+  end
+  def item_qline_style
+    backgroundColor Color.dark_gray(0.15)
+    constraints do
+      bottom.equals(:item_q_shell, :bottom)
       width.equals(:superview)
       height 2
       left 0
@@ -201,7 +258,7 @@ class CartLayout < MK::Layout
       top 0
       right 0
       height.equals(:superview)
-      width 80
+      width.equals(:item_price).plus(2)
     end
   end
   def item_price_style
@@ -212,12 +269,20 @@ class CartLayout < MK::Layout
     constraints do
       left 2
       right 0
-      center_y.equals(:superview).plus(1)
-      width 80
+      center_y.equals(:superview).plus(3)
+      @priceWidth = width 80
     end
     view = target
     reapply do
-      text '$'+@vals[:price]
+      str = '$'+(@vals[:price].to_f * @vals[:quantity].to_i).to_i.to_s
+      text str
+      w = 80
+      if str.length == 4
+        w = 95
+      elsif str.length == 5
+        w = 110
+      end
+      @priceWidth.equals(w)
     end
   end
   def card_existing_botline_style
@@ -301,8 +366,8 @@ class CartLayout < MK::Layout
     constraints do
       left 0
       right 0
-      top.equals(:item_shell, :bottom)
-      height 80
+      top.equals(:item_q_shell, :bottom)
+      height 90
     end
     always do
       if @useExisting
@@ -323,17 +388,17 @@ class CartLayout < MK::Layout
     view = target
     reapply do
       paragraphStyle = NSMutableParagraphStyle.alloc.init
-      paragraphStyle.lineSpacing = 3
+      paragraphStyle.lineSpacing = 2.3
       if @useExisting
         str = (@card['brand']+' ending in '+@card['last4'])+
-        "\n"+'(Exp: '+@card['exp_month']+'/'+@card['exp_year']+')'
+        "\n"+'Exp: '+@card['exp_month']+'/'+@card['exp_year']
         str = str.attrd({
-          NSFontAttributeName => Font.Karla_Bold(15),
+          NSFontAttributeName => Font.Karla_Bold(16),
           UITextAttributeTextColor => Color.dark_gray,
           NSParagraphStyleAttributeName => paragraphStyle
         })
         str = "CHARGE TO\n".attrd({
-          NSFontAttributeName => Font.Vitesse_Bold(12),
+          NSFontAttributeName => Font.Vitesse_Bold(14),
           UITextAttributeTextColor => Color.dark_gray(0.6),
           NSParagraphStyleAttributeName => paragraphStyle
         })+str
@@ -371,7 +436,7 @@ class CartLayout < MK::Layout
     constraints do
       left 0
       right 0
-      top.equals(:item_shell, :bottom)
+      top.equals(:item_q_shell, :bottom)
       bottom.equals(:card_cvv, :bottom).plus(16)
     end
     always do
