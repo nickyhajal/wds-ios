@@ -13,21 +13,23 @@ class PostScreen < PM::Screen
   end
   def send_post_action
     text = @layout.get(:input).text
-    @layout.get(:post).title = 'Posting'
-    @layout.get(:input).text
-    @layout.get(:input).resignFirstResponder
-    @dispatch.post text do |err|
-      if err
-        @layout.get(:post).title = 'Post'
-        $APP.offline_alert
-      else
-        @layout.get(:post).title = 'Posted!'
-        @layout.get(:input).text = ''
-        @layout.updatePlaceholder
-        0.03.seconds.later do
-          close_screen
-          0.5.seconds.later do
-            @layout.get(:post).title = 'Post'
+    if text.length > 0
+      @layout.get(:post).title = 'Posting'
+      @layout.get(:input).text
+      @layout.get(:input).resignFirstResponder
+      @dispatch.post text do |err|
+        if err
+          @layout.get(:post).title = 'Post'
+          $APP.offline_alert
+        else
+          @layout.get(:post).title = 'Posted!'
+          @layout.get(:input).text = ''
+          @layout.updatePlaceholder
+          0.03.seconds.later do
+            close_screen
+            0.5.seconds.later do
+              @layout.get(:post).title = 'Post'
+            end
           end
         end
       end

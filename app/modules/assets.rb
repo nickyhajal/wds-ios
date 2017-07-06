@@ -1,12 +1,13 @@
 module Assets
   class << self
     def init
-      @assets = ['me','events','interests','places']
+      @assets = ['me','events','interests','places', 'slim_attendees']
       @expires = {
         'me' => 0,
         'events' => 5,
         'interests' => 300,
-        'places' => 300
+        'places' => 300,
+        'slim_attendees' => 300
       }
       @aliases = {
         "schedule" => "events",
@@ -14,6 +15,7 @@ module Assets
         "academy" => "events",
         "spark_session" => "events",
         "activity" => "events",
+        "expedition" => "events",
         "registration" => "events"
       }
     end
@@ -91,6 +93,23 @@ module Assets
       Store.set('me', me, true)
       Me.update(me)
     end
+    def process_slim_attendees(atns)
+      Dispatch::Queue.concurrent.async do
+        db = fmdb
+        db.executeUpdate('DROP TABLE atns');
+        # db.executeUpdate("CREATE VIRTUAL TABLE atns USING FTS4(user_id, first_name,  last_name)");
+        db.executeUpdate("CREATE TABLE atns (user_id INTEGER PRIMARY KEY, first_name TEXT,  last_name TEXT)");
+        puts db.lastErrorMessage
+        atns.each do |atn|
+          first_name = atn[:first_name]
+          last_name = atn[:last_name]
+          user_id = atn[:user_id]
+          query = "INSERT into atns(user_id,first_name,last_name) VALUES('#{user_id}', '#{first_name}', '#{last_name}')"
+          rsp = db.executeUpdate(query);
+        end
+        db.close
+      end
+    end
     def process_interests(interests)
       Interests.updateInterests(interests)
       set 'interests', interests
@@ -102,6 +121,7 @@ module Assets
       lastDay = ''
       byDay = {}
       days = []
+      dayData = {}
       reg = {}
       existingDays = {}
       events.sort! {|x, y| [x['start'], x['what']] <=> [y['start'], y['what']]}
@@ -109,9 +129,24 @@ module Assets
         event = Event.new(event)
         type = event.type
         day = event.startDay
+        map = {
+          'Monday' => 'Mon',
+          'Tuesday' => 'Tues',
+          'Wednesday' => 'Weds',
+          'Thursday' => 'Thurs',
+          'Friday' => 'Fri',
+          'Saturday' => 'Sat',
+          'Sunday' => 'Sun'
+        }
         if existingDays[event.startDay].nil?
-          existingDays[event.startDay] = true;
-          days << {day: event.startDay, dayStr: event.dayStr}
+          existingDays[event.startDay] = true
+          dayStr = event.dayStr
+          dayName = event.dayStr.split(',')[0]
+          dayNameShort = map[dayName];
+          dayNum = dayStr.gsub(/[^0-9]/, '')
+          dayComplete = {day: event.startDay, dayStr: dayStr, dayName: dayName, dayNameShort: dayNameShort, dayNum: dayNum }
+          days << dayComplete
+          dayData[dayComplete[:day]] = dayComplete
         end
         if Me.isAttendingEvent(event)
           if schedule[event.startDay].nil?
@@ -130,6 +165,7 @@ module Assets
         end
       end
       set 'days', days
+      set 'dayData', dayData
       set 'events', events
       byType.each do |type, evs|
         set type, byType[type]
@@ -151,6 +187,72 @@ module Assets
         end
       end
       set 'schedule', schedule
+    end
+    def searchAttendees(q)
+      matches = []
+      q.split(' ').each do |part|
+        matches << searchAtnPart(part)
+      end
+      mergeSearchScore(matches, 'sorted')
+    end
+    def searchAtnPart(q)
+      fnameMatches = calcMatch('first_name', q, 1)
+      lnameMatches = calcMatch('last_name', q, 2)
+      mergeSearchScore([fnameMatches, lnameMatches])
+    end
+    def calcMatch(col, q, baseScore)
+      users = {}
+      db = fmdb
+      q = q.downcase
+      res = db.executeQuery("SELECT * FROM atns WHERE #{col} LIKE '%#{q}%'", 2)
+      while res.next
+        score = baseScore
+        colVal = res.stringForColumn(col).downcase
+        if (q === colVal)
+          score += 2
+        elsif colVal.index(q) == 0
+          score += 1
+        end
+        user = {
+          user_id: res.intForColumn('user_id'),
+          first_name: res.stringForColumn('first_name'),
+          last_name: res.stringForColumn('last_name'),
+          score: score
+        }
+        users["u#{user[:user_id]}".to_sym] = user
+      end
+      db.close
+      users
+    end
+    def mergeSearchScore(sets, sorted = false)
+      merged = {}
+      sets.each do |set|
+        set.each do |key, user|
+          if merged[key].nil?
+            merged[key] = user
+          else
+            merged[key][:score] += user[:score]
+          end
+        end
+      end
+      if sorted
+        toSort = []
+        merged.each_value do |user|
+          toSort << user
+        end
+        sorted = (toSort.sort_by { |u| u[:score] })
+        sorted.reverse!
+        sorted
+      else
+        merged
+      end
+    end
+    def fmdb
+      db = FMDatabase.databaseWithPath(File.join(NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true)[0], 'wds.db'))
+      if !db.open
+        db.release
+      end
+      db
     end
   end
 end

@@ -58,7 +58,7 @@ class ScheduleListing < PM::TableScreen
     {
       title: '',
       cell_class: ScheduleCell,
-      action: 'meetup_tap_action',
+      # action: 'meetup_tap_action',
       arguments: { event: event, width: @width },
       properties: {
         selectionStyle: UITableViewCellSelectionStyleNone,
@@ -104,6 +104,9 @@ class ScheduleListing < PM::TableScreen
     view.setTextColor "#848477".uicolor
     view.text = section[:title].upcase
     view
+  end 
+  def tableView(table_view, heightForHeaderInSection: index)
+    24
   end
   def tableView(table_view, heightForRowAtIndexPath:index_path)
     cell = self.tableView(table_view, cellForRowAtIndexPath:index_path)

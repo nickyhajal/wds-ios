@@ -41,7 +41,7 @@ class DispatchContentList < PM::TableScreen
     {
       title: '',
       cell_class: DispatchContentCell,
-      action: :item_tap_action,
+      # action: :item_tap_action,
       arguments: { item: item},
       properties: {
         selectionStyle: UITableViewCellSelectionStyleNone,

@@ -9,7 +9,7 @@
         selected: selected,
         unselected: unselected
       },
-      title: 'Dispatch'
+      title: ''
     })
   end
   def will_appear
@@ -17,8 +17,10 @@
   end
   def on_load
     @event_screen = EventScreen.new(nav_bar: false)
+    @notifications_screen = NotificationsScreen.new(nav_bar: false)
     @dispatch_screen = DispatchItemScreen.new(nav_bar: false)
     @attendee_screen = AttendeeScreen.new(nav_bar: false)
+    @atnstory_screen = AtnStoryScreen.new(nav_bar: false)
     @filters_screen = FiltersScreen.new(nav_bar: false)
     @filters_screen.controller = self
     @filters_screen.init_layout
@@ -43,7 +45,34 @@
     @dispatch.initFilters(@filters_screen.layout)
     @dispatch.setNewPostsBtn @layout.get(:new_posts), @layout.new_posts_y, self.view
     @post_screen.dispatch = @dispatch
+    @chat_screen = ChatScreen.new(nav_bar: false)
     @cart = CartScreen.new(nav_bar: false)
+    Fire.watch "value", "/state" do |rsp|
+      unless rsp.value.nil?
+        $STATE = rsp.value
+        @dispatch.update_content([])
+      end
+    end
+    2.0.seconds.later do
+      $PRESALES = {fresh: [], used:[]}
+      Fire.query "added", "/presales", [{type: 'limitLast', val: 30}] do |rsp|
+        unless rsp.value.nil?
+          now = NSDate.new.timeIntervalSince1970
+          unless rsp.value[:created_at].nil?
+
+            # If it's less than 20 minutes old, it's fresh
+            if (now - (rsp.value[:created_at] / 1000)) < 12000
+              $PRESALES[:fresh] << rsp.value
+            else
+              $PRESALES[:used] << rsp.value
+            end
+          end
+        end
+      end
+    end
+    0.4.seconds.later do
+      open_notification_permission_primer
+    end
 
     ## This is to auto-open the cart for testing
     # 0.5.seconds.later do
@@ -54,6 +83,38 @@
     #   end
     # end
     true
+  end
+  def open_notification_permission_primer
+      asked = Store.get('asked_for_notifications')
+      asked = 0 if !asked
+      token = Store.get('device_token')
+      now = NSDate.new.timeIntervalSince1970
+      diff = now.to_f - asked.to_f
+      if !token && diff > 432000
+        Store.set('asked_for_notifications', now)
+        str = "We use notifications to send *important event updates*, *attendee messages* and *fun, secret surprises*.\n\nActivate them to make sure you don't miss out!"
+        modal = {
+          title: 'Enable Notifications!',
+          content: str,
+          close_on_yes: true,
+          image: "notificationIcon".uiimage,
+          yes_text: "Yup, enable them!",
+          no_text: "No, thanks.",
+          yes_action: 'request_notification_action',
+          controller: self
+        }
+        @layout.get(:noti_permission).open(modal)
+      else
+        Me.checkDeviceToken
+      end
+  end
+  def request_notification_action(item)
+    if UIApplication.sharedApplication.respondsToSelector("registerUserNotificationSettings:")
+	    settings = UIUserNotificationSettings.settingsForTypes(UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound, categories: nil)
+	    UIApplication.sharedApplication.registerUserNotificationSettings(settings)
+	  else
+	    UIApplication.sharedApplication.registerForRemoteNotificationTypes(UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound)
+	  end
   end
   def open_event(event)
     @event_screen.setEvent(event)
@@ -67,6 +128,14 @@
     is_id = options[:is_id] || false
     @dispatch_screen.setItem item, is_id
     open_modal @dispatch_screen
+  end
+  def open_chat(pid)
+    @chat_screen.setChatFromPid({ pid: pid })
+    open_modal @chat_screen
+  end
+  def open_notifications
+    @notifications_screen.sync
+    open_modal @notifications_screen
   end
   def load_new_action
     @dispatch.loadNewViaButton
@@ -131,6 +200,9 @@
     @cart.setPurchasedCallback(self, 'tckt_purchased', false)
     open_modal @cart
   end
+  def open_atn_story_action
+    open_modal @atnstory_screen
+  end
   def post_tckt_action
     @dispatch.hideFirst
     Store.set('preorder', 'post-hidden')
@@ -144,14 +216,17 @@
     @layout.get(:attendee_search_layout).setSearch("match me")
   end
   def startSearch
+    @dispatch.active = false
     @layout.get(:dispatch).setHidden true
     @layout.get(:dispatch_nav).setHidden true
     @layout.get(:search_nav).setHidden false
+    @layout.get(:attendee_results).setHidden false
   end
   def respondToSearch
     @layout.get(:attendee_results).setHidden false
   end
   def stopSearch
+    @dispatch.active = true
     @layout.get(:search_nav).setHidden true
     @layout.get(:dispatch).setHidden false
     @layout.get(:dispatch_nav).setHidden false

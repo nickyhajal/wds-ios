@@ -10,6 +10,7 @@ class ChatListing < PM::TableScreen
     self.tableView.setSeparatorStyle(UITableViewCellSeparatorStyleNone)
     self.tableView.backgroundView = nil
     self.tableView.backgroundColor = Color.tan
+    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(0,0,0,self.tableView.bounds.size.width-8)
   end
   def setLayout(layout)
     @layout = layout
@@ -19,15 +20,15 @@ class ChatListing < PM::TableScreen
       cells: @chats
     }]
   end
-  def make_cell(note)
+  def make_cell(chat)
     @width = !@layout.nil? && !@layout.super_width.nil? ? @layout.super_width : 400
     {
       title: '',
-      cell_class: NoteCell,
-      arguments: { note: note},
+      cell_class: ChatCell,
+      arguments: { chat: chat},
       properties: {
         selectionStyle: UITableViewCellSelectionStyleNone,
-        note: note,
+        chat: chat,
         width: @width,
         controller: @controller
       }
@@ -35,8 +36,8 @@ class ChatListing < PM::TableScreen
   end
   def update(chats)
     @chats = []
-    chats.each do |note|
-      @chats << make_cell(note)
+    chats.each do |chat|
+      @chats << make_cell(chat)
     end
     update_table_data
     UIView.setAnimationsEnabled false

@@ -1,13 +1,16 @@
 class AppDelegate < PM::Delegate
 	attr_accessor :login, :event , :home, :events
 	def on_load(app, options)
+		$VERSION = '17.2'
 		Stripe.setDefaultPublishableKey('pk_live_v32iH6nfQOgPmKgQiNOrnZCi')
+		# Stripe.setDefaultPublishableKey('pk_test_8WKTIWKXB6T1eFT9sFqrymCM')
 		Fire.init
 		if RUBYMOTION_ENV == 'release'
 		  Fabric.with([Crashlytics])
 		end
 		$IS7 = (UIDevice.currentDevice.systemVersion.floatValue < 8.0)
 		$IS8 = (UIDevice.currentDevice.systemVersion.floatValue >= 8.0)
+		$IS10 = (UIDevice.currentDevice.systemVersion.floatValue >= 10.0)
 		$APP = self
 		@tab_bar = false
 		init_api
@@ -26,25 +29,29 @@ class AppDelegate < PM::Delegate
 			Me.checkLoggedIn
 		end
 	end
+	def on_activate
+		UIApplication.sharedApplication.applicationIconBadgeNumber = 0;
+	end
 	def init_assets
 		Interests.init
 		Assets.init
 	end
-	def init_notifications
-		asked = Store.get('asked_for_notifications')
-		if asked
-			Me.checkDeviceToken
-		else
-			Store.set('asked_for_notifications', true)
-			register_push_notifications
-		end
-	end
+	# def init_notifications
+	# 	asked = Store.get('asked_for_notifications')
+	# 	if asked
+	# 		Me.checkDeviceToken
+	# 	else
+	# 		Store.set('asked_for_notifications', true)
+	# 		register_push_notifications
+	# 	end
+	# end
 	def init_me
 		Me.init self
 	end
 	def init_screens
 		@home = HomeScreen.new(nav_bar: false)
-		# @explore = ExploreScreen.new(nav_bar: true)
+		@explore = ExploreScreen.new(nav_bar: true)
+		@chats = ChatsScreen.new(nav_bar: true)
 		@events = EventsScreen.new(nav_bar: true)
 		@event = EventScreen.new(nav_bar: false)
 		@eventTypes = EventTypesScreen.new(nav_bar: true)
@@ -56,9 +63,9 @@ class AppDelegate < PM::Delegate
 		@login = LoginScreen.new(nav_bar: false)
 		@loading = LoadingScreen.new(nav_bar:false)
 		@walkthrough = WalkthroughScreen.new(nav_bar:false)
-		# if BW::Location.enabled? && BW::Location.authorized?
-		# 	@explore.location_ping
-		# end
+		if BW::Location.enabled?
+			# @explore.location_ping
+		end
 	end
 	def init_api
 		Api.init
@@ -91,8 +98,8 @@ class AppDelegate < PM::Delegate
 		tab_bar.setTintColor UIColor.blackColor
 		tab_bar_item = UITabBarItem.appearance
 		tab_bar_item.setTitleTextAttributes({
-			UITextAttributeTextColor => Color.orangish_gray,
-			UITextAttributeFont => Font.Karla(12)
+			UITextAttributeTextColor => Color.coffee,
+			UITextAttributeFont => Font.Karla(1)
 		}, forState:UIControlStateNormal)
 		tab_bar_item.setTitleTextAttributes({
 			UITextAttributeTextColor => "#E99533".uicolor
@@ -118,13 +125,16 @@ class AppDelegate < PM::Delegate
 		else
 			open_loading
 			Assets.sync do |err|
-				@tab_bar = open_tab_bar @home, @schedule, @eventTypes #, @explore#, @more
+				@tab_bar = open_tab_bar @home, @schedule, @eventTypes, @chats #, @explore
+				@tab_bar.tabBar.items.each do |tab|
+					tab.imageInsets = UIEdgeInsetsMake(5.0,0,-5.0,0)
+				end
 				0.05.seconds.later do
 					open_notification_content_if_exists
 				end
-				0.8.seconds.later do
-					init_notifications
-				end
+				# 0.8.seconds.later do
+				# 	init_notifications
+				# end
 			end
 		end
 	end
@@ -151,16 +161,17 @@ class AppDelegate < PM::Delegate
 		puts error.inspect
 	end
 	def application(application, didRegisterForRemoteNotificationsWithDeviceToken: device_token)
+		puts 'SAVE DEVICE TOKEN'
 		Me.saveDeviceToken device_token
 	end
-	def application(application, didReceiveRemoteNotification: data)
+ 	def application(application, didReceiveRemoteNotification: data)
+		@notification_data = data
 		if(application.applicationState == UIApplicationStateActive)
-
 		else
 			@notification_data = data
 			open_notification_content_if_exists
 		end
-	end
+ 	end
 	def open_notification_content_if_exists
 		if !@notification_data.nil? && @notification_data && @tab_bar
 			data = @notification_data
@@ -176,6 +187,11 @@ class AppDelegate < PM::Delegate
 				open_root_screen @tab_bar
 				open_tab(@home)
 				@home.open_dispatch id, is_id: true
+			elsif link.include? 'message'
+				id = link.split('/').last
+				open_root_screen @tab_bar
+				open_tab(@home)
+				@home.open_chat id
 			end
 		end
 	end

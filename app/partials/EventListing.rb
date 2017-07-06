@@ -176,6 +176,9 @@ class EventListing < PM::TableScreen
     view.text = section[:title].upcase
     view
   end
+  def tableView(table_view, heightForHeaderInSection: index)
+    24
+  end
   def tableView(table_view, heightForRowAtIndexPath:index_path)
     cell = self.tableView(table_view, cellForRowAtIndexPath:index_path)
     height = cell.getHeight

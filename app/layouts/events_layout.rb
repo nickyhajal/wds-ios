@@ -56,6 +56,10 @@ class EventsLayout < MK::Layout
       end, completion: nil)
     end
   end
+  def updateDaySelector(events)
+    @events = events
+    get(:day_selector).setDaysFromEvents(@events)
+  end
   def open_host
     get(:host_shell).setHidden false
     @host_w.equals(super_width-10)
@@ -230,7 +234,7 @@ class EventsLayout < MK::Layout
       width.equals(:superview)
       top.equals(:sub_nav, :bottom)
       #@daySelTop = top 109
-      @daySelHeight = height 37
+      @daySelHeight = height 58
       left 0
     end
   end
@@ -239,9 +243,9 @@ class EventsLayout < MK::Layout
     constraints do
       left 0
       right "100%"
-      @listTop = top 146
+      @listTop = top 170
       if $IS8
-        @listHeight = height.equals(:superview).minus(146)
+        @listHeight = height.equals(:superview).minus(176)
       else
         @listHeight = height.equals(:superview).minus(193)
       end

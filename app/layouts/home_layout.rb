@@ -16,7 +16,7 @@ class HomeLayout < MK::Layout
       add DividedNav, :dispatch_nav
       add DividedNav, :channel_nav
       add DividedNav, :search_nav
-
+      add PermissionLayout, :noti_permission
     end
   end
   def super_height
@@ -27,6 +27,15 @@ class HomeLayout < MK::Layout
   end
   def main_style
     background_color "#F2F2EA".uicolor
+  end
+  def noti_permission_style 
+    hidden true
+    constraints do
+      top.equals(0)
+      left.equals(0)
+      width.equals(super_width)
+      height.equals(super_height)
+    end
   end
   def dispatch_nav_style
     target.setSize super_width, 33

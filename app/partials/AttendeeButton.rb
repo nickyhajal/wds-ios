@@ -34,6 +34,7 @@ class AttendeeButton < UIButton
   def drawImg
     @img = UIImageView.alloc.initWithFrame([[ 0, 3 ], [ 32, 32 ]])
     @img.setImageWithURL(@atn.pic.nsurl, placeholderImage:"default-avatar.png".uiimage)
+    @img.contentMode = UIViewContentModeScaleAspectFill
     @img.layer.cornerRadius = 16.0
     @img.layer.masksToBounds = true
     self.addSubview @img

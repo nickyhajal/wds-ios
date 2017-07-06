@@ -50,6 +50,7 @@ class AttendeeLayout < MK::Layout
     target.addTarget @controller, action:'show_notes_action', forControlEvents:UIControlEventTouchDown
     constraints do
       top.equals(:chat_btn, :bottom).plus(5)
+      # top.equals(:name, :bottom).plus(5)
       left.equals(:name)
       height 32
       width.equals(:name)

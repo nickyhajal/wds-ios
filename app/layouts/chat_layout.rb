@@ -3,9 +3,60 @@ class ChatLayout < MK::Layout
   def setController(controller)
     @controller = controller
   end
-  def setChat(atn)
-    @kb_height = 0
+  def setAttendee(atn)
+    @readyForMessages = 'waiting'
     @atn = atn
+    updTitle
+    @atn.readyForMessages do |rsp|
+      @readyForMessages = rsp
+      reapply!
+    end
+  end
+  def setAttendees(atns)
+    if atns.length == 1
+      @atn = atns[0]
+    end
+    updTitle
+    @readyForMessages = 'waiting'
+    @atn.readyForMessages do |rsp|
+      @readyForMessages = rsp
+      reapply!
+    end
+  end
+  def nameStr
+    @chat.nil? ? @atn.first_name : "your group"
+  end
+  def titleStr
+    if !@chat.nil? && @chat
+      @chat.name
+    else
+      name = @atn.nil? || @atn.first_name.nil? ? '' : " with #{@atn.first_name}"
+      "Chat#{name}"
+    end
+  end
+  def updTitle
+    title = titleStr
+    if title.length > 12
+      title = title[0..5]+'...'+title[title.length-6..title.length-1]
+    end
+    @controller.title = title
+  end
+  def setTyping(typing)
+    @typing = typing
+    reapply!
+  end
+  def setChat(chat)
+    @chat = chat
+    @readyForMessages = 'group'
+    updTitle
+  end
+  def state=(state)
+    @state = state
+    unless @layout.get(:null_msg).nil?
+      @layout.get(:null_msg).setHidden true
+      @layout.get(:chat_list).setHidden false
+      @layout.get(:loading_list).setHidden true
+    end
   end
   def layout
     @slid_up = false
@@ -16,6 +67,10 @@ class ChatLayout < MK::Layout
       end
       add chat_view, :chat_list
       add UITextView, :null_msg
+      add UITextView, :loading_msg
+      add UIView, :typing_shell do
+        add UILabel, :typing_label
+      end
       add UIView, :msg_box do
         add UIView, :msg_line
         add UITextView, :msg_inp
@@ -46,7 +101,9 @@ class ChatLayout < MK::Layout
     title 'x'
     titleColor Color.white
     font Font.Vitesse_Medium(18)
-    addTarget @controller, action: 'close_action', forControlEvents:UIControlEventTouchDown
+    target.on_tap do |gesture|
+      @controller.close_action(true)
+    end
     constraints do
       top 20
       left 0
@@ -66,14 +123,14 @@ class ChatLayout < MK::Layout
     textAlignment UITextAlignmentCenter
     textColor Color.light_tan
     reapply do
-      text "Chat with "+@atn.first_name
+      text titleStr
     end
   end
   def null_msg_style
     hidden true
     editable false
     reapply do
-      str = "Send a message to "+@atn.first_name+" below."
+      str = "Send a message to "+nameStr+" below."
       pgraph = NSMutableParagraphStyle.alloc.init
       pgraph.alignment = NSTextAlignmentCenter
       str = str.attrd({
@@ -81,7 +138,14 @@ class ChatLayout < MK::Layout
         UITextAttributeTextColor => Color.orangish_gray,
         NSParagraphStyleAttributeName => pgraph
       })
-      status = "\n\n"+@atn.first_name+" has installed the latest version of the app and will receive your message immediately."
+      status = ""
+      if @readyForMessages == "ready"
+        status = "\n\n"+@atn.first_name+" has installed the latest WDS App and will receive your message immediately."
+      elsif @readyForMessages == "not-ready"
+        status = "\n\n"+@atn.first_name+" hasn't installed the latest WDS App but will receive your messages once they do."
+      elsif @readyForMessages == "group"
+        status = "\n\n"+"Woohoo, your group is ready to chat!"
+      end
       str += status.attrd({
         NSFontAttributeName => Font.Karla_Italic(14),
         UITextAttributeTextColor => Color.orangish_gray,
@@ -100,13 +164,91 @@ class ChatLayout < MK::Layout
       height.equals(200)
     end
   end
+  def loading_msg_style
+    hidden true
+    editable false
+    pgraph = NSMutableParagraphStyle.alloc.init
+    pgraph.alignment = NSTextAlignmentCenter
+    str = "Loading".attrd({
+      NSFontAttributeName => Font.Vitesse_Medium(17),
+      UITextAttributeTextColor => Color.orangish_gray,
+      NSParagraphStyleAttributeName => pgraph
+    })
+    attributedText str
+    font Font.Vitesse_Medium(17)
+    textColor Color.orangish_gray
+    backgroundColor Color.clear
+    textAlignment UITextAlignmentCenter
+    constraints do
+      center_x.equals(:superview)
+      top 180
+      width.equals(:superview).minus(60)
+      height.equals(200)
+    end
+  end
   def chat_list_style
     backgroundColor Color.tan
+    target.rotate_to 180.degrees, {duration: 0}
     constraints do
       left 0
       width super_width
-      @listTop = top 58
-      @listHeight = height.equals(:superview).minus(146)
+      top.equals(:header, :bottom)
+      bottom.equals(:typing_shell, :top)
+      # @listHeight = height.equals(:superview).minus(146)
+    end
+  end
+  def typing_shell_style
+    tv = target
+    backgroundColor Color.clear
+    constraints do
+      width.equals(:superview)
+      left 0
+      @typingH = height 0
+      bottom.equals(:msg_box, :top)
+    end
+    reapply do
+      if !@typing.nil? and @typing.length > 0
+        tv.fade_in
+        @typingH.equals(36)
+      else
+        tv.fade_out
+        @typingH.equals(0)
+      end
+      UIView.animateWithDuration(0.15, delay: 0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
+        self.view.layoutIfNeeded
+      end, completion: nil)
+    end
+  end
+  def typing_label_style
+    tv = target
+    label = target
+    text ""
+    backgroundColor "#F7F7E9".uicolor
+    textColor Color.gray
+    font Font.Karla_Italic(14)
+    textAlignment UITextAlignmentCenter
+    clipsToBounds true
+    constraints do
+      @typingTop = top 2
+      height 28
+      center_x.equals(:superview)
+      width super_width * 0.75
+    end
+    layer do
+      cornerRadius 16.0
+      shadow_color Color.coffee
+      shadow_radius 3
+      shadow_opacity 0.12
+      shadow_offset [1,1]
+    end
+    reapply do
+      if @typing
+        tv.fade_in
+        label.text = @typing
+      else
+        tv.fade_out
+        label.text = ""
+      end
     end
   end
   def msg_box_style
@@ -119,18 +261,24 @@ class ChatLayout < MK::Layout
     end
   end
   def msg_btn_style
-    titleColor Color.white
-    backgroundColor Color.orange
-    font Font.Karla_Bold(14)
+    titleColor Color.orangish_gray
+    font Font.Karla_Bold(15)
+    backgroundColor Color.clear
     title "Send"
     alpha 0
     addTarget @controller, action: 'post_msg_action', forControlEvents:UIControlEventTouchDown
     constraints do
-      right 0
+      right -6
       width 60
-      top 0
-      height 40
+      top 6
+      height 28
     end
+    layer do
+      border_width 1
+      border_color Color.orangish_gray(0.5).CGColor
+      corner_radius 4.0
+    end
+    target.sizeToFit
   end
   def msg_line_style
     backgroundColor Color.light_gray(0.6)
@@ -154,7 +302,7 @@ class ChatLayout < MK::Layout
   end
   def placeholder_style
     reapply do
-      text "Send a message to "+@atn.first_name+"..."
+      text "Send a message to "+nameStr+"..."
     end
     textColor Color.gray
     font Font.Karla(15)
@@ -175,10 +323,36 @@ class ChatLayout < MK::Layout
   end
   def textViewDidEndEditing(textView)
     updatePlaceholder
+    updatePostButton
   end
   def textViewDidChange(textView)
     updatePlaceholder
+    updatePostButton
     updateMsgBoxSize(textView)
+    unless @typingTimer.nil?
+      @typingTimer.invalidate
+    end
+    if !@controller.chat.nil? and @controller.chat
+      @controller.chat.setTyping(true)
+    end
+    @typingTimer = 2.seconds.later do
+      if !@controller.chat.nil? and @controller.chat
+        @controller.chat.setTyping(false)
+      end
+    end
+  end
+  def updatePostButton
+    inp = get(:msg_inp)
+    btn = get(:msg_btn)
+    if inp.text.length > 0
+      btn.backgroundColor = Color.orange
+      btn.titleColor = Color.white
+      btn.layer.borderWidth = 0
+    else
+      btn.backgroundColor = Color.clear
+      btn.titleColor = Color.orangish_gray
+      btn.layer.borderWidth = 1.0
+    end
   end
   def updateMsgBoxSize(textView)
     max = (super_height - @kb_height) * 0.5
@@ -186,13 +360,24 @@ class ChatLayout < MK::Layout
     height = 40 if height < 40
     height = max if height > max
     @msg_box_height.equals(height)
+    UIView.animateWithDuration(0.1, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
+      self.view.layoutIfNeeded  # applies the constraint change
+    end, completion: nil)
   end
   def moveInput(notification, dir = false)
     info = notification.userInfo
     kbFrame = info[:UIKeyboardFrameEndUserInfoKey].CGRectValue
-    duration = info[:UIKeyboardAnimationDurationUserInfoKey].doubleValue
-    curve = info[:UIKeyboardAnimationCurveUserInfoKey].integerValue << 16
-    @kb_height = kbFrame.size.height
+    if info[:UIKeyboardAnimationDurationUserInfoKey].nil?
+      duration = 0.25
+    else
+      duration = info[:UIKeyboardAnimationDurationUserInfoKey].to_f
+    end
+    if info[:UIKeyboardAnimationCurveUserInfoKey].nil?
+      curve = 0
+    else
+      curve = info[:UIKeyboardAnimationCurveUserInfoKey].to_i << 16
+    end
+    @kb_height = kbFrame.size.height - 49
     unless dir
       @msg_box_bottom.equals(@kb_height * -1)
       get(:msg_btn).alpha = 1

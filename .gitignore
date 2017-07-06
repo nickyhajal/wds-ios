@@ -2,6 +2,8 @@
 build
 tags
 crashes/
+design/
+.vscode/
 dump.*
 app/pixate_code.rb
 resources/*.nib
@@ -11,6 +13,7 @@ resources/*.storyboardc
 vendor/
 nbproject
 .redcar
+Gemfile.*
 #*#
 *~
 *.sw[po]
@@ -18,3 +21,4 @@ nbproject
 .sass-cache
 .idea
 .dat*.*
+provisioning

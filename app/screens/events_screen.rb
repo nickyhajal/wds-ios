@@ -1,5 +1,6 @@
 class EventsScreen < PM::Screen
   title "Meetups"
+  include EventModule
   status_bar :light
   attr_accessor :layout
   def on_init
@@ -9,40 +10,16 @@ class EventsScreen < PM::Screen
         selected: selected,
         unselected: unselected
       },
-      title: '  Events  '
+      # title: '  Events  '
+      title: ''
     })
-    self.tabBarItem.titlePositionAdjustment = UIOffsetMake(8, 0)
+    # self.tabBarItem.titlePositionAdjustment = UIOffsetMake(8, 0)
     @event_screen = EventScreen.new(nav_bar: false)
     @type = 'meetup'
-    @types = {
-      meetup: {
-        title: 'Meetups',
-        single: 'Meetup'
-      },
-      academy: {
-        title: 'Academies',
-        single: 'Academy'
-      },
-      spark_session: {
-        title: 'Spark Sessions',
-        single: 'Spark Session'
-      },
-      activity: {
-        title: 'Activities',
-        single: 'Activity'
-      },
-    }
-    @pluralToType = {
-      activities: 'activity',
-      meetups: 'meetup',
-      spark_sessions: 'spark_session',
-      academies: 'academy'
-    }
   end
   def on_load
     @meetupType = 'all'
     @layout = EventsLayout.new(root: self.view)
-    @cart = CartScreen.new(nav_bar: false)
     @layout.setController self
     @events_table = EventListing.new
     @events_table.controller = self
@@ -50,25 +27,57 @@ class EventsScreen < PM::Screen
     @events_table.setLayout @layout
     @layout.events_view = @events_table.view
     @layout.build
-    if @day.nil?
-      setDefaultDay
-    end
+    @openedDay = false
     true
   end
-  def setDefaultDay
-    days = Assets.get('days')
+  def will_appear
+  end
+  def setDefaultDay(events = false)
 
-    # Set the default day to August 11th, 2016 (Thursday)
-    day = days[0]
-    days.each do |d|
-      if d[:day] == '2016-08-11'
-        day = d
+    eventStart = NSDate.from_components(year: 2017, month: 7, day: 11)
+    if @openedDay
+      selected = dayFromShort(@openedDay)
+      day = formatDay(selected)
+      @openedDay = false
+    elsif @tappedDay.nil?
+      days = Assets.get('days')
+
+      # Set the default day to July 11th, 2017
+      selected = eventStart
+      day = days[0]
+      days.each do |d|
+        if d[:day] == '2017-07-11'
+          day = d
+        end
       end
+
+      # If we are between the dates of WDS, start showing the current day by default
+      selected = NSDate.new+10.hours
+      if selected.string_with_format(:ymd) >= '2017-07-11' && selected.string_with_format(:ymd) < '2017-07-18'
+        day = formatDay(selected)
+      end
+    else
+      selected = @tappedDay
+      day = formatDay(selected)
     end
 
-    # If we are between the dates of WDS, start showing the current day by default
-    today = NSDate.new+10.hours
-    if today.string_with_format(:ymd) >= '2016-08-07' && today.string_with_format(:ymd) < '2016-08-16'
+    if events
+      count = 0
+      while events[day[:day]].nil? || events[day[:day]].length < 1 do
+        selected = selected+24.hours
+        day = formatDay(selected)
+        count += 1
+        if (count > 20)
+          selected = eventStart
+          day = formatDay(selected)
+          count = 0
+        end
+      end
+    end
+    @layout.get(:day_selector).setDay(day[:day])
+    setDay(day[:day], day[:dayStr])
+  end
+  def formatDay(today)
       ends = ['th','st','nd','rd','th','th','th','th','th','th']
       dayNum = today.string_with_format("d").to_i
       if (dayNum % 100) >= 11 && (dayNum % 100) <= 13
@@ -76,43 +85,49 @@ class EventsScreen < PM::Screen
       else
          dayNum = dayNum.to_s + ends[dayNum % 10]
        end
-      day = {day: today.string_with_format(:ymd), dayStr: today.string_with_format("EEEE")+", "+today.string_with_format("MMMM")+" "+dayNum}
-    end
-    setDay(day[:day], day[:dayStr])
+      {day: today.string_with_format(:ymd), dayStr: today.string_with_format("EEEE")+", "+today.string_with_format("MMMM")+" "+dayNum}
   end
   def will_appear
     update_events(false)
     checkIfNullState('appear')
   end
   def setType(type)
-    type = @pluralToType[type.to_sym]
-    @type = type
-    @layout.type = @type unless @layout.nil?
-    self.title = @types[type.to_sym][:title]
-    0.02.seconds.later do
+    if !type.nil?
+      type = pluralToType[type.to_sym]
+      @type = type
       @layout.type = @type unless @layout.nil?
-      if type == 'meetup'
-        set_nav_bar_button :right, title: "Host", action: 'open_host'
-      else
-        set_nav_bar_button :right, title: "", action: 'open_host'
+      self.title = types[type.to_sym][:title]
+      0.02.seconds.later do
+        @layout.type = @type unless @layout.nil?
+        if type == 'meetup'
+          set_nav_bar_button :right, title: "Host", action: 'open_host'
+        else
+          set_nav_bar_button :right, title: "", action: 'open_host'
+        end
+        # setDefaultDay
+        unless @events_table.nil?
+          @events_table.update_events({}, true)
+        end
+        update_events
+        checkIfNullState('etype')
+        @layout.reapply!
       end
-      # setDefaultDay
-      unless @events_table.nil?
-        @events_table.update_events({}, true)
-      end
-      update_events
-      checkIfNullState('etype')
-      @layout.reapply!
     end
   end
-  def setDay(day, dayString)
+  def dayFromShort(day)
+    parts = day.split('-')
+    NSDate.from_components(year: parts[0].to_i, month: parts[1].to_i, day: parts[2].to_i)
+  end
+  def setDay(day, dayString, tap = false)
+    if tap
+      @tappedDay = dayFromShort(day)
+    end
     if @day != day
       @day = day
       unless @events_table.nil?
         @events_table.setDay day, dayString
       end
-      @layout.get(:day_selector).setDay(dayString)
-      update_events
+      update_events(true, false)
       #@events_table.scrollToHour
       checkIfNullState('set day')
     end
@@ -122,77 +137,7 @@ class EventsScreen < PM::Screen
   end
   def open_confirm(event, cell)
     @activeCell = cell
-    if event.type == 'academy'
-      if !Me.claimedAcademy and event.hasClaimableTickets
-        modal = {
-          item: event,
-          title: 'Attend this Academy!',
-          content: "360 and Connect attendees may claim one complimentary
-          academy and purchase additional academies for $29.
-
-Would you like to claim this ticket? (You can't change this later)",
-          close_on_yes: false,
-          yes_action: 'claimAcademy',
-          yes_text: 'Claim Academy',
-          no_text: 'No, thanks.',
-          controller: self
-        }
-      elsif !Me.claimedAcademy and !event.hasClaimableTickets
-        modal = {
-          item: event,
-          title: 'Attend this Academy!',
-          content: "You still have 1 free academy to claim but unfortunately
-          there are no more insider access tickets available for this academy.
-
-You can still purchase a ticket for $29.",
-          yes_action: 'purchaseAcademy',
-          yes_text: 'Purchase',
-          no_text: 'No, thanks.',
-          controller: self
-        }
-      else
-        modal = {
-          item: event,
-          title: 'Attend this Academy!',
-          content: "WDS Academies cost $59 but 360 and Connect attendees
-          can get access for just $29.
-
-Would you like to purchase this academy?",
-          yes_action: 'purchaseAcademy',
-          yes_text: 'Purchase',
-          no_text: 'No, thanks.',
-          controller: self
-        }
-      end
-    else
-      type = @types[event.type.to_sym][:single]
-      typelow = type.downcase
-      if Me.isAttendingEvent event
-        modal = {
-          item: event,
-          title: "Can't make it?",
-          content: "Not able to make it to this #{typelow}? No problem.
-
-Just cancel your RSVP below to make space for other attendees.
-          ",
-          yes_action: 'doRsvp',
-          yes_text: 'Cancel RSVP',
-          controller: self
-        }
-      else
-        modal = {
-          item: event,
-          title: 'See you there?',
-          content: "This #{typelow} will be on #{event.dayStr} at #{event.startStr}.
-
-Please only RSVP if you're sure you will attend.
-          ",
-          yes_action: 'doRsvp',
-          yes_text: 'Confirm RSVP',
-          controller: self
-        }
-      end
-    end
+    modal = confirmModal(event)
     @layout.get(:modal).open(modal)
   end
   def doRsvp(event)
@@ -245,16 +190,6 @@ Please only RSVP if you're sure you will attend.
   def closeModal
     @layout.get(:modal).close
   end
-  def purchaseAcademy(event)
-    @cart.setProduct('academy', event)
-    @cart.setPurchasedCallback(self, 'academyPurchased', event)
-    closeModal
-    open_modal @cart
-  end
-  def academyPurchased(event)
-      Me.addRsvp(event.event_id)
-    @activeCell.setNeedsDisplay
-  end
   def checkIfNullState(from)
     elm = @layout.get(:null_msg)
     dayStr = @events_table.dayStr.split(', ')[1]
@@ -280,12 +215,17 @@ Please only RSVP if you're sure you will attend.
   end
   def open_event(event, from = false)
     @event_screen.setEvent event, from
+    @openedDay = @day
     open_modal @event_screen
   end
-  def update_events(scrollToTop = true)
-    unless @type.nil?
+  def update_events(scrollToTop = true, setDay = true)
+    if !@type.nil? && !@events_table.nil?
       Assets.getSmart @type do |events, status|
         events = {} unless events
+        if setDay
+          setDefaultDay(events)
+        end
+        @layout.updateDaySelector(events)
         @events_table.update_events events, scrollToTop
         checkIfNullState('ue')
       end

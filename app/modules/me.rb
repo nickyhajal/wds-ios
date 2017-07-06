@@ -1,6 +1,6 @@
 module Me
   class << self
-    attr_accessor :first_name, :last_name, :user_token, :atn, :fireUser
+    attr_accessor :first_name, :last_name, :user_token, :atn, :fireUser, :firetoken
     def init(delegate)
       @delegate = delegate
       @user_token = false
@@ -8,6 +8,7 @@ module Me
       @settings = Store.get('settings', true)
       @settings = {} unless @settings
       me = Store.get('me', true)
+      me[:firetoken] = nil if me and !me[:firetoken].nil? and me[:firetoken]
       update me
     end
     def sync(&block)
@@ -19,15 +20,16 @@ module Me
         params.each do |key, val|
           set key, val
         end
-        puts @atn.user_id.to_s
-        puts $VERSION
-        if @user_token
-          Fire.auth @user_token do |user, error|
-            puts 'CALL BACK'
-            Fire.set('/users/'+@atn.user_id.to_s+'/version/', '16.2')
+        if !@atn.firetoken.nil? and @atn.firetoken.length > 0
+          Fire.auth @atn.firetoken do |user, error|
+            fireSet('version/', $VERSION)
+            Fire.set('/notifications/'+@atn.user_id.to_s+'/', {})
           end
         end
       end
+    end
+    def fireSet(path, val)
+      Fire.set('/users/'+@atn.user_id.to_s+"/#{path}/", val)
     end
     def set(key, val)
       @params[key] = val
@@ -74,12 +76,17 @@ module Me
     def checkLoggedIn
       user_token = KeyVal.where(key: 'user_token')
       if user_token.count > 0
-        Api.get 'user/validate', {}, do |rsp|
+        Api.get 'user/validate', {} do |rsp|
           if rsp.is_err
             @delegate.open_tabs
           else
             if !rsp.json[:valid].nil?
               @user_token = user_token.first.val
+              last_version = Store.get('last_version')
+              if last_version != $VERSION
+                Store.set('last_version', $VERSION)
+                # TODO: SHOW VERSION NOTES IF NEW VERSIONS
+              end
               @delegate.open_tabs
               true
             else
@@ -120,11 +127,26 @@ module Me
     def hasPermissionForEvent(event)
       (event.for_type == 'all') || (event.for_type == Me.atn.ticket_type)
     end
+    def hasSignedUpForRegistration
+      hasSignedUp = false
+      if Device.simulator?
+        @regTimes = [888, 889, 891, 892, 893, 894, 895, 897, 901]
+      else
+        @regTimes = [651, 771, 772, 773, 774, 775, 776, 778, 781]
+      end
+      @regTimes.each do |t|
+        if get('rsvps').include?(t) || get('rsvps').include?(t.to_s)
+          hasSignedUp = true
+          break
+        end
+      end
+      hasSignedUp
+    end
     def isAttendingEvent(event)
       if event.type == 'program'
         hasPermissionForEvent(event)
       else
-        get('rsvps').include? event.event_id.to_i
+        (get('rsvps').include?(event.event_id.to_i)) || (get('rsvps').include?(event.event_id.to_s))
       end
     end
     def likesFeedItem(item_id)
@@ -143,7 +165,7 @@ module Me
             interests.delete(interest_id)
             set('interests', interests)
           end
-          block.call
+          block.call(rsp.members)
         end
       else
         Api.post 'user/interest', {interest_id: interest_id} do |rsp|
@@ -152,7 +174,8 @@ module Me
           else
             interests << interest_id
             set('interests', interests)
-            block.call
+            puts rsp.inspect
+            block.call(rsp.members)
           end
         end
       end
@@ -238,7 +261,7 @@ module Me
       end
     end
     def claimedAcademy
-      !Me.atn.academy.nil? and Me.atn.academy.to_i > 0
+      (Me.atn.pre17.nil? || Me.atn.pre17.to_i < 1) || (!Me.atn.academy.nil? and Me.atn.academy.to_i > 0)
     end
     def isInterestedInEvent(event)
       is = Assets.get('interests')

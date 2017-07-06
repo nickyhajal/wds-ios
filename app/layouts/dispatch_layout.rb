@@ -65,15 +65,32 @@ class DispatchItemLayout < MK::Layout
   def header_like_style
     constraints do
       right -6
-      top 24
+      top 22
+      height 31
+      width 70
+    end
+    layer do
+      border_color Color.white(0.2).CGColor
+      corner_radius 4.0
     end
     reapply do
       if Me.likesFeedItem @item.feed_id
-        title "Liked"
+        title "Liked!"
+        backgroundColor Color.white(0.05)
+        titleColor Color.white(0.9)
+        layer do
+          border_width 1.0
+          border_color Color.white(0.1).CGColor
+        end
       else
+        backgroundColor Color.clear
+        titleColor Color.white
         title "Like"
+        layer do
+          border_color Color.white(0.2).CGColor
+          border_width 1.0
+        end
       end
-      get(:header_like).sizeToFit
     end
     font Font.Vitesse_Medium(16)
     titleColor Color.light_tan
@@ -98,17 +115,23 @@ class DispatchItemLayout < MK::Layout
     end
   end
   def comment_btn_style
-    titleColor Color.white
-    backgroundColor Color.orange
+    # titleColor Color.white
+    titleColor Color.orangish_gray
+    backgroundColor Color.clear
     font Font.Karla_Bold(14)
     title "Post"
     alpha 0
     addTarget @controller, action: 'post_comment_action', forControlEvents:UIControlEventTouchDown
     constraints do
-      right 0
+      right -6
       width 60
-      top 0
-      height 40
+      top 6
+      height 28
+    end
+    layer do
+      border_width 1
+      border_color Color.orangish_gray(0.5).CGColor
+      corner_radius 4.0
     end
   end
   def comment_line_style
@@ -150,11 +173,26 @@ class DispatchItemLayout < MK::Layout
       get(:placeholder).hidden = false
     end
   end
+  def updatePostButton
+    inp = get(:comment_inp)
+    btn = get(:comment_btn)
+    if inp.text.length > 0
+      btn.backgroundColor = Color.orange
+      btn.titleColor = Color.white
+      btn.layer.borderWidth = 0
+    else
+      btn.backgroundColor = Color.clear
+      btn.titleColor = Color.orangish_gray
+      btn.layer.borderWidth = 1.0
+    end
+  end
   def textViewDidEndEditing(textView)
     updatePlaceholder
+    updatePostButton
   end
   def textViewDidChange(textView)
     updatePlaceholder
+    updatePostButton
     updateCommentBoxSize(textView)
   end
   def updateCommentBoxSize(textView)
@@ -167,8 +205,16 @@ class DispatchItemLayout < MK::Layout
   def moveInput(notification, dir = false)
     info = notification.userInfo
     kbFrame = info[:UIKeyboardFrameEndUserInfoKey].CGRectValue
-    duration = info[:UIKeyboardAnimationDurationUserInfoKey].doubleValue
-    curve = info[:UIKeyboardAnimationCurveUserInfoKey].integerValue << 16
+    if info[:UIKeyboardAnimationDurationUserInfoKey].nil?
+      duration = 0.25
+    else
+      duration = info[:UIKeyboardAnimationDurationUserInfoKey].to_f
+    end
+    if info[:UIKeyboardAnimationCurveUserInfoKey].nil?
+      curve = 0
+    else
+      curve = info[:UIKeyboardAnimationCurveUserInfoKey].to_i << 16
+    end
     @kb_height = kbFrame.size.height
     unless dir
       @content_height.equals(super_height - 58 - @kb_height - 40)

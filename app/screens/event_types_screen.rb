@@ -9,9 +9,10 @@ class EventTypesScreen < PM::Screen
         selected: selected,
         unselected: unselected
       },
-      title: '  Events   '
+      # title: '  Events   '
+      title: ''
     })
-    self.tabBarItem.titlePositionAdjustment = UIOffsetMake(8, 0)
+    # self.tabBarItem.titlePositionAdjustment = UIOffsetMake(8, 0)
     @events_screen = EventsScreen.new(nav_bar: true)
   end
   def on_load
@@ -23,6 +24,11 @@ class EventTypesScreen < PM::Screen
     @layout.event_type_view = @event_table.view
     @layout.build
     true
+  end
+  def will_appear
+    unless @event_table.nil?
+      @event_table.update_table_data
+    end
   end
   def open_event(item)
     @events_screen.setType(item)

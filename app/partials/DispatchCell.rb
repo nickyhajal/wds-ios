@@ -1,5 +1,5 @@
 class DispatchCell < PM::TableViewCell
-  attr_accessor :item, :layout, :width, :controller, :type
+  attr_accessor :item, :layout, :width, :controller, :type, :inx, :table
   attr_reader :authorStr, :timeStr, :likeStr, :commentStr
   def will_display
     self.setNeedsDisplay
@@ -37,6 +37,9 @@ class DispatchCell < PM::TableViewCell
       @contentView = UITextView.alloc.initWithFrame([[4,pad_top(45)], [size.width+16,0]]) if @contentView.nil?
       @contentView.setTextColor Color.coffee
       @contentView.setFont Font.Karla(15)
+
+      # TODO: Intercept this link so we can auto open events and profiles
+      # http://stackoverflow.com/questions/2543967/how-to-intercept-click-on-link-in-uitextview
       @contentView.dataDetectorTypes = UIDataDetectorTypeLink
       @contentView.setEditable false
       @contentView.setTintColor Color.orange
@@ -87,10 +90,12 @@ class DispatchCell < PM::TableViewCell
       end
     elsif EventTypes.types.include?(type)
       events = Assets.get("events")
-      events.each do |event|
-        if event[:event_id] == @item.channel_id
-          @event = Event.new(event)
-          break
+      if events
+        events.each do |event|
+          if event[:event_id] == @item.channel_id
+            @event = Event.new(event)
+            break
+          end
         end
       end
       if @event
@@ -154,8 +159,8 @@ class DispatchCell < PM::TableViewCell
 
     y = pnt.y
     x = pnt.x
-    if !@tcktView.nil?
-      @tcktView.on_tap(x, y)
+    if !@specialView.nil?
+      @specialView.on_tap(x, y)
     else
       size = self.frame.size
       width = size.width
@@ -205,9 +210,10 @@ class DispatchCell < PM::TableViewCell
     CGRectMake(58, pad_top(25), self.frame.size.width-80, 50)
   end
   def channel_action
-    @controller.open_event(@event) if @event
+    if @controller.respond_to?('open_event')
+      @controller.open_event(@event) if @event
+    end
   end
-
   def pad_top(val)
     val + @item.top_padding
   end
@@ -220,51 +226,49 @@ class DispatchCell < PM::TableViewCell
       @type = "item"
     end
 
-    # puts @type
-    # puts rect.inspect
-
     if @type == 'item'
       prepareText
-      unless @tcktView.nil?
-        @tcktView.removeFromSuperview
-        @tcktView = nil
+      unless @specialView.nil?
+        @specialView.removeFromSuperview
+        @specialView = nil
       end
       unless @cardView.nil?
         @cardView.setFrame(rect)
         @cardView.setNeedsDisplay
+        @cardView.setHidden false
       end
-    elsif @type == 'tckt'
+    else
       unless @cardView.nil?
-        @cardView.removeFromSuperview
-        @cardView = nil
+        @cardView.setHidden true
       end
-      unless @tcktView.nil?
-        @tcktView.removeFromSuperview
-        @tcktView = nil
+      if @type == 'tckt'
+        cellClass = PreOrderCell
+      elsif @type == 'post-tckt'
+        cellClass = PostOrderCell
+      elsif @type == 'update'
+        cellClass = UpdateCell
+      elsif @type == 'attendee-stories'
+        cellClass = AtnStoryCell
       end
-      @tcktView = PreOrderCell.alloc.initWithFrame(rect)
-      self.addSubview @tcktView
-      @tcktView.cell = self
-      @tcktView.setFrame(rect)
-      @tcktView.setNeedsDisplay
-    elsif @type == 'post-tckt'
-      unless @cardView.nil?
-        @cardView.removeFromSuperview
-        @cardView = nil
+      if !@specialView.nil? and @specialView.class.to_s != cellClass.to_s
+        @specialView.removeFromSuperview
+        @specialView = nil
+        needsAdd = true
       end
-      unless @tcktView.nil?
-        @tcktView.removeFromSuperview
-        @tcktView = nil
+      if @specialView.nil?
+        @specialView = cellClass.alloc.initWithFrame(rect)
       end
-      @tcktView = PostOrderCell.alloc.initWithFrame(rect)
-      self.addSubview @tcktView
-      @tcktView.cell = self
-      @tcktView.setFrame(rect)
-      @tcktView.setNeedsDisplay
+      unless @item.state.nil?
+        @specialView.setState @item.state
+      end
+      if @specialView.superview.nil?
+        self.addSubview @specialView
+      end
+      @specialView.cell = self
+      @specialView.setFrame(rect)
+      @specialView.setNeedsDisplay
     end
-
   end
-
 end
 
 class DispatchCellInnerView < UIView

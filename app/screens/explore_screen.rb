@@ -9,7 +9,7 @@ class ExploreScreen < PM::Screen
         selected: selected,
         unselected: unselected
       },
-      title: 'Explore'
+      title: ''
     })
     @timer = false
     @checkin_screen = CheckInScreen.new(nav_bar: false)

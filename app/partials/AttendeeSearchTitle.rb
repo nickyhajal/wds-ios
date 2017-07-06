@@ -6,7 +6,8 @@ class AttendeeSearchTitleLayout < MK::Layout
     @controller = controller
   end
   def layout
-    add UIImageView, :globe_icon
+    add UIButton, :globe_icon
+    add NotificationMarker, :notification_marker
     add UIButton, :close_button
     add UIView, :search_attendees do
       add UIImageView, :search_icon
@@ -14,10 +15,37 @@ class AttendeeSearchTitleLayout < MK::Layout
       add UIButton, :clear_button
     end
   end
+  def watchNotifications
+    Fire.watch "value", '/users/'+Me.atn.user_id.to_s+'/notification_count' do |rsp|
+      count = 0
+      unless rsp.value.nil?
+        count = rsp.value
+      end
+      get(:notification_marker).setCount(count)
+    end
+  end
   def super_width
     self.view.frame.size.width
   end
+  def notification_marker_style
+    # hidden true
+    target.on_tap do
+      @controller.open_notifications
+    end
+    target.setCount 0
+    watchNotifications
+    backgroundColor Color.clear
+    constraints do
+      width 20
+      height 20
+      top 22
+      left 5
+    end
+  end
   def globe_icon_style
+    target.on_tap do
+      @controller.open_notifications
+    end
     image UIImage.imageNamed("globe_logo")
     constraints do
       width 25
@@ -93,6 +121,7 @@ class AttendeeSearchTitleLayout < MK::Layout
     @controller.startSearch
     @search_width.equals(super_width - 80)
     @search_right.equals(-76)
+    get(:notification_marker).fade_out(0.13)
     UIView.animateWithDuration(0.13, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
         self.view.layoutIfNeeded  # applies the constraint change
     end, completion: nil)
@@ -103,6 +132,7 @@ class AttendeeSearchTitleLayout < MK::Layout
   def stopSearch
     get(:search_attendees_input).resignFirstResponder
     get(:search_attendees_input).text = ''
+    get(:notification_marker).fade_in(0.13)
     @search_right.equals(-4)
     @search_width.equals(super_width - 45)
     UIView.animateWithDuration(0.13, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
@@ -129,23 +159,13 @@ class AttendeeSearchTitleLayout < MK::Layout
       end
     else
       @lastKeyTime = NSDate.new.timeIntervalSince1970
-      1.seconds.later do
-        ready_to_search
-      end
+      ready_to_search
     end
   end
   def ready_to_search
-    diff = NSDate.new.timeIntervalSince1970 - @lastKeyTime
-    if diff > 1
-      Api.get 'users', {search: @query, years: '16', types: '360,connect'} do |rsp|
-        if rsp.is_err
-          $APP.offline_alert
-        else
-          @results_table.update_results rsp.users
-          @controller.respondToSearch
-        end
-      end
-    end
+      results = Assets.searchAttendees(@query).map { |hash| hash.stringify_keys }
+      @results_table.update_results results
+      @controller.respondToSearch
   end
 
   # Search field delegate

@@ -1,19 +1,20 @@
 class EventScreen < PM::Screen
+  attr_accessor :layout
+  include EventModule
   status_bar :dark
   title_view UILabel.new
   def on_init
     @from = false
   end
   def on_load
-    @cart = CartScreen.new(nav_bar: false)
     @dispatch_screen = DispatchItemScreen.new(nav_bar: false)
     @attendee_screen = AttendeeScreen.new(nav_bar: false)
     @post_screen = PostScreen.new(nav_bar: false)
     @post_screen.controller = self
     @post_screen.init_layout
+    @layout = EventLayout.new(root: self.view)
     @dispatch = Disptch.new
     @dispatch.setController self
-    @layout = EventLayout.new(root: self.view)
     @event_atns = EventAttendees.new
     @event_atns.controller = self
     @layout.event_atn_view = @event_atns.view
@@ -26,30 +27,6 @@ class EventScreen < PM::Screen
     #@dispatch.initFilters(@filters_screen.layout)
     @dispatch.setNewPostsBtn @layout.get(:new_posts), @layout.new_posts_y, self.view
     @post_screen.dispatch = @dispatch
-    @types = {
-      meetup: {
-        title: 'Meetups',
-        single: 'Meetup'
-      },
-      spark_session: {
-        title: 'Spark Sessions',
-        single: 'Spark Session'
-      },
-      academy: {
-        title: 'Academies',
-        single: 'Academy'
-      },
-      activity: {
-        title: 'Activities',
-        single: 'Activity'
-      },
-    }
-    @pluralToType = {
-      activities: 'activity',
-      meetups: 'meetup',
-      spark_sessions: 'spark_session',
-      academies: 'academy'
-    }
     true
   end
   # def viewDidLayoutSubviews
@@ -91,6 +68,7 @@ class EventScreen < PM::Screen
       @dispatch.clear
       @dispatch.setChannel('meetup', @event.event_id)
       @layout.get(:channel_nav).setButtonText 1, @event.what
+      @layout.get(:scrollview).setContentOffset(CGPointMake(0, 0), animated: false)
       @layout.slideClosed(0.0)
       @layout.updateEvent @event
     end
@@ -102,6 +80,7 @@ class EventScreen < PM::Screen
   end
   def back_action
     close_screen
+    @dispatch.unwatch
     if !@from.nil? && @from
       page = 0
       if @from == "schedule"
@@ -111,84 +90,23 @@ class EventScreen < PM::Screen
       $APP.open_tab(page)
     end
   end
-  def open_confirm
-    event = @event
-    if event.type == 'academy'
-      if !Me.claimedAcademy and event.hasClaimableTickets
-        modal = {
-          item: event,
-          title: 'Attend this Academy!',
-          content: "360 and Connect attendees may claim one complimentary
-          academy and purchase additional academies for $29.
-
-Would you like to claim this ticket? (You can't change this later)
-          continue.",
-          close_on_yes: false,
-          yes_action: 'claimAcademy',
-          yes_text: 'Claim Academy',
-          no_text: 'No, thanks.',
-          controller: self
-        }
-      elsif !Me.claimedAcademy and !event.hasClaimableTickets
-        modal = {
-          item: event,
-          title: 'Attend this Academy!',
-          content: "You still have 1 free academy to claim but unfortunately
-          there are no more insider access tickets available for this academy.
-
-You can still purchase a ticket for $29.",
-          yes_action: 'purchaseAcademy',
-          yes_text: 'Purchase',
-          no_text: 'No, thanks.',
-          controller: self
-        }
-      else
-        modal = {
-          item: event,
-          title: 'Attend this Academy!',
-          content: "WDS Academies cost $59 but 360 and Connect attendees
-          can get access for just $29.
-
-Would you like to purchase this academy?",
-          yes_action: 'purchaseAcademy',
-          yes_text: 'Purchase',
-          no_text: 'No, thanks.',
-          controller: self
-        }
-      end
-    else
-      type = @types[event.type.to_sym][:single]
-      typelow = type.downcase
-      if Me.isAttendingEvent event
-        modal = {
-          item: event,
-          title: "Can't make it?",
-          content: "Not able to make it to this #{typelow}? No problem.
-
-Just cancel your RSVP below to make space for other attendees.
-          ",
-          yes_action: 'doRsvp',
-          yes_text: 'Cancel RSVP',
-          controller: self
-        }
-      else
-        modal = {
-          item: event,
-          title: 'See you there?',
-          content: "This #{typelow} will be on #{event.dayStr} at #{event.startStr}.
-
-Please only RSVP if you're sure you will attend.
-          ",
-          yes_action: 'doRsvp',
-          yes_text: 'Confirm RSVP',
-          controller: self
-        }
+  def open_confirm_action
+    isAttending = Me.isAttendingEvent(@event)
+    isFull = @event.isFull
+    if (!isAttending || @event.type != 'academy')
+      if isFull and (@event.type != 'academy' and isAttending)
+        open_confirm
+      elsif !isFull
+        open_confirm
       end
     end
+  end
+  def open_confirm
+    modal = confirmModal(@event)
     @layout.get(:modal).open(modal)
   end
   def doRsvp(event)
-    if !event.isFull
+    if (!event.isFull || Me.isAttendingEvent(event))
       Me.toggleRsvp event do
         @layout.reapply!
       end

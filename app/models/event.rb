@@ -1,5 +1,5 @@
 class Event
-  attr_accessor :event_id, :slug, :for_type, :format, :what, :place, :venue_note, :descr, :start, :end, :note, :hosts, :lat, :lon, :address, :who, :active, :ignored, :num_rsvps, :num_free, :free_max, :max, :startTime, :startDay, :startStr, :dayStr, :endTime, :type, :ints, :because, :becauseStr, :isAttending
+  attr_accessor :event_id, :slug, :for_type, :format, :price, :pay_link, :what, :place, :venue_note, :descr, :start, :end, :note, :hosts, :lat, :lon, :address, :who, :active, :ignored, :num_rsvps, :num_free, :free_max, :max, :startTime, :startDay, :startStr, :endStr, :dayStr, :endTime, :type, :ints, :because, :becauseStr, :isAttending
   def initialize(event)
     @who = ""
     @descr = ""
@@ -8,11 +8,14 @@ class Event
     @format = ""
     @slug = ""
     @start = ""
+    @endStr = ""
     @num_free = ""
     @free_max = ""
     @address = ""
     @lat = 0.0
     @lon = 0.0
+    @price = 0
+    @pay_link = ""
     @for_type = "all"
     event.each do |key, value|
       unless value.nil?

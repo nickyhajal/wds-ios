@@ -4,6 +4,7 @@ class ModalLayout < MK::Layout
     @controller = controller
   end
   def layout
+    @hideTimos = []
     @host = false
     @list = PopupList.new
     @list.controller = self
@@ -13,6 +14,7 @@ class ModalLayout < MK::Layout
     values = @list.view
     root :main do
       add UIView, :container_shell do
+        add UITextView, :disclaimer
         add UIView, :container do
           add UIView, :title_container do
             add UILabel, :title
@@ -33,6 +35,12 @@ class ModalLayout < MK::Layout
   def content(title, content, action)
   end
   def open(opts)
+    if @hideTimos.length
+      @hideTimos.each do |timo|
+        timo.invalidate
+      end
+      @hideTimos = []
+    end
     # Set data
     get(:title).setText(opts[:title])
     error_ptr = Pointer.new(:object)
@@ -55,10 +63,23 @@ class ModalLayout < MK::Layout
     get(:content).attributedText = content
     get(:yes_button).title = opts[:yes_text] unless opts[:yes_text].nil?
     get(:no_button).title = opts[:no_text] unless opts[:no_text].nil?
+    if !opts[:disclaimer].nil? and opts[:disclaimer].length > 0
+      get(:disclaimer).attributedText = opts[:disclaimer].attrd({
+        NSFontAttributeName => Font.Karla_Italic(15),
+        UITextAttributeTextColor => "#716B60".uicolor
+      })
+      get(:disclaimer).setHidden false
+    else
+      get(:disclaimer).setHidden true
+    end
+    @yes_action = false
     @yes_action = opts[:yes_action] unless opts[:yes_action].nil?
+    @no_action = false
     @no_action = opts[:no_action] unless opts[:no_action].nil?
+    @hide_no = false
     @hide_no = opts[:hide_no] unless opts[:hide_no].nil?
     @actionHandler = opts[:controller] unless opts[:controller].nil?
+    @closeOnYes = false
     @closeOnYes = opts[:close_on_yes] unless opts[:close_on_yes].nil?
     updHeight
     reapply!
@@ -66,6 +87,7 @@ class ModalLayout < MK::Layout
     # Appear
     main = get(:main)
     container = get(:container_shell)
+    main.setHidden false
     if opts[:instant_appear].nil? || !opts[:instant_appear]
       main.fade_out(0)
       container.fade_out(0)
@@ -86,7 +108,8 @@ class ModalLayout < MK::Layout
     end
   end
   def yes_action
-    if !@actionHandler.nil? and !@yes_action.nil?
+    puts 'YES ACTION'
+    if !@actionHandler.nil? and !@yes_action.nil? and @yes_action
       @actionHandler.send(@yes_action, @item)
     end
     if @closeOnYes
@@ -94,7 +117,7 @@ class ModalLayout < MK::Layout
     end
   end
   def no_action
-    if !@actionHandler.nil? and !@no.nil?
+    if !@actionHandler.nil? and !@no_action.nil? and @no_action
       @actionHandler.send(@no_action, @item)
     end
     close
@@ -112,7 +135,7 @@ class ModalLayout < MK::Layout
       options: UIViewAnimationOptionCurveLinear,
       opacity: 0.0
     )
-    0.3.seconds.later do
+    @hideTimos << 0.3.seconds.later do
       main.setHidden true
     end
   end
@@ -127,7 +150,7 @@ class ModalLayout < MK::Layout
     view.on_tap do
       close
     end
-    background_color Color.light_gray(0.8)
+    background_color Color.light_gray(0.93)
   end
   def container_shell_style
     background_color "#ABA394".uicolor(0.25)
@@ -136,6 +159,12 @@ class ModalLayout < MK::Layout
       top super_height*0.2
       height.equals(:container).plus(0)
       width.equals(:superview).minus(60)
+    end
+    layer do
+      shadow_color '#000000'.cgcolor
+      shadow_opacity 0.12
+      shadow_radius 10.0
+      shadow_offset [1, 1]
     end
   end
   def container_style
@@ -180,10 +209,23 @@ class ModalLayout < MK::Layout
       @content_height = height 0
     end
   end
+  def disclaimer_style
+    backgroundColor Color.clear
+    scrollEnabled false
+    editable false
+    font Font.Karla_Italic(15)
+    constraints do
+      top.equals(:container, :bottom).plus(5)
+      left 18
+      right -20
+      height 100
+    end
+  end
   def yes_button_style
     font Font.Karla_Bold(15)
     titleColor Color.light_tan
     backgroundColor Color.orange
+    title "Cancel"
     target.addTarget self, action: 'yes_action', forControlEvents:UIControlEventTouchDown
     constraints do
       height 40

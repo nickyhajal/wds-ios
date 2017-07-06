@@ -1,4 +1,4 @@
-# This helped with the map: http://www.devfright.com/mkpointannotation-tutorial/
+# helped with the map: http://www.devfright.com/mkpointannotation-tutorial/
 class EventLayout < MK::Layout
   include MapKit
   view :event_atn_view, :dispatch_view
@@ -9,7 +9,19 @@ class EventLayout < MK::Layout
   def updateEvent(event, updateMap = true)
     @updateMap = updateMap
     @event = event
+    @numAttendees = @event.num_rsvps.to_s
     self.reapply!
+    Api.get 'event/attendees', {event_id: @event.event_id, include_users: 1} do |rsp|
+      if rsp.is_err
+        $APP.offline_alert
+      else
+        unless rsp.attendees.nil?
+          @numAttendees = rsp.attendees.length.to_s
+          @controller.loadAttendees rsp.attendees
+          self.reapply!
+        end
+      end
+    end
     0.05.seconds.later do
       updateScrollSize
     end
@@ -32,6 +44,7 @@ class EventLayout < MK::Layout
           add UIView, :scrollshell do
             add UITextView, :name
             add UILabel, :when
+            add UILabel, :whenTime
             add UITextView, :venue
             add UITextView, :addr
             add UITextView, :venue_note
@@ -241,7 +254,7 @@ class EventLayout < MK::Layout
     end
     font Font.Vitesse_Medium(16)
     titleColor Color.orange
-    target.addTarget @controller, action: 'open_confirm', forControlEvents:UIControlEventTouchDown
+    target.addTarget @controller, action: 'open_confirm_action', forControlEvents:UIControlEventTouchDown
   end
   def map_line_top_style
     constraints do
@@ -427,16 +440,30 @@ class EventLayout < MK::Layout
       if !@event.dayStr.nil?
         txt = @event.dayStr
       end
+      text txt
+    end
+    constraints do
+      top.equals(:name, :bottom).minus(12)
+      width.equals(:superview).minus(40)
+      height 30
+      left.equals(:name).plus(8)
+    end
+  end
+  def whenTime_style
+    font Font.Karla_Bold(16)
+    textColor "#848477".uicolor
+    reapply do
+      txt = ''
       if !@event.startStr.nil?
-        txt += " at "+@event.startStr
+        txt += "from "+@event.startStr.gsub(' ', '')+" until "+@event.endStr.gsub(' ', '')
       end
       text txt
     end
     constraints do
-      @when_top = top.equals(:name, :bottom).minus(15)
-      width.equals(:superview)
+      top.equals(:when, :bottom).minus(10)
+      width.equals(:superview).minus(40)
       height 30
-      left.equals(:name).plus(6)
+      left.equals(:name).plus(8)
     end
   end
   def venue_style
@@ -457,10 +484,10 @@ class EventLayout < MK::Layout
       @venue_height.equals(newSize.height)
     end
     constraints do
-      @venue_top = top.equals(:when, :bottom).minus(12)
+      @venue_top = top.equals(:whenTime, :bottom).minus(13)
       width.equals(:superview).minus(40)
       @venue_height = height 30
-      left.equals(:when).minus(5)
+      left.equals(:name).plus(3)
     end
   end
   def addr_style
@@ -486,10 +513,10 @@ class EventLayout < MK::Layout
       @addr_height.equals(newSize.height)
     end
     constraints do
-      @addr_top = top.equals(:venue, :bottom).minus(10)
+      @addr_top = top.equals(:venue, :bottom).minus(14)
       width.equals(:superview).minus(40)
       @addr_height = height 30
-      left.equals(:venue).minus(0)
+      left.equals(:name).plus(3)
     end
   end
   def venue_note_style
@@ -512,10 +539,10 @@ class EventLayout < MK::Layout
       end
     end
     constraints do
-      @venue_note_top = top.equals(:addr, :bottom).minus(12)
+      @venue_note_top = top.equals(:addr, :bottom).minus(14)
       width.equals(:superview).minus(40)
       @venue_note_height = height 30
-      left.equals(:venue).minus(0)
+      left.equals(:name).plus(3)
     end
   end
   def line_after_when_style
@@ -531,7 +558,7 @@ class EventLayout < MK::Layout
     backgroundColor NSColor.clearColor
     get(:hosts).controller = @controller
     constraints do
-      left.equals(:when)
+      left.equals(:name)
       top.equals(:venue_note, :bottom).plus(10)
       width.equals(:name)
       height 37
@@ -609,7 +636,7 @@ class EventLayout < MK::Layout
 
     font Font.Karla_Bold(14)
     reapply do
-      num = @event.num_rsvps.to_s
+      num = @numAttendees
       atns = num == '1' ? 'WDSer' : 'WDSers'
       title num+' '+atns+' Attending'
     end
@@ -652,9 +679,9 @@ class EventLayout < MK::Layout
   def descr_style
     constraints do
       top.equals(:who, :bottom).plus(4)
-      left.equals(:name)
+      left.equals(:name).minus(10)
       @descr_height = height 40
-      width.equals(:name)
+      width.equals(:name).plus(8)
     end
     textView = target
     target.scrollView.scrollEnabled = false
@@ -751,14 +778,7 @@ class EventLayout < MK::Layout
     UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
       self.view.layoutIfNeeded  # applies the constraint change
     end, completion: nil)
-    Api.get 'event/attendees', {event_id: @event.event_id, include_users: 1} do |rsp|
-      if rsp.is_err
-        $APP.offline_alert
-        close_atns
-      else
-        @controller.loadAttendees rsp.attendees
-      end
-    end
+    
   end
   def close_atns
     @atns_left.equals(super_width)

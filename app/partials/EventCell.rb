@@ -1,5 +1,5 @@
 class EventCell < PM::TableViewCell
-  attr_accessor :event, :layout, :width, :controller, :because, :becauseStr, :who, :whoStr, :what, :whatStr, :isAttending, :isFull
+  attr_accessor :event, :layout, :width, :controller, :because, :becauseStr, :who, :whoStr, :what, :whatStr, :isAttending, :isFull, :labelStr, :labelBox
   def initWithStyle(style, reuseIdentifier:id)
     singleFingerTap = UITapGestureRecognizer.alloc.initWithTarget(self, action:'singleTap:')
     self.addGestureRecognizer(singleFingerTap)
@@ -14,10 +14,27 @@ class EventCell < PM::TableViewCell
       @cardView.cell = self
       self.addSubview(@cardView)
     end
+    @labelText = false
+    @labelStr = false
+    @labelBox = false
+    if @event.type == 'meetup'
+      @labelText = @event.format.gsub(/(\w+)/) { |s| s.capitalize } #.upcase
+    elsif @event.type == 'academy'
+      @labelText = '$29'
+    elsif !@event.price.nil? and @event.price > 0
+      @labelText = "$#{@event.price/100}"
+    end
     @isFull = @event.isFull
     @isAttending = Me.isAttendingEvent(@event)
     @opacity = !@isAttending && @isFull ? 0.5 : 1.0
     what = @event.what.sub(" - AM", "")
+    if @labelText
+      @labelStr = @labelText.nsattributedstring({
+        NSFontAttributeName => Font.Karla_Italic(13),
+        UITextAttributeTextColor => @event.type == 'meetup' ? Color.dark_gray : "#ffffff".uicolor,
+      })
+      @labelBox = @labelStr.boundingRectWithSize(CGSizeMake(Float::MAX, 1000), options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+    end
     what = what.sub(" - PM", "")
     @whatStr = what.nsattributedstring({
       NSFontAttributeName => Font.Vitesse_Medium(18),
@@ -25,24 +42,37 @@ class EventCell < PM::TableViewCell
     })
     whoStr = @event.who
     if whoStr[0].nil? || @event.type == 'academy'
-      whoStr = @event.descr
-      if whoStr.length > 150
-        whoStr = whoStr[0..150]+'...'
-      end
+      whoStr = @event.descr.gsub("\n", "")
     else
-      whoStr = ('A '+EventTypes.byId(@event.type)[:single].downcase+' for ')+(whoStr[0].downcase + whoStr[1..-1])
+      if @event.type == "activity" || @event.type == "expedition"
+        whoStr = ('An '+EventTypes.byId(@event.type)[:single].downcase+' for ')+(whoStr[0].downcase + whoStr[1..-1])
+      else
+        whoStr = ('A '+EventTypes.byId(@event.type)[:single].downcase+' for ')+(whoStr[0].downcase + whoStr[1..-1])
+      end
+    end
+    if whoStr.length > 150
+      whoStr = whoStr[0..150].strip.delete("\t\r\n").gsub(/\.(?![ ])/, '. ').strip+'...'
+    end
+    # if @labelText
+    #   whoStr = "\t"+whoStr
+    # end
+    paragraphStyle = NSMutableParagraphStyle.alloc.init
+    if @labelBox
+      paragraphStyle.firstLineHeadIndent = @labelBox.size.width + 24
     end
     @whoStr = whoStr.nsattributedstring({
-      NSFontAttributeName => Font.Karla(14),
-      UITextAttributeTextColor => "#21170A".uicolor(@opacity)
+      NSFontAttributeName => Font.Karla(15),
+      UITextAttributeTextColor => "#21170A".uicolor(@opacity),
+      NSParagraphStyleAttributeName => paragraphStyle
     })
-    if @event.type == 'meetup' and !@event.format.nil?
-      format = @event.format.gsub(/(\w+)/) { |s| s.capitalize }
-      @whoStr = (format+": ").attrd({
-        NSFontAttributeName => Font.Karla_Bold(14),
-        UITextAttributeTextColor => "#21170A".uicolor(@opacity)
-      })+@whoStr
-    end
+    # if @event.type == 'meetup' and !@event.format.nil?
+    #   format = @event.format.gsub(/(\w+)/) { |s| s.capitalize }
+    #   @whoStr = (format+": ").attrd({
+    #     NSFontAttributeName => Font.Karla_Bold(15),
+    #     UITextAttributeTextColor => "#21170A".uicolor(@opacity),
+    #     NSParagraphStyleAttributeName => paragraphStyle
+    #   })+@whoStr
+    # end
     size = self.frame.size
     size.width = @width - 6 - 26
     size.height = Float::MAX
@@ -72,8 +102,14 @@ class EventCell < PM::TableViewCell
       if x < width / 2
         event = @event.clone
         event.isAttending = @isAttending
-        if !@isAttending || @event.type != 'academy'
-          @controller.open_confirm event, self
+
+        # TODO: NO ACTION IF PAID EVENT
+        if (!@isAttending || @event.type != 'academy')
+          if @isFull and (@event.type != 'academy' and @isAttending)
+            @controller.open_confirm event, self
+          elsif !@isFull
+            @controller.open_confirm event, self
+          end
         end
       else
         @controller.open_event @event
@@ -136,7 +172,7 @@ class EventCellInnerView < UIView
     # Strings
     if @cell.isAttending
       rsvpStr = 'Cancel RSVP'
-      if @cell.event.type == 'academy'
+      if @cell.event.type == 'academy' || (!@cell.event.price.nil? && @cell.event.price > 0)
         rsvpStr = "You're Attending!"
       end
       rsvpColor = '#BF8888'
@@ -146,7 +182,7 @@ class EventCellInnerView < UIView
         rsvpColor = '#D8D8D4'
       else
         rsvpStr = 'RSVP'
-      if @cell.event.type == 'academy'
+      if @cell.event.type == 'academy' || (!@cell.event.price.nil? && @cell.event.price.to_i > 0)
         rsvpStr = "Attend"
       end
         rsvpColor = '#EB9622'
@@ -184,6 +220,16 @@ class EventCellInnerView < UIView
     detailsStr.drawAtPoint(CGPointMake(detailsBox.size.width/2+cardW/2,cardRect.size.height-28))
     @cell.whatStr.drawInRect(CGRectMake(13,10,textSize.width, @cell.what.size.height))
     @cell.whoStr.drawInRect(CGRectMake(13,15+@cell.what.size.height,textSize.width, @cell.who.size.height+60))
+    if (@cell.labelBox)
+      labelPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(13, 15+@cell.what.size.height, @cell.labelBox.size.width+18, 18), cornerRadius:4.0)
+      if @cell.event.type == 'meetup'
+        Color.dark_yellow_tan(0.5).setFill
+      else
+        Color.green.setFill
+      end
+      labelPath.fill
+      @cell.labelStr.drawInRect(CGRectMake(22,16+@cell.what.size.height,textSize.width, @cell.who.size.height+60))
+    end
     if @cell.becauseStr
       @cell.becauseStr.drawInRect(CGRectMake(13,15+@cell.what.size.height+5+@cell.who.size.height,textSize.width, @cell.because.size.height+60))
     end

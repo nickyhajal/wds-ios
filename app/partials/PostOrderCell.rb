@@ -5,6 +5,8 @@ class PostOrderCell < UIView
       @cell.controller.post_tckt_action
     end
   end
+  def setState(state)
+  end
   def drawRect(rect)
     rect.size.width = @cell.width
     size = rect.size

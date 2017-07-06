@@ -44,13 +44,15 @@ class DispatchItemScreen < PM::Screen
     inp = @layout.get(:comment_inp)
     btn = @layout.get(:comment_btn)
     text = inp.text
-    btn.title = 'Posting'
-    Api.post 'feed/comment', {feed_id: @item.feed_id, comment: text} do |rsp|
-      btn.title = 'Post'
-      inp.text = ''
-      inp.resignFirstResponder
-      @layout.dispatchContentList.fetchComments(true)
-      @layout.dispatchContentList.scrollToBottom
+    if text.length > 0
+      btn.title = 'Posting'
+      Api.post 'feed/comment', {feed_id: @item.feed_id, comment: text} do |rsp|
+        btn.title = 'Post'
+        inp.text = ''
+        inp.resignFirstResponder
+        @layout.dispatchContentList.fetchComments(true)
+        @layout.dispatchContentList.scrollToBottom
+      end
     end
   end
   def back_action

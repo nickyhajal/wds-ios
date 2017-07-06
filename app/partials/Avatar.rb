@@ -7,6 +7,7 @@ class Avatar < UIView
     self.subviews.makeObjectsPerformSelector('removeFromSuperview')
     @imgView = UIImageView.alloc.initWithFrame([[0,0],[0,0]])
     @imgView.contentMode = UIViewContentModeScaleAspectFill
+    @imgView.layer.masksToBounds = true
     updateImgFrame
     @imgView.setImageWithURL NSURL.URLWithString(url), placeholderImage:UIImage.imageNamed("default-avatar.png")
     self.addSubview @imgView

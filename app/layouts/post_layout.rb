@@ -37,15 +37,20 @@ class PostLayout < MK::Layout
   end
   def post_style
     title "Post"
-    titleColor Color.white
-    font Font.Vitesse_Medium(16)
-    backgroundColor Color.orange
+    titleColor Color.orangish_gray
+    font Font.Karla_Bold(15)
+    backgroundColor Color.clear
     target.addTarget @controller, action: 'send_post_action', forControlEvents:UIControlEventTouchDown
     constraints do
-      right 0
-      top 23
-      height 35
+      right -4
+      top 22
+      height 31
       width 80
+    end
+    layer do
+      border_width 1
+      border_color Color.orangish_gray(0.5).CGColor
+      corner_radius 4.0
     end
     target.sizeToFit
   end
@@ -84,11 +89,28 @@ class PostLayout < MK::Layout
   end
   def avatar_style
     imageWithURL(Me.atn.pic, placeholderImage:"default-avatar.png".uiimage)
+    contentMode UIViewContentModeScaleAspectFill
+    layer do
+      masksToBounds true
+    end
     constraints do
       left 6
       top 6
       width 40
       height 40
+    end
+  end
+  def updatePostButton
+    inp = get(:input)
+    btn = get(:post)
+    if inp.text.length > 0
+      btn.backgroundColor = Color.orange
+      btn.titleColor = Color.white
+      btn.layer.borderWidth = 0
+    else
+      btn.backgroundColor = Color.clear
+      btn.titleColor = Color.orangish_gray
+      btn.layer.borderWidth = 1.0
     end
   end
   def updatePlaceholder
@@ -101,9 +123,11 @@ class PostLayout < MK::Layout
     get(:input).layoutIfNeeded
   end
   def textViewDidEndEditing(textView)
+    updatePostButton
     updatePlaceholder
   end
   def textViewDidChange(textView)
+    updatePostButton
     updatePlaceholder
   end
 end

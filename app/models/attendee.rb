@@ -1,10 +1,11 @@
 class Attendee
   attr_accessor :user_id, :first_name, :last_name, :full_name, :card
   attr_accessor :ticket_type, :email, :user_name, :twitter, :instagram
-  attr_accessor :facebook, :pic, :location, :lat, :lon, :distance
-  attr_accessor :qnaStr, :isQna, :academy, :attending17
+  attr_accessor :facebook, :pic, :location, :lat, :lon, :distance, :registered
+  attr_accessor :qnaStr, :isQna, :academy, :attending17, :pre17, :firetoken
   def initialize(atn)
     @attending17 = 0
+    @registered = 0
     if atn == 'default'
       @first_name = '░░░░░░░░░'
       @last_name = '░░░░░░░░'
@@ -16,6 +17,8 @@ class Attendee
       atn.each do |key, value|
         self.instance_variable_set("@#{key}".to_sym, value)
       end
+      @first_name = @first_name.strip
+      @last_name = @last_name.strip
       unless @distance.nil?
         @distance = @distance.to_i.ceil.to_s
         @distance = '2' if distance < '1'
@@ -23,12 +26,12 @@ class Attendee
       end
     end
     @full_name = @first_name + ' ' + @last_name
-    @pic = "http://avatar.wds.fm/"+@user_id.to_s
+    @pic = "https://avatar.wds.fm/"+@user_id.to_s
     @qnaStr = qna
     @isQna = @qnaStr.length > 0
   end
   def getPic(size)
-    "http://avatar.wds.fm/"+(@user_id.to_s)+"?width="+(size.to_s)
+    "https://avatar.wds.fm/"+(@user_id.to_s)+"?width="+(size.to_s)
   end
   def to_hash
     hash = {}
@@ -67,7 +70,7 @@ class Attendee
         'Why did you decide to travel '+@distance+' miles '+location+' to the World Domination Summit?',
         'What are you excited about these days?',
         'What\'s your super power?',
-        'What\'s your goal for WDS 2016?',
+        'What\'s your goal for WDS 2017?',
         'What\'s your favorite song?',
         'What\'s your favorite treat?',
         'What\'s your favorite beverage?',
@@ -83,6 +86,20 @@ class Attendee
     else
       ''
     end
+  end
+  def readyForMessages(&block)
+    fireGet "version" do |rsp|
+      if !rsp.value.nil? && rsp.value >= "16.3"
+        block.call('ready')
+      else
+        block.call('not-ready')
+      end
+    end
+  end
+  def fireGet(key, &block)
+    user_id = @user_id
+    path = "/users/#{user_id}/#{key}"
+    Fire.get(path, &block)
   end
   def get_facebook_id
     return nil

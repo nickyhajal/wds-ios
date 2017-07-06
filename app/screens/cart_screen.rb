@@ -8,6 +8,7 @@ class CartScreen < PM::Screen
     @code = false
     @meta = false
     @syncCard = false
+    @ref = false
     @purchasedCallback = false
   end
   def onCapture
@@ -16,15 +17,12 @@ class CartScreen < PM::Screen
     scanViewController.guideColor = Color.orange
     scanViewController.navigationBarTintColor = Color.green
     scanViewController.keepStatusBarStyle = true
-    # scanViewController.appToken = # fill in
     self.presentModalViewController(scanViewController, animated:true)
   end
   def userDidCancelPaymentViewController(scanViewController)
-    # NSLog("User canceled payment info")
     scanViewController.dismissModalViewControllerAnimated(true)
   end
   def userDidProvideCreditCardInfo(info, inPaymentViewController:scanViewController)
-    # NSLog("Received card info. Number: %@, expiry: %02i/%i, cvv: %@.", info.redactedCardNumber, info.expiryMonth, info.expiryYear, info.cvv)
     @layout.get(:card_cvv).text = info.cvv.to_s
     @layout.get(:card_num).text = info.cardNumber.to_s
     @layout.setMonth(info.expiryMonth.to_s)
@@ -45,11 +43,13 @@ class CartScreen < PM::Screen
   end
   def updateCart
     pkg = {}
-    if @code == 'academy'
+    if @code == 'academy' || @code == 'event'
+      name = "WDS #{EventTypes.byId(@meta.type)[:single]}"
+      price = @code == 'academy' ? '29' : "#{@meta.price/100}"
       pkg = {
-        name: "WDS Academy",
+        name: name,
         descr: @meta.what,
-        price: "29"
+        price: price
       }
       @purchase_data = {
         event_id: @meta.event_id
@@ -60,7 +60,8 @@ class CartScreen < PM::Screen
         descr: "360 Ticket to WDS 2017",
         price: "547",
         confirm: true,
-        max_quantity: 3
+        max_quantity: 3,
+        fee: 10
       }
       @purchase_data = {
         quantity: 1
@@ -74,8 +75,8 @@ class CartScreen < PM::Screen
     @layout.setQuantity(quantity)
   end
   def confirm_action(item)
-    purchase_action true
     @layout.get(:modal).close
+    purchase_action true
   end
   def purchase_action(confirmed = false)
     if confirmed.class.to_s.include?('UIButton')
@@ -88,8 +89,15 @@ class CartScreen < PM::Screen
       else
         tickets = q.to_s+" tickets to WDS 2017"
       end
-      str = "Just to double-check, you'll be charged: "+@layout.get(:item_price).text
-      str += " for "+tickets+".\n\nSound good?"
+      priceStr = @layout.get(:item_price).text
+      priceStr = priceStr.sub('$', '')
+      price = (priceStr.to_i + (10*q)).to_s
+      str = "Just to double-check, you'll be charged $#{price}"
+      str += " for "+tickets+" (including a $10 processing fee"
+      if q > 1
+        str += " per ticket"
+      end
+      str += ").\n\nSound good?"
       modal = {
         title: 'Confirm Purchase',
         content: str,
@@ -149,6 +157,23 @@ Can you try again?",
       @layout.status = "waiting"
     end
   end
+  def showError(title, content)
+    unwatch
+    @layout.charging  = false
+    @layout.status = "error"
+    modal = {
+      title: title,
+      content: content,
+      close_on_yes: true,
+      hide_no: true,
+      yes_text: 'Ok',
+      controller: self
+    }
+    5.0.seconds.later do
+      @layout.status = "waiting"
+    end
+    @layout.get(:modal).open(modal)
+  end
   def charge(token)
     params = {
       card_id: token,
@@ -156,54 +181,62 @@ Can you try again?",
       via: 'ios',
       code: @code
     }
-    @layout.status = "processing"
+    @layout.status = "authorizing"
     Api.post "product/charge", params do |rsp|
-      if rsp.is_err
-        @layout.charging  = false
-        $APP.offline_alert
+      if rsp.is_err || rsp.fire.nil?
+        showError('There was a problem.', "Looks like there was a problem. Can you try again?\n\nIf
+          you continue to have trouble, please try another card.")
       elsif !rsp.json['declined'].nil?
-        @layout.charging  = false
-        @layout.status = "error"
-        modal = {
-          title: 'There was a problem.',
-          content: "Looks like there was a problem. Can you try again? If
-          you continue to have trouble, please try another card.",
-          close_on_yes: true,
-          hide_no: true,
-          yes_text: 'Ok',
-          controller: self
-        }
-        5.0.seconds.later do
-          @layout.status = "waiting"
-        end
-        @layout.get(:modal).open(modal)
+        showError('There was a problem.', "Looks like there was a problem. Can you try again?\n\nIf
+          you continue to have trouble, please try another card.")
       else
-        @layout.status = "success"
-        if @purchasedCallback
-          pc = @purchasedCallback
-          if pc[:meta]
-            pc[:owner].send(pc[:method], pc[:meta])
-          else
-            pc[:owner].send(pc[:method])
+        path = "/sales/#{@code}/#{rsp.fire}"
+        @ref = Fire.watch 'value', path do |charge|
+          unless charge.nil? or charge.value.nil?
+            status = charge.value[:status]
+            if status == 'pre-process'
+              @layout.status = "processing"
+            elsif status == 'stripe-charge'
+              @layout.status = "charging"
+            elsif status == 'error'
+              @layout.status = "charging"
+              showError('There was a problem.', "Hm, it looks like your card was declined for some reason.\n\nCan you double-check and try again or try another card?")
+            elsif status == 'done'
+              @layout.status = "success"
+              if @purchasedCallback
+                pc = @purchasedCallback
+                if pc[:meta]
+                  pc[:owner].send(pc[:method], pc[:meta])
+                else
+                  pc[:owner].send(pc[:method])
+                end
+                @purchasedCallback = false
+              end
+              1.0.seconds.later do
+                self.close_screen
+              end
+              5.0.seconds.later do
+                @layout.charging  = false
+                @layout.status = "waiting"
+              end
+              if @syncCard
+                @layout.syncCard
+                @syncCard = false
+              end
+            end
           end
-          @purchasedCallback = false
-        end
-        1.0.seconds.later do
-          self.close_screen
-        end
-        5.0.seconds.later do
-          @layout.charging  = false
-          @layout.status = "waiting"
-        end
-        if @syncCard
-          @layout.syncCard
-          @syncCard = false
         end
       end
     end
   end
+  def unwatch
+    if @ref
+      Fire.unwatch @ref
+      @ref = false
+    end
+  end
   def close_action
-    # @layout.get(:input).resignFirstResponder
+    unwatch
     0.2.seconds.later do
       close_screen
       UIApplication.sharedApplication.setStatusBarStyle(UIStatusBarStyleLightContent)

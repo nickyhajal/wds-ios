@@ -10,8 +10,10 @@ class EventTypeCell < PM::TableViewCell
     @descrs = {
       meetups: 'Informal hangouts and attendee-led gatherings',
       academies: 'Half-day workshops taught by alumni speakers and other experts',
-      spark_sessions: 'Open-ended conversations on specific topics',
-      activities: 'Special adventures just for WDS attendees',
+      # spark_sessions: 'Open-ended conversations on specific topics',
+      activities: 'Special activities to share with your fellow attendees',
+      registration: 'Let us know which registration session works for you',
+      expeditions: 'Unique adventures crafted just for WDS Attendees',
     }
     singleFingerTap = UITapGestureRecognizer.alloc.initWithTarget(self, action:'singleTap:')
     self.addGestureRecognizer(singleFingerTap)

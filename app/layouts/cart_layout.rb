@@ -24,6 +24,7 @@ class CartLayout < MK::Layout
         add UIView, :item_price_shell do
           add UIView, :item_priceline
           add UILabel, :item_price
+          add UILabel, :item_fee
         end
       end
       add UIView, :item_botline
@@ -70,6 +71,9 @@ class CartLayout < MK::Layout
     @vals = vals
     if (@vals[:quantity].nil?)
       @vals[:quantity] = 1
+    end
+    if (@vals[:fee].nil?)
+      @vals[:fee] = 0
     end
     if (@vals[:confirm].nil?)
       @vals[:confirm] = false
@@ -205,12 +209,14 @@ class CartLayout < MK::Layout
       width.equals(:superview)
       left 0
       top.equals(:item_botline, :bottom)
-      height 46
+      @quantityH = height 46
     end
     reapply do
       if @vals[:max_quantity].nil? or @vals[:max_quantity] == 0 or @vals[:max_quantity] == 1
+        @quantityH.equals(0)
         setHidden true
       else
+        @quantityH.equals(46)
         setHidden false
       end
     end
@@ -269,7 +275,7 @@ class CartLayout < MK::Layout
     constraints do
       left 2
       right 0
-      center_y.equals(:superview).plus(3)
+      center_y.equals(:superview).plus(0)
       @priceWidth = width 80
     end
     view = target
@@ -283,6 +289,26 @@ class CartLayout < MK::Layout
         w = 110
       end
       @priceWidth.equals(w)
+    end
+  end
+  def item_fee_style
+    font Font.Karla_Italic(14)
+    textColor Color.dark_gray
+    numberOfLines 1
+    textAlignment UITextAlignmentCenter
+    hidden true
+    text ""
+    reapply do
+      if @vals[:fee] > 0
+        text "+$"+(@vals[:fee]*@vals[:quantity].to_i).to_s+".00"
+        hidden false
+      end
+    end
+    constraints do
+      width.equals(:superview)
+      left 0
+      top.equals(:item_price, :bottom).minus(8)
+      height 30
     end
   end
   def card_existing_botline_style
@@ -415,8 +441,12 @@ class CartLayout < MK::Layout
       case @status
       when 'waiting'
         title "Complete Payment"
+      when 'authorizing'
+        title 'Authorizing...'
       when 'processing'
-        title "Processing Payment..."
+        title "Processing..."
+      when 'charging'
+        title 'Charging...'
       when 'success'
         title "Success!"
       when 'error'

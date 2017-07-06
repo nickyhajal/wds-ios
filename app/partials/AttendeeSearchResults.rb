@@ -5,6 +5,9 @@ class AttendeeSearchResults < PM::TableScreen
   def on_load
     @attendees = []
     @width = 0
+    @nullMsg = AttendeeSearchNullLayout.new
+    self.tableView.addSubview @nullMsg.view
+    self.tableView.tableFooterView = UIView.alloc.init
   end
   def on_appear
     @width = self.tableView.frame.size.width
@@ -29,6 +32,11 @@ class AttendeeSearchResults < PM::TableScreen
   end
   def update_results(attendees)
     @attendees = attendees
+    if @attendees.length > 0
+      @nullMsg.view.hidden = true
+    else
+      @nullMsg.view.hidden = false
+    end
     update_table_data
   end
   def show_atn_profile_action(args)

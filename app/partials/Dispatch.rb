@@ -1,5 +1,5 @@
 class Disptch < PM::TableScreen
-  attr_accessor :controller, :items
+  attr_accessor :controller, :items, :active
   title "Dispatch"
   row_height 144
   refreshable
@@ -8,6 +8,7 @@ class Disptch < PM::TableScreen
   end
   def initFilters(layout)
     filters = Store.get('dispatch_filters', true)
+    active = true
     unless filters
       filters = {
         twitter: 1,
@@ -17,10 +18,34 @@ class Disptch < PM::TableScreen
       }
     end
     setFilters filters, true, true
+    filters[:events] = 0 if filters[:events].nil?
     layout.get(:twitter_selector).setSelectedSegmentIndex filters[:twitter]
     layout.get(:friends_selector).setSelectedSegmentIndex filters[:following]
     layout.get(:communities_selector).setSelectedSegmentIndex filters[:communities]
     layout.get(:events_selector).setSelectedSegmentIndex filters[:events]
+  end
+  def unwatch
+    if !@watching.nil? and @watching
+      Fire.unwatch(@watching)
+      @watching = false
+    end
+  end
+  def watch
+    unwatch
+    channel_type = @params[:channel_type] || 'global'
+    channel_id = @params[:channel_id].nil? || !@params[:channel_id] ? '0': @params[:channel_id].to_s
+    key = '/feeds/' + channel_type + '_' + channel_id
+    @watching = Fire.watch "value", key do |rsp|
+      unless rsp.value.nil?
+        fetchUpdates unless @fetchingContent
+      end
+    end
+  end
+  def fullHeight
+    @controller.layout.super_height - 86
+  end
+  def bannerHeight
+    58
   end
   def setFilters(filters = false, do_update = true, continueUpdating = false)
     unless filters
@@ -29,9 +54,9 @@ class Disptch < PM::TableScreen
     @filters = filters
     if do_update
       update
-      15.seconds.later do
-        fetchUpdates(continueUpdating)
-      end
+      # 15.seconds.later do
+      #   fetchUpdates(continueUpdating)
+      # end
     end
   end
   def setNewPostsBtn(view, const, mainView)
@@ -61,6 +86,7 @@ class Disptch < PM::TableScreen
       @params[:user_id] = @user_id
     end
     @since = 0
+    watch
     if clear
       clear
     end
@@ -80,6 +106,7 @@ class Disptch < PM::TableScreen
       @params.delete(:channel_id)
     end
     update
+    watch
   end
   def on_load
     @items = []
@@ -89,6 +116,9 @@ class Disptch < PM::TableScreen
     @refresh_control.alpha = 0.7
   end
   def table_data
+    for i in 0..(@items.length-1)
+      @items[i][:properties][:inx] = i
+    end
     [{cells: @items}]
   end
   def clear
@@ -97,12 +127,10 @@ class Disptch < PM::TableScreen
   end
   def make_cell(item)
     height = calcCellHeight(item)
-    # puts 'MAKE CELL'
-    # puts height
     {
       title: '',
       cell_class: DispatchCell,
-      action: :item_tap_action,
+      # action: :item_tap_action,
       arguments: { item: item},
       properties: {
         selectionStyle: UITableViewCellSelectionStyleNone,
@@ -110,6 +138,7 @@ class Disptch < PM::TableScreen
         height: height,
         width: @width,
         controller: @controller,
+        table: self,
         type: item.type
       }
     }
@@ -129,21 +158,59 @@ class Disptch < PM::TableScreen
     self.tableView.beginUpdates
     self.tableView.endUpdates
   end
+  def update_cell_height(inx, height, state = false, id = false)
+    @items[inx][:properties][:height] = height
+    if state
+      @items[inx][:properties][:item].state = state
+      if id
+        Store.set("#{id}_state", state)
+      end
+    end
+    self.tableView.beginUpdates
+    self.tableView.endUpdates
+  end
   def add_special_tiles(items)
-    pre = Store.get('preorder')
+
+    ### COMMENT THIS OUT BEFORE PUBLISHING
+    # Store.set('preorder', 'do_pre')
+    #### ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    pre = Store.get('preorder17')
+    atnstory = Store.get('atnstory17')
+    preState = Store.get('preorder17_state')
     today = NSDate.new.string_with_format(:iso8601)
-    if !pre and today > '2016-07-30 14:00:00'
+    preState = 'open' unless preState
+    if $STATE.nil?
+      $STATE = {special: 'none', ios_version: '0'}
+    end
+
+    ### CHECK IF NOT PURCHASED
+    ### IF MARKED LIVE IN FIREBASE
+    if ($STATE[:ios_version] > $VERSION)
+      tile = DispatchItem.new({
+        'type' => 'update',
+        'height' => bannerHeight,
+        'state' =>'open'
+      })
+      items.unshift(make_cell(tile))
+    elsif ($STATE[:special] == 'attendee-stories') and atnstory != 'submitted'
+      tile = DispatchItem.new({
+        'type' => 'attendee-stories',
+        'height' => bannerHeight,
+        'state' => 'open'
+      })
+      items.unshift(make_cell(tile))
+    elsif (!pre || pre == "do_pre") and ($STATE[:test17_special] == 'preorder')
       tile = DispatchItem.new({
         'type' => 'tckt',
-        'height' => @controller.layout.super_height - 86,
-        'format' => 'open'
+        'height' => (preState == 'open' ? fullHeight : bannerHeight),
+        'state' => preState
       })
       items.unshift(make_cell(tile))
     elsif pre == "purchased"
       tile = DispatchItem.new({
         'type' => 'post-tckt',
-        'height' => @controller.layout.super_height - 86,
-        'format' => 'open'
+        'height' => fullHeight,
+        'state' => 'open'
       })
       items.unshift(make_cell(tile))
     end
@@ -169,16 +236,19 @@ class Disptch < PM::TableScreen
     else
       i = 0
       @items[i][:properties][:item].top_padding = 3
-      while @items[i][:properties][:type] != 'item'
+      while (!@items[i].nil?) && @items[i][:properties][:type] != 'item'
         i += 1
       end
-      @since = @items[i][:properties][:item].feed_id
+      if !@items[i].nil?
+        @since = @items[i][:properties][:item].feed_id
+      else
+        @since = 0
+      end
     end
     update_table_data
   end
   def prepend_content(items)
     cells = []
-    itTop = true
     items.each do |item|
       unless item.class.to_s.include?('DispatchItem')
         item = DispatchItem.new(item)
@@ -187,23 +257,16 @@ class Disptch < PM::TableScreen
       cells << item
     end
     @items = @items + cells
-    # clean_items(@items)
-    # add_special_tiles(@items)
     update_table_data
   end
   def tableView(table_view, heightForRowAtIndexPath:index_path)
     cell = self.promotion_table_data.cell(index_path: index_path)
-    # puts 'hFRAtIP: '+cell[:properties][:height].to_s
-    # cell[:properties][:item].feed_id
     cell[:properties][:height]
   end
   def calcCellHeight(item)
-    # puts 'CALC HEIGHT FOR '
     if item.respond_to?('height') and !item.height.nil? and item.height > 0
-      # puts 'SPECIAL HEIGHTTTTTTT'
       height = item.height
     else
-      # puts 'ITEM HEIGHTTTTTTT'
       contentStr = item.content.nsattributedstring({
         NSFontAttributeName => Font.Karla(15),
         UITextAttributeTextColor => Color.coffee
@@ -215,15 +278,6 @@ class Disptch < PM::TableScreen
       height = 5 + 38 + 5 + content.size.height.ceil + 40 + item.top_padding
     end
     height.to_f
-  end
-  def on_cell_reused(cell, data)
-    super
-    # puts data[:properties][:item].feed_id
-    # puts data[:properties][:type]
-    # puts data[:properties][:height]
-    # puts data
-    # cell.my_cool_method(data[:properties][:my_property])
-    # cell.contentView.backgroundColor = UIColor.purpleColor
   end
   def post(text, &block)
     Api.post 'feed', {content: text, channel_type: @params[:channel_type], channel_id: @params[:channel_id]} do |rsp|
@@ -287,6 +341,7 @@ class Disptch < PM::TableScreen
     end
   end
   def fetchUpdates(continueFetch = true)
+    puts 'FETCH UPDATES'
     params = @params.clone
     feed_ids = @items.select{ |i| i[:properties][:item].respond_to?('feed_id')}
     .map do |i|
@@ -298,35 +353,51 @@ class Disptch < PM::TableScreen
       params[:filters] = @filters
     end
     Api.get 'feed/updates', params do |rsp|
-      if !rsp.is_err && rsp[:count]
+      if !rsp.is_err && rsp[:count] && @active
         displayNewPostNotification rsp.count
       end
       if !rsp.is_err && rsp[:updates]
         updates = rsp.updates
         inx = 0
+        inxs = []
         @items.each do |item|
+          item = item[:properties][:item] unless item[:properties][:item].nil?
           if item.respond_to?('feed_id')
-            item = item[:properties][:item]
             id = 'feed_'+item.feed_id.to_s
             unless updates[id].nil?
-              item.num_likes = updates[id][:num_likes]
-              item.num_comments = updates[id][:num_comments]
-              @items[inx][:properties][:item] = item
-              @items[inx][:arguments][:item] = item
+              likes = updates[id][:num_likes]
+              comments = updates[id][:num_comments]
+              changed = false
+              if item.num_likes != likes
+                item.num_likes = likes
+                changed = true
+              end
+              if item.num_comments != comments
+                item.num_comments = comments
+                changed = true
+              end
+              if changed
+                @items[inx][:properties][:item] = item
+                @items[inx][:arguments][:item] = item
+                inxs << NSIndexPath.indexPathForRow(inx, inSection:0)
+              end
             end
           end
           inx += 1
         end
-        update_table_data
+        if inxs.length > 0
+          update_table_data({index_paths: inxs})
+        end
       end
     end
-    if continueFetch
-      10.seconds.later do
-        fetchUpdates
-      end
-    end
+    # if continueFetch
+    #   10.seconds.later do
+    #     fetchUpdates
+    #   end
+    # end
   end
   def fetchContent(before = false, waitForScrollStop = false)
+    @fetchingContent = true
     params = @params.clone
     params[:since] = @since
     params[:before] = before if before
@@ -334,6 +405,7 @@ class Disptch < PM::TableScreen
       params[:filters] = @filters
     end
     Api.get 'feed', params do |rsp|
+      @fetchingContent = false
       if rsp.is_err
         stop_refreshing
         frame = self.tableView.frame

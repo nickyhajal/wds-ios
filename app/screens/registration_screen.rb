@@ -27,7 +27,7 @@ class RegistrationScreen < PM::Screen
 
     # If we are between the dates of WDS, start showing the current day by default
     today = NSDate.new+10.hours
-    if today.string_with_format(:ymd) >= '2016-08-07' && today.string_with_format(:ymd) < '2016-08-16'
+    if today.string_with_format(:ymd) >= '2016-08-09' && today.string_with_format(:ymd) < '2016-08-16'
       ends = ['th','st','nd','rd','th','th','th','th','th','th']
       dayNum = today.string_with_format("d").to_i
       if (dayNum % 100) >= 11 && (dayNum % 100) <= 13

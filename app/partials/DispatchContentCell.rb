@@ -71,7 +71,7 @@ class DispatchContentCell < PM::TableViewCell
       UITextAttributeTextColor => msg ? Color.orangish_gray : Color.coffee
     })
     @contentView.setAttributedText @contentStr
-    framePadding = @type == 'dispatch' ? 14 : 16
+    framePadding = @type == 'dispatch' ? 20 : 16
     @content = @contentStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     @contentView.setFrame([[4,48], [@content.size.width+16,@content.size.height+framePadding]])
   end

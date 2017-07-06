@@ -7,10 +7,10 @@ module Api
   ####
   ####
   if Device.simulator?
-    # @@url = 'http://wds.nky/api/'
-    @@url = 'https://worlddominationsummit.com/api/'
+    @@url = 'http://wds.nky/api/'
+    # @@url = 'https://api.worlddominationsummit.com/api/'
   else
-    @@url = 'https://worlddominationsummit.com/api/'
+    @@url = 'https://api.worlddominationsummit.com/api/'
   end
   class << self
     attr_accessor :url
@@ -18,6 +18,7 @@ module Api
       @client = AFMotion::Client.build(@@url) do
         header "Accept-Encoding", "gzip"
         response_serializer :json
+        request_serializer :json
       end
     end
     def get(path, params, &block)
@@ -39,7 +40,8 @@ module Api
         params['nopic'] = 1
       end
       # puts url
-      # puts params
+      # puts params.inspect
+      # puts params['user_token']
       @client.send method, url, params do |response|
         block.call Response.new(response)
       end
@@ -54,6 +56,7 @@ class Response
     if rsp.success?
       @is_err = false
       @err_code = false
+      # puts rsp.object
       @json = rsp.object
       @json.each do |key, value|
         create_attr(key)

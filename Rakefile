@@ -15,6 +15,7 @@ begin
   require 'sugarcube-timer'
   require 'sugarcube-foundation'
   require 'sugarcube-attributedstring'
+  require 'sugarcube-numbers'
   require 'sugarcube-animations'
   require 'sugarcube-notifications'
   require 'sugarcube-localized'
@@ -42,16 +43,23 @@ Motion::Project::App.setup do |app|
   app.name = 'WDS App'
   app.frameworks += ["QuartzCore", "CoreImage"]
   app.identifier = 'com.worlddominationsummit.wdsios'
-  app.version = '1.13'
-  app.short_version = '1.13.1'
-  $VERSION = app.short_version
+  app.version = '2.1'
+  app.short_version = '2.1.5'
   app.development do
-    app.provisioning_profile = '/nky/secure_files/WDS_App_Dev.mobileprovision'
-    app.codesign_certificate = 'iPhone Developer: Nick Hajal (TS4DVF4YGA)'
+    app.codesign_certificate = MotionProvisioning.certificate(platform: :ios, type: :development)
+    app.provisioning_profile = MotionProvisioning.profile(bundle_identifier: app.identifier,
+                           app_name: app.name,
+                           platform: :ios,
+                           type: :development)
   end
   app.release do
-    app.provisioning_profile = '/nky/secure_files/WDS_App_Production.mobileprovision'
-    app.codesign_certificate = 'iPhone Distribution: Nicholas Hajal (B2D7N48CG9)'
+    app.codesign_certificate = MotionProvisioning.certificate(platform: :ios, type: :distribution)
+    app.provisioning_profile = MotionProvisioning.profile(bundle_identifier: app.identifier,
+                           app_name: app.name,
+                           platform: :ios,
+                           type: :distribution)
+    # app.provisioning_profile = '/nky/secure_files/WDS_App_Production.mobileprovision'
+    # app.codesign_certificate = 'iPhone Distribution: Nicholas Hajal (B2D7N48CG9)'
     app.entitlements['beta-reports-active'] = true
   end
   app.fabric do |config|
@@ -63,6 +71,8 @@ Motion::Project::App.setup do |app|
   app.info_plist['UIViewControllerBasedStatusBarAppearance'] = false
   app.info_plist['NSLocationAlwaysUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers.'
   app.info_plist['NSLocationWhenInUseUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers.'
+  app.info_plist['NSCameraUsageDescription'] = 'We use your camera to allow you to share photos with WDS Attendees and to make adding credit cards easy.'
+  app.info_plist['NSPhotoLibraryUsageDescription'] = 'We use your photos to allow you to share photos with WDS Attendees and to make adding credit cards easy.'
   app.info_plist['NSAppTransportSecurity'] = { 'NSAllowsArbitraryLoads' => true }
   app.info_plist['NSAppTransportSecurity'] = { 'NSAllowsArbitraryLoads' => true }
   app.info_plist['ITSAppUsesNonExemptEncryption'] = false
@@ -72,7 +82,7 @@ Motion::Project::App.setup do |app|
   app.interface_orientations = [:portrait]
   app.icons = ['Icon.png', 'Icon@2x.png', 'Icon@3x.png']
   app.deployment_target = "7.0"
-  app.fonts = ['Karla-Regular.ttf', 'Karla-Italic.ttf', 'Karla-Bold.ttf', 'Vitesse-Bold.otf', 'Vitesse-Book.otf', 'Vitesse-Light.otf', 'Vitesse-Medium.otf', 'ionicons.ttf']
+  app.fonts = ['Karla-Regular.ttf', 'Karla-BoldItalic.ttf', 'Karla-Italic.ttf', 'Karla-Bold.ttf', 'Vitesse-Bold.otf', 'Vitesse-Book.otf', 'Vitesse-Light.otf', 'Vitesse-Medium.otf', 'ionicons.ttf']
   app.pods do
     pod 'SDWebImage', '~>3.7'
     pod 'SZTextView'
@@ -81,7 +91,7 @@ Motion::Project::App.setup do |app|
     pod 'SORelativeDateTransformer'
     pod 'Firebase'
     pod 'Firebase/Database'
-    pod 'Firebase/Database/Auth'
+    pod 'Firebase/Auth'
     pod 'Stripe'
     pod 'CardIO'
   end

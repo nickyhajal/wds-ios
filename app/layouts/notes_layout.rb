@@ -176,8 +176,16 @@ class NotesLayout < MK::Layout
   def moveInput(notification, dir = false)
     info = notification.userInfo
     kbFrame = info[:UIKeyboardFrameEndUserInfoKey].CGRectValue
-    duration = info[:UIKeyboardAnimationDurationUserInfoKey].doubleValue
-    curve = info[:UIKeyboardAnimationCurveUserInfoKey].integerValue << 16
+    if info[:UIKeyboardAnimationDurationUserInfoKey].nil?
+      duration = 0.25
+    else
+      duration = info[:UIKeyboardAnimationDurationUserInfoKey].to_f
+    end
+    if info[:UIKeyboardAnimationCurveUserInfoKey].nil?
+      curve = 0
+    else
+      curve = info[:UIKeyboardAnimationCurveUserInfoKey].to_i << 16
+    end
     @kb_height = kbFrame.size.height
     unless dir
       @note_box_bottom.equals(@kb_height * -1)
