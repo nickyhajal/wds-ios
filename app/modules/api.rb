@@ -7,9 +7,10 @@ module Api
   ####
   ####
   if Device.simulator?
-    @@url = 'http://wds.nky/api/'
-    # @@url = 'https://api.worlddominationsummit.com/api/'
+   # @@url = 'http://wds.nky/api/'
+    @@url = 'https://api.worlddominationsummit.com/api/'
   else
+    # @@url = 'https://staging.worlddominationsummit.com/api/'
     @@url = 'https://api.worlddominationsummit.com/api/'
   end
   class << self
@@ -33,19 +34,22 @@ module Api
     def delete(path, params, &block)
       request('delete', path, params, &block)
     end
-    def request(method, path, params, &block)
-      url = @@url + path
-      if Me.user_token
-        params['user_token'] = Me.user_token
-        params['nopic'] = 1
-      end
-      # puts url
-      # puts params.inspect
-      # puts params['user_token']
-      @client.send method, url, params do |response|
-        block.call Response.new(response)
+    def postImage(image, &block)
+      @client.multipart_post("https://photos.wds.fm/photo") do |result, form_data, progress|
+        if form_data
+          # Called before request runs
+          # see: http://cocoadocs.org/docsets/AFNetworking/2.5.0/Protocols/AFMultipartFormData.html
+          form_data.appendPartWithFileData(UIImageJPEGRepresentation(image, 0.3.to_f), name: "photo", fileName:"photo.png", mimeType: "image/jpeg")
+        elsif progress
+          block.call('progress', progress)
+        elsif result.success?
+          block.call('success', Response.new(result))
+        else
+          block.call('fail', false)
+        end
       end
     end
+    
   end
 end
 

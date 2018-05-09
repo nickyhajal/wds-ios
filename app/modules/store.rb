@@ -1,5 +1,6 @@
 module Store
   class << self
+    defined? KeyVal
     def get(key, parseJSON = false, cache = false)
       val = false
       if cache
@@ -20,10 +21,18 @@ module Store
       val
     end
     def getKV(key)
+      # CLSLog("Store key: %@", key)
+      # CLSLogv("Store key: %@", va_arg[key])
+      # Crashlytics.sharedInstance.setObjectValue(key, forKey: 'storeKey')
       kv = KeyVal.where(key:key)
-      if kv.count > 0
+      # CLSLog("Store response: %@", kv)
+      # Crashlytics.sharedInstance.setObjectValue(kv, forKey: 'kvReturnObj')
+      # NSLog "%@", kv.inspect
+      if !kv.nil? && !kv.count.nil? && kv.count > 0
         kv.first
       else
+        if kv.nil? || kv.count.nil?
+        end
         false
       end
     end

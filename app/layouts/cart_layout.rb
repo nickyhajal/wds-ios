@@ -47,6 +47,7 @@ class CartLayout < MK::Layout
       add UIButton, :card_new_btn
       add UIButton, :card_existing_btn
       add UIButton, :submit
+      add UITextView, :terms
       add UIButton, :cancel
       add UIView, :card_exp_shell do
         add ExpirationPicker, :card_exp_picker
@@ -82,6 +83,10 @@ class CartLayout < MK::Layout
   end
   def setQuantity(q)
     @vals[:quantity] = q
+    reapply!
+  end
+  def setTerms(terms)
+    @vals[:terms] = terms
     reapply!
   end
   def toggleExisting
@@ -457,8 +462,32 @@ class CartLayout < MK::Layout
     constraints do
       left 16
       width.equals(:superview).minus(32)
-      bottom -16
+      bottom.equals(:terms, :top).minus(4)
       height 40
+    end
+  end
+  def terms_style
+    font Font.Karla_Italic(14)
+    textColor "#848477".uicolor
+    fixedWidth = super_width-64
+    textView = target
+    scrollEnabled false
+    editable false
+    backgroundColor UIColor.clearColor
+    constraints do
+      left 16
+      width.equals(:superview).minus(32)
+      bottom -16
+      @termsHeight = height 40
+    end
+    reapply do
+      if !@vals[:terms].nil? and @vals[:terms].length > 0
+        text @vals[:terms].strip
+        newSize =  textView.sizeThatFits(CGSizeMake(fixedWidth, Float::MAX))
+        @termsHeight.equals(newSize.height)
+      else
+        @termsHeight.equals(0)
+      end
     end
   end
   def card_form_style

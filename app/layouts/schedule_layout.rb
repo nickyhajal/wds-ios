@@ -57,7 +57,7 @@ class ScheduleLayout < MK::Layout
       right '100%'
       top 124
       if $IS8
-        height.equals(:superview).minus(100)
+        height.equals(:superview).minus(124)
       else
         height.equals(:superview).minus(148)
       end

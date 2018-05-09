@@ -51,7 +51,7 @@ class PreOrderCell < UIView
       new_state = 'open'
       height = @cell.table.fullHeight
     end
-    @cell.table.update_cell_height(@cell.inx, height, new_state, 'preorder')
+    @cell.table.update_cell_height(@cell.inx, height, new_state, 'preorder17')
   end
   def drawRect(rect)
     initViews
@@ -87,7 +87,7 @@ class PreOrderCell_Closed < UIView
     bg.setFill
     bgPath.fill
 
-    @btnStr = "🎆 Pre-order for WDS 2017!".attrd({
+    @btnStr = "🎆 Pre-order for WDS 2018!".attrd({
       NSFontAttributeName => Font.Karla_BoldItalic(18),
       UITextAttributeTextColor => "#999590".uicolor
     })
@@ -319,7 +319,7 @@ class PreorderRealTimeView < UIView
     frame.size.width -= frame.origin.x + 20
     frame.origin.y -= 3
     @textView = UITextView.alloc.initWithFrame(frame)
-    msg = @sale[:name]+" will be at WDS 2017! "
+    msg = @sale[:name]+" will be at WDS 2018! "
     msg = msg.attrd({
       NSFontAttributeName => Font.Karla_BoldItalic(13),
       UITextAttributeTextColor => Color.dark_gray

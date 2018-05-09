@@ -52,7 +52,7 @@ class EventsScreen < PM::Screen
       end
 
       # If we are between the dates of WDS, start showing the current day by default
-      selected = NSDate.new+10.hours
+      selected = NSDate.new+3.hours
       if selected.string_with_format(:ymd) >= '2017-07-11' && selected.string_with_format(:ymd) < '2017-07-18'
         day = formatDay(selected)
       end
@@ -191,26 +191,28 @@ class EventsScreen < PM::Screen
     @layout.get(:modal).close
   end
   def checkIfNullState(from)
-    elm = @layout.get(:null_msg)
-    dayStr = @events_table.dayStr.split(', ')[1]
-    state = @events_table.state
-    if @events_table.events.length == 0
-      format = ' '
-      etype = EventTypes.byId(@type)[:plural].downcase
-      if @meetupType != 'all'
-        format = " #{@meetupType} "
+    unless @layout.nil?
+      elm = @layout.get(:null_msg)
+      dayStr = @events_table.dayStr.split(', ')[1]
+      state = @events_table.state
+      if @events_table.events.length == 0
+        format = ' '
+        etype = EventTypes.byId(@type)[:plural].downcase
+        if @meetupType != 'all'
+          format = " #{@meetupType} "
+        end
+        if state == 'attending'
+          msg = "You haven't RSVPed to any#{format}#{etype} on "+dayStr+"...yet!"
+        elsif state == 'browse'
+          msg = "No#{format}#{etype} for "+dayStr+"...yet!"
+        elsif state == 'suggested'
+          msg = "Join communities for more suggestions."
+        end
+        elm.text = msg
+        elm.hidden = false
+      else
+        elm.hidden = true
       end
-      if state == 'attending'
-        msg = "You haven't RSVPed to any#{format}#{etype} on "+dayStr+"...yet!"
-      elsif state == 'browse'
-        msg = "No#{format}#{etype} for "+dayStr+"...yet!"
-      elsif state == 'suggested'
-        msg = "Join communities for more suggestions."
-      end
-      elm.text = msg
-      elm.hidden = false
-    else
-      elm.hidden = true
     end
   end
   def open_event(event, from = false)

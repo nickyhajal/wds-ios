@@ -12,6 +12,7 @@ class ExploreLayout < MK::Layout
       end
       add place_view, :place_list
       add PlaceTypeSelect, :selector
+      add PermissionLayout, :permission
     end
   end
   def super_height
@@ -93,6 +94,15 @@ class ExploreLayout < MK::Layout
       else
         @listHeight = height.equals(:superview).minus(193)
       end
+    end
+  end
+  def permission_style 
+    hidden true
+    constraints do
+      top.equals(40)
+      left.equals(0)
+      width.equals(super_width)
+      height.equals(super_height  - 40)
     end
   end
 end

@@ -5,6 +5,7 @@ module Fire
       @ref = FIRDatabase.database.reference
     end
     def auth(token, &block)
+      # puts token
       FIRAuth.auth.signInWithCustomToken(token, completion: -> user, error {
         NSLog "%@", error
         block.call(user, error)

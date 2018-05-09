@@ -13,6 +13,9 @@ class EventHostView < UIView
     x = 58
     @lastBtn = ''
     @btns = []
+    if @event.type == 'program'
+      @event.hosts = [Attendee.new({ first_name: 'WDS', last_name: 'Team', user_id: '10124'})]
+    end
     @event.hosts.each do |host|
       @lastBtn = AttendeeButton.alloc.initWithFrame([[x, 0], [0,0]])
       @lastBtn.setAttendee host
@@ -39,7 +42,9 @@ class EventHostView < UIView
   end
   def touch_action(sender)
     count = 0
-    @controller.open_profile(@event.hosts[count].user_id)
+    if @event.hosts[count].user_id.to_s != '10124'
+      @controller.open_profile(@event.hosts[count].user_id)
+    end
     # @btns.each do |btn|
     #   #if btn == sender
     #     $APP.open_profile(@event.hosts[count])

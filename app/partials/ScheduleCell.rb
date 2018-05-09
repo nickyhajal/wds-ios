@@ -69,7 +69,7 @@ class ScheduleCell < PM::TableViewCell
     end
   end
   def open_event_action
-    if EventTypes.types.include?(@event['type'])
+    if @event['descr'].length > 0
       @controller.open_event(Event.new(@event))
     end
   end
@@ -104,7 +104,7 @@ class ScheduleCell < PM::TableViewCell
       frame.origin.x = 15
       frame.origin.y = 19+@what.size.height
       @navView.setFrame frame
-      if (EventTypes.types.include?(@event['type']))
+      if (@event['descr'].length > 0)
         frame = @moreView.frame
         frame.origin.x = @width-28
         frame.origin.y = height/2 - 10

@@ -1,5 +1,6 @@
 module Me
   class << self
+    defined? KeyVal
     attr_accessor :first_name, :last_name, :user_token, :atn, :fireUser, :firetoken
     def init(delegate)
       @delegate = delegate
@@ -17,6 +18,8 @@ module Me
     def update(params)
       if params
         @atn = Attendee.new params
+        Crashlytics.sharedInstance().setUserEmail(@atn.email)
+        Crashlytics.sharedInstance().setUserName(@atn.full_name)
         params.each do |key, val|
           set key, val
         end
@@ -57,7 +60,8 @@ module Me
         token = Store.get('device_token')
       end
       if token
-        Api.post 'device', {token: token, type: 'ios'} do |rsp|
+        uuid = MCSMApplicationUUIDKeychainItem.applicationUUID
+        Api.post 'device', {token: token, uuid: uuid, type: 'ios'} do |rsp|
           if rsp.saved_token.to_i > 0
             Store.set('saved_device_token', '1')
           end
@@ -174,7 +178,6 @@ module Me
           else
             interests << interest_id
             set('interests', interests)
-            puts rsp.inspect
             block.call(rsp.members)
           end
         end
@@ -284,4 +287,107 @@ module Me
       interested
     end
   end
+end
+
+class Api
+  def request(method, path, params, &block)
+    url = @@url + path
+    if Me.user_token
+      params['user_token'] = Me.user_token
+      params['nopic'] = 1
+    end
+    unless params[:url].nil?
+      url = params[:url] + path
+    end
+    # puts url
+    # puts params.inspect
+    # puts params['user_token']
+    # puts url puts params
+
+    @client.send method, url, params do |response|
+      # puts response.to_s
+      block.call Response.new(response)
+    end
+  end
+end
+
+class Assets
+    def process_me(me)
+      Store.set('me', me, true)
+      Me.update(me)
+    end
+    def process_events(events)
+      return false unless events
+      schedule = {}
+      byType = {}
+      lastDay = ''
+      byDay = {}
+      days = []
+      dayData = {}
+      reg = {}
+      existingDays = {}
+      events.sort! {|x, y| [x['start'], x['what']] <=> [y['start'], y['what']]}
+      events.each do |event|
+        event = Event.new(event)
+        type = event.type
+        day = event.startDay
+        map = {
+          'Monday' => 'Mon',
+          'Tuesday' => 'Tues',
+          'Wednesday' => 'Weds',
+          'Thursday' => 'Thurs',
+          'Friday' => 'Fri',
+          'Saturday' => 'Sat',
+          'Sunday' => 'Sun'
+        }
+        if existingDays[event.startDay].nil?
+          existingDays[event.startDay] = true
+          dayStr = event.dayStr
+          dayName = event.dayStr.split(',')[0]
+          dayNameShort = map[dayName];
+          dayNum = dayStr.gsub(/[^0-9]/, '')
+          dayComplete = {day: event.startDay, dayStr: dayStr, dayName: dayName, dayNameShort: dayNameShort, dayNum: dayNum }
+          days << dayComplete
+          dayData[dayComplete[:day]] = dayComplete
+        end
+        if Me.isAttendingEvent(event)
+          if schedule[event.startDay].nil?
+            schedule[event.startDay] = []
+          end
+          schedule[event.startDay] << event.to_hash
+        end
+        if byType[type].nil?
+          byType[type] = {}
+        end
+        if byType[type][day].nil?
+          byType[type][day] = []
+        end
+        if Me.hasPermissionForEvent event
+          byType[type][day] << event.to_hash
+        end
+      end
+      set 'days', days
+      set 'dayData', dayData
+      set 'events', events
+      byType.each do |type, evs|
+        set type, byType[type]
+      end
+      set 'schedule', schedule
+    end
+    def process_schedule
+      events = get 'events'
+      schedule = {}
+      lastDay = ''
+      byDay = {}
+      events.each do |event|
+        event = Event.new(event)
+        if Me.isAttendingEvent(event)
+          if schedule[event.startDay].nil?
+            schedule[event.startDay] = []
+          end
+          schedule[event.startDay] << event.to_hash
+        end
+      end
+      set 'schedule', schedule
+    end
 end

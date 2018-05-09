@@ -1,12 +1,16 @@
 class AppDelegate < PM::Delegate
 	attr_accessor :login, :event , :home, :events
+	defined? KeyVal
 	def on_load(app, options)
-		$VERSION = '17.2'
-		Stripe.setDefaultPublishableKey('pk_live_v32iH6nfQOgPmKgQiNOrnZCi')
-		# Stripe.setDefaultPublishableKey('pk_test_8WKTIWKXB6T1eFT9sFqrymCM')
+		$VERSION = '17.4'
+		if Device.simulator?
+			Stripe.setDefaultPublishableKey('pk_test_8WKTIWKXB6T1eFT9sFqrymCM')
+		else
+			Stripe.setDefaultPublishableKey('pk_live_v32iH6nfQOgPmKgQiNOrnZCi')
+		end
 		Fire.init
 		if RUBYMOTION_ENV == 'release'
-		  Fabric.with([Crashlytics])
+		  Fabric.with([Crashlytics.sharedInstance])
 		end
 		$IS7 = (UIDevice.currentDevice.systemVersion.floatValue < 8.0)
 		$IS8 = (UIDevice.currentDevice.systemVersion.floatValue >= 8.0)
@@ -59,12 +63,13 @@ class AppDelegate < PM::Delegate
 		@dispatchItem = DispatchItemScreen.new(nav_bar: false)
 		@profile = AttendeeScreen.new(nav_bar: false)
 		@schedule = ScheduleScreen.new(nav_bar: true)
-		@more = MoreScreen.new(nav_bar: true)
 		@login = LoginScreen.new(nav_bar: false)
 		@loading = LoadingScreen.new(nav_bar:false)
 		@walkthrough = WalkthroughScreen.new(nav_bar:false)
-		if BW::Location.enabled?
-			# @explore.location_ping
+		20.seconds.later do
+			if BW::Location.enabled? and Store.get('hasLocationPermission', false)
+				@explore.location_ping
+			end
 		end
 	end
 	def init_api
@@ -125,7 +130,16 @@ class AppDelegate < PM::Delegate
 		else
 			open_loading
 			Assets.sync do |err|
-				@tab_bar = open_tab_bar @home, @schedule, @eventTypes, @chats #, @explore
+				@home = HomeScreen.new(nav_bar: false) if @home.nil?
+				@explore = ExploreScreen.new(nav_bar: true) if @explore.nil?
+				@chats = ChatsScreen.new(nav_bar: true) if @chats.nil?
+				@eventTypes = EventTypesScreen.new(nav_bar: true) if @eventTypes.nil?
+				@schedule = ScheduleScreen.new(nav_bar: true) if @schedule.nil?
+				# NSLog "%@", @schedule.tabBarItem
+				# NSLog "%@", @home.tabBarItem
+				# NSLog "%@", @eventTypes.tabBarItem
+				# NSLog "%@", @chats.tabBarItem
+				@tab_bar = open_tab_bar @home, @schedule, @eventTypes, @chats, @explore
 				@tab_bar.tabBar.items.each do |tab|
 					tab.imageInsets = UIEdgeInsetsMake(5.0,0,-5.0,0)
 				end
@@ -191,7 +205,7 @@ class AppDelegate < PM::Delegate
 				id = link.split('/').last
 				open_root_screen @tab_bar
 				open_tab(@home)
-				@home.open_chat id
+				@home.open_chat id, data[:title]
 			end
 		end
 	end

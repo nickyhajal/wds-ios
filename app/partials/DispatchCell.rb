@@ -1,8 +1,11 @@
 class DispatchCell < PM::TableViewCell
-  attr_accessor :item, :layout, :width, :controller, :type, :inx, :table
+  attr_accessor :item, :layout, :width, :controller, :type, :inx, :table, :showPhoto
   attr_reader :authorStr, :timeStr, :likeStr, :commentStr
   def will_display
     self.setNeedsDisplay
+  end
+  def shouldShowPhoto
+    @showPhoto == 0
   end
   def initWithStyle(style, reuseIdentifier:id)
     @_item = false
@@ -47,6 +50,13 @@ class DispatchCell < PM::TableViewCell
       self.addSubview @cardView
       @cardView.addSubview @contentView
     end
+    if @mediaView.nil?
+      @mediaView = UIImageView.alloc.initWithFrame([[0,0],[imgSize,imgSize]])
+      @mediaView.contentMode = UIViewContentModeScaleAspectFill
+      @mediaView.setHidden true
+      @mediaView.layer.masksToBounds = true
+      self.addSubview @mediaView
+    end
     updateImages
     @contentStr = @item.content.nsattributedstring({
       NSFontAttributeName => Font.Karla(15),
@@ -73,6 +83,21 @@ class DispatchCell < PM::TableViewCell
     makeChannelStr
     makeLikeStr
     makeCommentStr
+    if @item.mediaUrl && shouldShowPhoto
+      avF = @avatar.frame
+      baseFrame = @contentView.frame
+      y = baseFrame.size.height+baseFrame.origin.y+6
+      avY = avF.size.height+avF.origin.y+6
+      y = avY if avY > y
+      @mediaView.setFrame([[2, y], [imgSize,(imgSize*0.75)]])
+      @mediaView.setImageWithURL(@item.mediaUrl.nsurl, placeholderImage:UIImage.imageNamed("gray_dots.png"))
+      @mediaView.setHidden false
+    else
+      @mediaView.setHidden true
+    end
+  end
+  def imgSize 
+    UIScreen.mainScreen.bounds.size.width - 4
   end
   def makeChannelStr
     pgraph = NSMutableParagraphStyle.alloc.init
@@ -98,6 +123,7 @@ class DispatchCell < PM::TableViewCell
           end
         end
       end
+      puts @event
       if @event
         channel_str += EventTypes.byId(@event.type)[:single]+': '+@event.what
       else

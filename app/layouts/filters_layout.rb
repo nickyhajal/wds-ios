@@ -21,6 +21,10 @@ class FiltersLayout < MK::Layout
         add UILabel, :events
         add UISegmentedControl, :events_selector
       end
+      add UIView, :photos_row do
+        add UILabel, :photos
+        add UISegmentedControl, :photos_selector
+      end
       add UIButton, :submit
       add UIButton, :cancel
     end
@@ -74,6 +78,23 @@ class FiltersLayout < MK::Layout
     #target.addTarget @controller, action: 'friends_selector_action:', forControlEvents:UIControlEventValueChanged
     selector
   end
+  def photos_row_style
+    row
+    backgroundColor Color.white(0.4)
+    constraints do
+      top.equals(:events_row, :bottom)
+    end
+  end
+  def photos_style
+    label
+    text 'Photos in Dispatch'
+  end
+  def photos_selector_style
+    target.insertSegmentWithTitle 'Show', atIndex:0, animated:false
+    target.insertSegmentWithTitle 'Hide', atIndex:1, animated:false
+    #target.addTarget @controller, action: 'friends_selector_action:', forControlEvents:UIControlEventValueChanged
+    selector
+  end
   def communities_row_style
     row
     backgroundColor Color.white(0.6)
@@ -119,10 +140,13 @@ class FiltersLayout < MK::Layout
     font Font.Karla_bold(16.0)
     target.addTarget @controller, action: 'apply_filters_action', forControlEvents:UIControlEventTouchDown
     constraints do
-      left 0
-      top.equals(:events_row, :bottom)
-      width.equals(:superview)
+      center_x.equals(:superview)
+      top.equals(:photos_row, :bottom).plus(40)
+      width.equals(:superview).minus(40)
       height 40
+    end
+    layer do
+      corner_radius 6
     end
   end
   def cancel_style

@@ -26,6 +26,13 @@ class DispatchContentCell < PM::TableViewCell
       @avatar.removeFromSuperview
       @avatar = nil
     end
+    if @mediaView.nil?
+      @mediaView = UIImageView.alloc.initWithFrame([[0,0],[imgSize,imgSize]])
+      @mediaView.contentMode = UIViewContentModeScaleAspectFill
+      @mediaView.setHidden true
+      @mediaView.layer.masksToBounds = true
+      self.addSubview @mediaView
+    end
   end
   def prepareText
     author = false
@@ -74,6 +81,21 @@ class DispatchContentCell < PM::TableViewCell
     framePadding = @type == 'dispatch' ? 20 : 16
     @content = @contentStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     @contentView.setFrame([[4,48], [@content.size.width+16,@content.size.height+framePadding]])
+    if @item.class.to_s.include?('DispatchItem') && @item.mediaUrl
+      avF = @avatar.frame
+      baseFrame = @contentView.frame
+      y = baseFrame.size.height+baseFrame.origin.y+6
+      avY = avF.size.height+avF.origin.y+6
+      y = avY if avY > y
+      @mediaView.setFrame([[2, y], [imgSize,(imgSize*0.75)]])
+      @mediaView.setImageWithURL(@item.mediaUrl.nsurl, placeholderImage:UIImage.imageNamed("gray_dots.png"))
+      @mediaView.setHidden false
+    else
+      @mediaView.setHidden true
+    end
+  end
+  def imgSize 
+    UIScreen.mainScreen.bounds.size.width - 4
   end
   def makeAuthorStr(author)
    @authorStr = @item.author.full_name.nsattributedstring({

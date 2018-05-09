@@ -93,34 +93,65 @@ class ExploreScreen < PM::Screen
     unless @pinging
       location_ping
     end
-    @frequency = 20
+    @frequency = 45
+  end
+  def open_location_permission_primer
+      Store.set('asked_for_location', 0)
+      asked = Store.get('asked_for_location')
+      asked = 0 if !asked
+      now = NSDate.new.timeIntervalSince1970
+      diff = now.to_f - asked.to_f
+      if diff > 432000
+        Store.set('asked_for_location', now)
+        str = "We use your location to help you find places and attendees near you that you might like.\n\nShare your location to make sure you don't miss out!"
+        modal = {
+          title: 'Share Your Location!',
+          content: str,
+          close_on_yes: true,
+          image: "locationIcon".uiimage,
+          yes_text: "Yup, let's do it!",
+          no_text: "No, thanks.",
+          yes_action: 'location_allow',
+          controller: self
+        }
+        @layout.get(:permission).open(modal)
+      end
+  end
+  def location_allow(item)
+    Store.set('hasLocationPermission', true)
+    location_ping
   end
   def location_ping
     @pinging = true
+    hasPermission = Store.get('hasLocationPermission', false)
     if BW::Location.enabled?
-      BW::Location.get_once(purpose: "We'd like to use your location to help you explore Portland and connect with other WDSers!") do |result|
-        if result.is_a?(CLLocation)
-          @placeList.position = result
-          @checkin_screen.placeList.position = result
-          update_places(true)
-          @checkin_screen.update_places
-          now = NSDate.new.timeIntervalSince1970
-          if (now - @lastCheck) > 40 && Me.shouldAutoCheckIn
-            @lastCheck = now
-            if @lastPingClosest == @placeList.closest
-              if @lastPingClosest
-                do_checkin
+      if !hasPermission
+        open_location_permission_primer
+      else
+        BW::Location.get_once(purpose: "We'd like to use your location to help you explore Portland and connect with other WDSers!") do |result|
+          if result.is_a?(CLLocation)
+            @placeList.position = result
+            @checkin_screen.placeList.position = result
+            update_places(true)
+            @checkin_screen.update_places
+            now = NSDate.new.timeIntervalSince1970
+            if (now - @lastCheck) > 40 && Me.shouldAutoCheckIn
+              @lastCheck = now
+              if @lastPingClosest == @placeList.closest
+                if @lastPingClosest
+                  do_checkin
+                end
               end
+              @lastPingClosest = @placeList.closest
             end
-            @lastPingClosest = @placeList.closest
+          else
+            puts "ERROR: #{result[:error]}"
           end
-        else
-          puts "ERROR: #{result[:error]}"
+        end
+        @frequency.seconds.later do
+          location_ping
         end
       end
-    end
-    @frequency.seconds.later do
-      location_ping
     end
   end
   def do_checkin

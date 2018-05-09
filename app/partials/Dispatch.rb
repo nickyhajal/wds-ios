@@ -1,5 +1,5 @@
 class Disptch < PM::TableScreen
-  attr_accessor :controller, :items, :active
+  attr_accessor :controller, :items, :active, :mediaAttached
   title "Dispatch"
   row_height 144
   refreshable
@@ -7,22 +7,27 @@ class Disptch < PM::TableScreen
     @width = width
   end
   def initFilters(layout)
+    @mediaAttached = false
     filters = Store.get('dispatch_filters', true)
+    filters = {} unless filters
     active = true
-    unless filters
-      filters = {
-        twitter: 1,
-        following: 0,
-        communities: 0,
-        events: 0
-      }
-    end
+    filters[:twitter] = 1 if filters[:twitter].nil?
+    filters[:following] = 0 if filters[:following].nil?
+    filters[:communities] = 0 if filters[:communities].nil?
+    filters[:events] = 0 if filters[:events].nil?
+    filters[:photos] = 0 if filters[:photos].nil?
     setFilters filters, true, true
     filters[:events] = 0 if filters[:events].nil?
     layout.get(:twitter_selector).setSelectedSegmentIndex filters[:twitter]
     layout.get(:friends_selector).setSelectedSegmentIndex filters[:following]
     layout.get(:communities_selector).setSelectedSegmentIndex filters[:communities]
     layout.get(:events_selector).setSelectedSegmentIndex filters[:events]
+    layout.get(:photos_selector).setSelectedSegmentIndex filters[:photos]
+    @shouldShowPhotos = filters[:photos]
+  end
+  def showPhotos(shouldShowPhotos)
+    @shouldShowPhotos = shouldShowPhotos
+    update_table_data
   end
   def unwatch
     if !@watching.nil? and @watching
@@ -114,6 +119,7 @@ class Disptch < PM::TableScreen
     self.tableView.backgroundView = nil
     self.tableView.backgroundColor = "#F2F2EA".uicolor
     @refresh_control.alpha = 0.7
+    @initd = false
   end
   def table_data
     for i in 0..(@items.length-1)
@@ -135,6 +141,7 @@ class Disptch < PM::TableScreen
       properties: {
         selectionStyle: UITableViewCellSelectionStyleNone,
         item: item,
+        showPhoto: @shouldShowPhotos,
         height: height,
         width: @width,
         controller: @controller,
@@ -172,7 +179,10 @@ class Disptch < PM::TableScreen
   def add_special_tiles(items)
 
     ### COMMENT THIS OUT BEFORE PUBLISHING
-    # Store.set('preorder', 'do_pre')
+    # unless @initd
+    #   @initd = true
+    #   Store.set('preorder17', 'do_pre')
+    # end
     #### ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     pre = Store.get('preorder17')
     atnstory = Store.get('atnstory17')
@@ -200,6 +210,7 @@ class Disptch < PM::TableScreen
       })
       items.unshift(make_cell(tile))
     elsif (!pre || pre == "do_pre") and ($STATE[:test17_special] == 'preorder')
+    # elsif (!pre || pre == "do_pre") and ($STATE[:special] == 'preorder')
       tile = DispatchItem.new({
         'type' => 'tckt',
         'height' => (preState == 'open' ? fullHeight : bannerHeight),
@@ -276,12 +287,25 @@ class Disptch < PM::TableScreen
       size.height = Float::MAX
       content = contentStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
       height = 5 + 38 + 5 + content.size.height.ceil + 40 + item.top_padding
+      if item.mediaUrl and @shouldShowPhotos == 0
+        height += (UIScreen.mainScreen.bounds.size.width * 0.75) + 14
+      end
     end
     height.to_f
   end
   def post(text, &block)
-    Api.post 'feed', {content: text, channel_type: @params[:channel_type], channel_id: @params[:channel_id]} do |rsp|
+    params = {
+      content: text,
+      channel_type: @params[:channel_type],
+      channel_id: @params[:channel_id]
+    }
+    if @mediaAttached
+      params[:media] = @mediaAttached
+      params[:media_type] = 'photo'
+    end
+    Api.post 'feed', params do |rsp|
       unless rsp.is_err
+        @mediaAttached = false
         update
       end
       block.call rsp.is_err
@@ -341,7 +365,6 @@ class Disptch < PM::TableScreen
     end
   end
   def fetchUpdates(continueFetch = true)
-    puts 'FETCH UPDATES'
     params = @params.clone
     feed_ids = @items.select{ |i| i[:properties][:item].respond_to?('feed_id')}
     .map do |i|
@@ -402,7 +425,9 @@ class Disptch < PM::TableScreen
     params[:since] = @since
     params[:before] = before if before
     if params[:channel_type] == 'global'
-      params[:filters] = @filters
+
+      params[:filters] = @filters.clone
+      params[:filters].delete("photos")
     end
     Api.get 'feed', params do |rsp|
       @fetchingContent = false
@@ -446,7 +471,7 @@ class Disptch < PM::TableScreen
           if rsp.feed_contents.length > 0
             update_content rsp.feed_contents
           else
-            if (EventTypes.types.include?(@channel_type))
+            if (EventTypes.types.include?(@channel_type)) and @items.length == 0
               showNullMsg
             else
               update_content([])

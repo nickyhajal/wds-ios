@@ -22,6 +22,7 @@ class EventTypeCell < PM::TableViewCell
   def updateImages
     type = @type
     img = "tile_"+type+".jpg"
+    # puts img ## i want to preload these images
     if @img.nil?
       @img = UIImageView.alloc.initWithFrame(imgRect)
       @img.contentMode = UIViewContentModeScaleAspectFill

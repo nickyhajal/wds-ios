@@ -52,7 +52,7 @@ class ChatCell < PM::TableViewCell
       NSFontAttributeName => Font.Karla_Italic(13),
       UITextAttributeTextColor => Color.dark_gray
     })
-    @authorStr = "#{@chat[:author]}.".attrd({
+    @authorStr = "#{@chat[:author]}".attrd({
       NSFontAttributeName => Font.Karla_Bold(13),
       UITextAttributeTextColor => Color.dark_gray
     })
@@ -61,8 +61,23 @@ class ChatCell < PM::TableViewCell
       UITextAttributeTextColor => Color.dark_gray
     })
     @chatBox = @chatStr.boundingRectWithSize(cardSize, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+    if @contentView.nil?
+      @contentView = UITextView.alloc.initWithFrame(chatContentRect) if @contentView.nil?
+      @contentView.setTextColor Color.coffee
+      @contentView.setFont Font.Karla(15)
+      @contentView.dataDetectorTypes = UIDataDetectorTypeLink
+      @contentView.setEditable false
+      @contentView.setTintColor Color.orange
+      @contentView.scrollEnabled = false
+      @cardView.addSubview @contentView
+    end
+    @contentView.setAttributedText @chatStr
     cardSize.width = Float::MAX
     @stampBox = @stampStr.boundingRectWithSize(cardSize, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+    frame = chatContentRect
+    frame.origin.y -= 8
+    frame.size.height = @chatBox.size.height+18
+    @contentView.setFrame(frame)
     height += @chatBox.size.height
     height += @botP
     return height
@@ -155,7 +170,6 @@ class ChatCell < PM::TableViewCell
   end
 end
 
-
 class ChatCellInnerView < UIView
   attr_accessor :cell
   def drawRect(rect)
@@ -174,7 +188,7 @@ class ChatCellInnerView < UIView
     cardPath.fill
 
 
-    @cell.chatStr.drawInRect(@cell.chatContentRect)
+    # @cell.chatStr.drawInRect(@cell.chatContentRect)
     @cell.stampStr.drawInRect(@cell.stampRect)
     @cell.authorStr.drawInRect(@cell.authorRect)
   end

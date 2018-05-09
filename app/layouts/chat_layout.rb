@@ -1,4 +1,5 @@
 class ChatLayout < MK::Layout
+  attr_accessor :viewContext
   view :chat_view
   def setController(controller)
     @controller = controller
@@ -7,9 +8,18 @@ class ChatLayout < MK::Layout
     @readyForMessages = 'waiting'
     @atn = atn
     updTitle
-    @atn.readyForMessages do |rsp|
-      @readyForMessages = rsp
+    if @atn == 'support'
+      @readyForMessages = 'support'
       reapply!
+    else
+      @atn.readyForMessages do |rsp|
+        if @atn.first_name == 'WDS'
+          @readyForMessages = 'support'
+        else
+          @readyForMessages = rsp
+        end
+        reapply!
+      end
     end
   end
   def setAttendees(atns)
@@ -19,25 +29,40 @@ class ChatLayout < MK::Layout
     updTitle
     @readyForMessages = 'waiting'
     @atn.readyForMessages do |rsp|
-      @readyForMessages = rsp
+      if @atn.first_name == 'WDS'
+        @readyForMessages = 'support'
+      else
+        @readyForMessages = rsp
+      end
       reapply!
     end
   end
   def nameStr
-    @chat.nil? ? @atn.first_name : "your group"
+    if @chat.nil?
+      if @atn == 'support'
+        'the WDS Team'
+       else
+         @atn.first_name == 'WDS' ? 'the WDS Team' : @atn.first_name
+       end
+    else
+      "your group"
+    end
   end
   def titleStr
     if !@chat.nil? && @chat
       @chat.name
     else
-      name = @atn.nil? || @atn.first_name.nil? ? '' : " with #{@atn.first_name}"
-      "Chat#{name}"
+      if @atn == 'support'
+        name = 'WDS Team'
+      else
+        name = @atn.nil? || @atn.first_name.nil? ? 'Chat' : "#{@atn.first_name} #{@atn.last_name}"
+      end
     end
   end
   def updTitle
     title = titleStr
-    if title.length > 12
-      title = title[0..5]+'...'+title[title.length-6..title.length-1]
+    if title.length > 18
+      title = title[0..7]+'...'+title[title.length-8..title.length-1]
     end
     @controller.title = title
   end
@@ -145,6 +170,8 @@ class ChatLayout < MK::Layout
         status = "\n\n"+@atn.first_name+" hasn't installed the latest WDS App but will receive your messages once they do."
       elsif @readyForMessages == "group"
         status = "\n\n"+"Woohoo, your group is ready to chat!"
+      elsif @readyForMessages == "support"
+        status = "\n\n"+"Need help? Send a message below and the WDS Team will get back to you as quickly as we can."
       end
       str += status.attrd({
         NSFontAttributeName => Font.Karla_Italic(14),
@@ -360,6 +387,7 @@ class ChatLayout < MK::Layout
     height = 40 if height < 40
     height = max if height > max
     @msg_box_height.equals(height)
+    textView.contentOffset = CGPointMake(0, 3)
     UIView.animateWithDuration(0.1, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
       self.view.layoutIfNeeded  # applies the constraint change
     end, completion: nil)
@@ -377,7 +405,10 @@ class ChatLayout < MK::Layout
     else
       curve = info[:UIKeyboardAnimationCurveUserInfoKey].to_i << 16
     end
-    @kb_height = kbFrame.size.height - 49
+    @kb_height = kbFrame.size.height
+    if !@viewContext.nil? && @viewContext == 'navview'
+      @kb_height -= 49
+    end
     unless dir
       @msg_box_bottom.equals(@kb_height * -1)
       get(:msg_btn).alpha = 1

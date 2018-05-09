@@ -6,6 +6,10 @@ class Attendee
   def initialize(atn)
     @attending17 = 0
     @registered = 0
+    @first_name = ''
+    @last_name = ''
+    @user_id = 0
+    @qnaStr = ''
     if atn == 'default'
       @first_name = '░░░░░░░░░'
       @last_name = '░░░░░░░░'
@@ -14,15 +18,17 @@ class Attendee
       @card = false
       @user_id = 0
     else
-      atn.each do |key, value|
-        self.instance_variable_set("@#{key}".to_sym, value)
-      end
-      @first_name = @first_name.strip
-      @last_name = @last_name.strip
-      unless @distance.nil?
-        @distance = @distance.to_i.ceil.to_s
-        @distance = '2' if distance < '1'
-        @distance = '' if @distance.nil?
+      unless atn.nil?
+        atn.each do |key, value|
+          self.instance_variable_set("@#{key}".to_sym, value)
+        end
+        @first_name = @first_name.strip
+        @last_name = @last_name.strip
+        unless @distance.nil?
+          @distance = @distance.to_i.ceil.to_s
+          @distance = '2' if distance < '1'
+          @distance = '' if @distance.nil?
+        end
       end
     end
     @full_name = @first_name + ' ' + @last_name

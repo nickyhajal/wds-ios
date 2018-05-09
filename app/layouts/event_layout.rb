@@ -11,6 +11,13 @@ class EventLayout < MK::Layout
     @event = event
     @numAttendees = @event.num_rsvps.to_s
     self.reapply!
+    if @event.type == 'program'
+      @rsvpsHeight.equals(0)
+      get(:rsvps).setHidden true
+    else
+      @rsvpsHeight.equals(32)
+      get(:rsvps).setHidden false
+    end
     Api.get 'event/attendees', {event_id: @event.event_id, include_users: 1} do |rsp|
       if rsp.is_err
         $APP.offline_alert
@@ -626,7 +633,7 @@ class EventLayout < MK::Layout
     constraints do
       top.equals(:line_after_when, :bottom).plus(4)
       left.equals(:name)
-      height 32
+      @rsvpsHeight = height 32
       width.equals(:name)
     end
     contentHorizontalAlignment UIControlContentHorizontalAlignmentLeft

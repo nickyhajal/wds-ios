@@ -1,5 +1,5 @@
 class DispatchItem
-  attr_accessor :feed_id, :content, :channel_type, :channel_id, :user_id, :num_comments, :num_likes, :created_at, :author, :top_padding, :type, :height, :state
+  attr_accessor :feed_id, :content, :channel_type, :channel_id, :user_id, :num_comments, :num_likes, :created_at, :author, :top_padding, :type, :height, :state, :media, :media_type
   def initialize(event)
     @type = 'item'
     if event == 'default'
@@ -26,6 +26,13 @@ class DispatchItem
         atn[:user_id] = @user_id
         @author = Attendee.new(atn)
       end
+    end
+  end
+  def mediaUrl
+    if !@media.nil? and @media.to_s.length > 0
+      "https://photos.wds.fm/media/#{@media}_large"
+    else
+      false
     end
   end
   def createdTime

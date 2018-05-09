@@ -41,6 +41,9 @@ class CartScreen < PM::Screen
     @meta = meta
     updateCart
   end
+  def setTerms(terms)
+    @layout.setTerms(terms)
+  end
   def updateCart
     pkg = {}
     if @code == 'academy' || @code == 'event'
@@ -54,10 +57,10 @@ class CartScreen < PM::Screen
       @purchase_data = {
         event_id: @meta.event_id
       }
-    elsif @code == 'wds2017'
+    elsif @code == 'wds2018'
       pkg = {
-        name: "WDS 2017",
-        descr: "360 Ticket to WDS 2017",
+        name: "WDS 2018",
+        descr: "360 Ticket to WDS 2018",
         price: "547",
         confirm: true,
         max_quantity: 3,
@@ -85,9 +88,9 @@ class CartScreen < PM::Screen
     if @layout.vals[:confirm] and !confirmed
       q = @layout.vals[:quantity]
       if q == 1
-        tickets = "1 ticket to WDS 2017"
+        tickets = "1 ticket to WDS 2018"
       else
-        tickets = q.to_s+" tickets to WDS 2017"
+        tickets = q.to_s+" tickets to WDS 2018"
       end
       priceStr = @layout.get(:item_price).text
       priceStr = priceStr.sub('$', '')

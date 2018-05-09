@@ -4,11 +4,13 @@
 ### CRASH SYMBOLICATING
 # ./symbolicatecrash -o /nky/wds-ios/crashes/l3.3.txt /nky/wds-ios/crashes/logs3/4.crash
 $:.unshift("/Library/RubyMotion/lib")
+$:.unshift("~/.rubymotion/rubymotion-templates")
 require 'motion/project/template/ios'
 
 begin
   require 'bundler'
   Bundler.require
+  require 'motion-support'
   require 'sugarcube'
   require 'sugarcube-nsdate'
   require 'sugarcube-nsdata'
@@ -26,6 +28,7 @@ begin
   require 'sugarcube-image'
   require 'bubble-wrap'
   require "bubble-wrap/location"
+  require 'bubble-wrap/camera'
   require 'motion-kit'
   require 'motion_model'
   require 'motion_model/array'
@@ -43,8 +46,13 @@ Motion::Project::App.setup do |app|
   app.name = 'WDS App'
   app.frameworks += ["QuartzCore", "CoreImage"]
   app.identifier = 'com.worlddominationsummit.wdsios'
-  app.version = '2.1'
-  app.short_version = '2.1.5'
+
+
+  ## UPDATE APP DELEGATE VERSION
+  app.version = '17.4'
+  app.short_version = '2.2.5'
+  app.detect_dependencies = true
+
   app.development do
     app.codesign_certificate = MotionProvisioning.certificate(platform: :ios, type: :development)
     app.provisioning_profile = MotionProvisioning.profile(bundle_identifier: app.identifier,
@@ -81,7 +89,7 @@ Motion::Project::App.setup do |app|
   app.vendor_project 'vendor/MMMarkdown/Source', :static
   app.interface_orientations = [:portrait]
   app.icons = ['Icon.png', 'Icon@2x.png', 'Icon@3x.png']
-  app.deployment_target = "7.0"
+  app.deployment_target = "8.0"
   app.fonts = ['Karla-Regular.ttf', 'Karla-BoldItalic.ttf', 'Karla-Italic.ttf', 'Karla-Bold.ttf', 'Vitesse-Bold.otf', 'Vitesse-Book.otf', 'Vitesse-Light.otf', 'Vitesse-Medium.otf', 'ionicons.ttf']
   app.pods do
     pod 'SDWebImage', '~>3.7'
@@ -93,6 +101,8 @@ Motion::Project::App.setup do |app|
     pod 'Firebase/Database'
     pod 'Firebase/Auth'
     pod 'Stripe'
+    pod 'UIImage-Resize'
+    pod 'MCSMKeychainItem'
     pod 'CardIO'
   end
 

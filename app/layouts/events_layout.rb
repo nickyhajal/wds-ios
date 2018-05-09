@@ -197,6 +197,7 @@ class EventsLayout < MK::Layout
     target.setLabel 'Type'
     target.setValues([
       {id: "all", val: "All", long: "Show All Meetups"},
+      {id: "service", val: "Service", long: "Service"},
       {id: "discover", val: "Discover", long: "Discover"},
       {id: "experience", val: "Experience", long: "Experience"},
       {id: "network", val: "Network", long: "Network"},

@@ -73,6 +73,8 @@
     0.4.seconds.later do
       open_notification_permission_primer
     end
+    Assets.preload(UIImage.imageNamed("faded_overlay.png"))
+    # @img.setImage(UIImage.imageNamed(img))
 
     ## This is to auto-open the cart for testing
     # 0.5.seconds.later do
@@ -129,8 +131,8 @@
     @dispatch_screen.setItem item, is_id
     open_modal @dispatch_screen
   end
-  def open_chat(pid)
-    @chat_screen.setChatFromPid({ pid: pid })
+  def open_chat(pid, name = false)
+    @chat_screen.setChatFromPid({ pid: pid, name: name })
     open_modal @chat_screen
   end
   def open_notifications
@@ -184,8 +186,10 @@
     stored[:following] = filters.get(:friends_selector).selectedSegmentIndex
     stored[:communities] = filters.get(:communities_selector).selectedSegmentIndex
     stored[:events] = filters.get(:events_selector).selectedSegmentIndex
+    stored[:photos] = filters.get(:photos_selector).selectedSegmentIndex
     Store.set('dispatch_filters', stored, true)
     @dispatch.setFilters(stored)
+    @dispatch.showPhotos(stored[:photos])
     @filters_screen.close_screen
     UIApplication.sharedApplication.setStatusBarStyle(UIStatusBarStyleLightContent)
   end
@@ -196,8 +200,11 @@
     @layout.get(:attendee_search_layout).setSearch('friended me')
   end
   def tckt_purchase_action
-    @cart.setProduct('wds2017', {})
+    @cart.setProduct('wds2018', {})
     @cart.setPurchasedCallback(self, 'tckt_purchased', false)
+    @cart.setTerms('Each ticket includes 1 complimentary, non-transferable WDS Academy, priority booking at the WDS Hotel, and other discounts and benefits.
+
+ Tickets are non-refundable. Name changes and ticket transfers are permitted up to 60 days prior to the event for a $100 fee. A late transfer option will be available at a higher cost.')
     open_modal @cart
   end
   def open_atn_story_action
@@ -205,10 +212,10 @@
   end
   def post_tckt_action
     @dispatch.hideFirst
-    Store.set('preorder', 'post-hidden')
+    Store.set('preorder17', 'post-hidden')
   end
   def tckt_purchased
-    Store.set('preorder', 'purchased')
+    Store.set('preorder17', 'purchased')
     Me.atn.attending17 = 1
     @dispatch.update_content([])
   end

@@ -89,7 +89,6 @@ class CommunityCell < PM::TableViewCell
 
   def join_action
     Me.joinCommunity @community.interest_id do |members|
-      puts members
       @community.members = members
       setNeedsDisplay
     end

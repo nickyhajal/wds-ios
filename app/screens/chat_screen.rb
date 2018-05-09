@@ -1,7 +1,7 @@
 class ChatScreen < PM::Screen
   title "Chat"
   status_bar :light
-  attr_accessor :layout, :chat, :msgs
+  attr_accessor :layout, :chat, :msgs, :viewContext
   def on_init
     @needsAtn = false
     @needsAtns = false
@@ -25,6 +25,7 @@ class ChatScreen < PM::Screen
     @chat_detail_screen = ChatDetailScreen.new(nav_bar: true)
     @chat_detail_screen.setParent(self)
     @layout = ChatLayout.new(root: self.view)
+    @layout.viewContext = @viewContext
     @layout.setController self
     @chat_table = ChatListing.new
     @chat_table.layout = @layout
@@ -75,6 +76,11 @@ class ChatScreen < PM::Screen
       }
     end
   end
+  def on_appear
+    if (!@layout.nil? &&  @layout.get(:msg_inp).text.length > 0)
+      @layout.updateMsgBoxSize(@layout.get(:msg_inp))
+    end
+  end
   def back
     close
   end
@@ -96,10 +102,12 @@ class ChatScreen < PM::Screen
     setState 'loading'
     @msgs = []
     if @chat.nil? || !@chat
-      if chat[:name].nil?
+      if chat[:name].nil? || !chat[:name]
         @group = false
         @chat = Chat.new(chat[:pid])
-        startChat
+        @chat.whenReady do
+          startChat
+        end
       else
         setChat(chat[:pid], true, chat[:name])
       end

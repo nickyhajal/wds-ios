@@ -39,7 +39,7 @@ class ScheduleScreen < PM::Screen
     end
 
     # If we are between the dates of WDS, start showing the current day by default
-    today = NSDate.new+10.hours
+    today = NSDate.new+3.hours
     if today.string_with_format(:ymd) >= '2017-07-11' && today.string_with_format(:ymd) < '2017-07-19'
       ends = ['th','st','nd','rd','th','th','th','th','th','th']
       dayNum = today.string_with_format("d").to_i

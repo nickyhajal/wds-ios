@@ -84,6 +84,9 @@ class DispatchContentList < PM::TableScreen
         UITextAttributeTextColor => Color.coffee
       })
       padding = 74
+      if item.mediaUrl 
+        padding += (UIScreen.mainScreen.bounds.size.width * 0.75) - 6
+      end
     elsif item.class.to_s.include?('Comment')
       contentStr = item.comment.nsattributedstring({
         NSFontAttributeName => Font.Karla(14),

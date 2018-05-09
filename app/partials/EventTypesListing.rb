@@ -3,7 +3,7 @@ class EventTypesListing < PM::TableScreen
   attr_accessor :state, :events, :dayStr, :controller
   row_height 144
   def on_load
-    @types = [ 'Registration', 'Meetups', 'Activities', 'Expeditions', 'Academies']
+    @types = [ 'Meetups', 'Activities', 'Expeditions', 'Academies']
     self.tableView.setSeparatorStyle(UITableViewCellSeparatorStyleNone)
     self.tableView.backgroundView = nil
     self.tableView.backgroundColor = "#F2F2EA".uicolor
@@ -15,15 +15,15 @@ class EventTypesListing < PM::TableScreen
     [{cells: getItems}]
   end
   def getItems
-    types  = @types.select do |t| 
-      t != 'Registration' 
-    end
-    if !Me.nil? && Me.hasSignedUpForRegistration
-      types << 'Registration'
-    else
-      types.unshift('Registration')
-    end
-    types.map do |type|
+    # types  = @types.select do |t| 
+    #   t != 'Registration' 
+    # end
+    # if !Me.nil? && Me.hasSignedUpForRegistration
+    #   types << 'Registration'
+    # else
+    #   types.unshift('Registration')
+    # end
+    @types.map do |type|
       make_cell(type)
     end
   end

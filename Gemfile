@@ -6,6 +6,7 @@ gem 'rake', '~> 10.4'
 gem 'motion-cocoapods', '~> 1.8.1'
 gem 'motion-provisioning'
 gem 'motion-kit'
+gem 'motion-support'
 gem 'motion-fabric'
 gem 'bubble-wrap', "~> 1.9.5"
 gem 'afmotion'

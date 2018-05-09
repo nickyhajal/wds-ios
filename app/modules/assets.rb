@@ -5,9 +5,9 @@ module Assets
       @expires = {
         'me' => 0,
         'events' => 5,
-        'interests' => 300,
-        'places' => 300,
-        'slim_attendees' => 300
+        'interests' => 400,
+        'places' => 400,
+        'slim_attendees' => 1500
       }
       @aliases = {
         "schedule" => "events",
@@ -89,17 +89,11 @@ module Assets
       _tracker[asset] = NSDate.new.timeIntervalSince1970.floor
       Store.set('tracker', _tracker, true)
     end
-    def process_me(me)
-      Store.set('me', me, true)
-      Me.update(me)
-    end
     def process_slim_attendees(atns)
       Dispatch::Queue.concurrent.async do
         db = fmdb
         db.executeUpdate('DROP TABLE atns');
-        # db.executeUpdate("CREATE VIRTUAL TABLE atns USING FTS4(user_id, first_name,  last_name)");
         db.executeUpdate("CREATE TABLE atns (user_id INTEGER PRIMARY KEY, first_name TEXT,  last_name TEXT)");
-        puts db.lastErrorMessage
         atns.each do |atn|
           first_name = atn[:first_name]
           last_name = atn[:last_name]
@@ -114,80 +108,7 @@ module Assets
       Interests.updateInterests(interests)
       set 'interests', interests
     end
-    def process_events(events)
-      return false unless events
-      schedule = {}
-      byType = {}
-      lastDay = ''
-      byDay = {}
-      days = []
-      dayData = {}
-      reg = {}
-      existingDays = {}
-      events.sort! {|x, y| [x['start'], x['what']] <=> [y['start'], y['what']]}
-      events.each do |event|
-        event = Event.new(event)
-        type = event.type
-        day = event.startDay
-        map = {
-          'Monday' => 'Mon',
-          'Tuesday' => 'Tues',
-          'Wednesday' => 'Weds',
-          'Thursday' => 'Thurs',
-          'Friday' => 'Fri',
-          'Saturday' => 'Sat',
-          'Sunday' => 'Sun'
-        }
-        if existingDays[event.startDay].nil?
-          existingDays[event.startDay] = true
-          dayStr = event.dayStr
-          dayName = event.dayStr.split(',')[0]
-          dayNameShort = map[dayName];
-          dayNum = dayStr.gsub(/[^0-9]/, '')
-          dayComplete = {day: event.startDay, dayStr: dayStr, dayName: dayName, dayNameShort: dayNameShort, dayNum: dayNum }
-          days << dayComplete
-          dayData[dayComplete[:day]] = dayComplete
-        end
-        if Me.isAttendingEvent(event)
-          if schedule[event.startDay].nil?
-            schedule[event.startDay] = []
-          end
-          schedule[event.startDay] << event.to_hash
-        end
-        if byType[type].nil?
-          byType[type] = {}
-        end
-        if byType[type][day].nil?
-          byType[type][day] = []
-        end
-        if Me.hasPermissionForEvent event
-          byType[type][day] << event.to_hash
-        end
-      end
-      set 'days', days
-      set 'dayData', dayData
-      set 'events', events
-      byType.each do |type, evs|
-        set type, byType[type]
-      end
-      set 'schedule', schedule
-    end
-    def process_schedule
-      events = get 'events'
-      schedule = {}
-      lastDay = ''
-      byDay = {}
-      events.each do |event|
-        event = Event.new(event)
-        if Me.isAttendingEvent(event)
-          if schedule[event.startDay].nil?
-            schedule[event.startDay] = []
-          end
-          schedule[event.startDay] << event.to_hash
-        end
-      end
-      set 'schedule', schedule
-    end
+    
     def searchAttendees(q)
       matches = []
       q.split(' ').each do |part|
@@ -253,6 +174,16 @@ module Assets
         db.release
       end
       db
+    end
+    def preload(image)
+      # ref = image.CGImage
+      # width = CGImageGetWidth(ref)
+      # height = CGImageGetHeight(ref)
+      # space = CGColorSpaceCreateDeviceRGB()
+      # context = CGBitmapContextCreate(nil, width, height, 8, width * 4, space, KCGBitmapAlphaInfoMask & KCGImageAlphaPremultipliedFirst)
+      # CGColorSpaceRelease(space)
+      # CGContextDrawImage(context, CGRectMake(0, 0, width, height), ref)
+      # CGContextRelease(context)
     end
   end
 end

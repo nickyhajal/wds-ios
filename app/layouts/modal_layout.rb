@@ -108,7 +108,6 @@ class ModalLayout < MK::Layout
     end
   end
   def yes_action
-    puts 'YES ACTION'
     if !@actionHandler.nil? and !@yes_action.nil? and @yes_action
       @actionHandler.send(@yes_action, @item)
     end
