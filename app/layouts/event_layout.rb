@@ -1,13 +1,13 @@
 # helped with the map: http://www.devfright.com/mkpointannotation-tutorial/
 class EventLayout < MK::Layout
-  include MapKit
+  # include MapKit
   view :event_atn_view, :dispatch_view
   attr_accessor :dispatch, :new_posts_y
   def setController(controller)
     @controller = controller
   end
   def updateEvent(event, updateMap = true)
-    @updateMap = updateMap
+    # @updateMap = updateMap
     @event = event
     @numAttendees = @event.num_rsvps.to_s
     self.reapply!
@@ -38,7 +38,7 @@ class EventLayout < MK::Layout
     @p_styles = @base_styles + ' margin-bottom:10px;"'
     @li_styles = @base_styles + ' margin-bottom:4px;"'
     root :main do
-      add MapView, :map
+      # add MapView, :map
       add UIView, :header do
         add UIButton, :header_back
         add UILabel, :header_name

@@ -1,7 +1,7 @@
 class AppDelegate < PM::Delegate
 	attr_accessor :login, :event , :home, :events
-	defined? KeyVal
 	def on_load(app, options)
+		puts 'ONLOAD'
 		$VERSION = '17.4'
 		if Device.simulator?
 			Stripe.setDefaultPublishableKey('pk_test_8WKTIWKXB6T1eFT9sFqrymCM')
@@ -54,8 +54,8 @@ class AppDelegate < PM::Delegate
 	end
 	def init_screens
 		@home = HomeScreen.new(nav_bar: false)
-		@explore = ExploreScreen.new(nav_bar: true)
-		@chats = ChatsScreen.new(nav_bar: true)
+		# @explore = ExploreScreen.new(nav_bar: true)
+		# @chats = ChatsScreen.new(nav_bar: true)
 		@events = EventsScreen.new(nav_bar: true)
 		@event = EventScreen.new(nav_bar: false)
 		@eventTypes = EventTypesScreen.new(nav_bar: true)
@@ -76,8 +76,8 @@ class AppDelegate < PM::Delegate
 		Api.init
 	end
 	def init_db
-		MotionModel::Store.config(MotionModel::FMDBAdapter.new('wds.db'))
-		KeyVal.create_table unless KeyVal.table_exists?
+		# MotionModel::Store.config(MotionModel::FMDBAdapter.new('wds.db'))
+		# KeyVal.create_table unless KeyVal.table_exists?
 	end
 	def init_appearance
 		refresh = UIRefreshControl.appearance
@@ -132,14 +132,14 @@ class AppDelegate < PM::Delegate
 			Assets.sync do |err|
 				@home = HomeScreen.new(nav_bar: false) if @home.nil?
 				@explore = ExploreScreen.new(nav_bar: true) if @explore.nil?
-				@chats = ChatsScreen.new(nav_bar: true) if @chats.nil?
+				# @chats = ChatsScreen.new(nav_bar: true) if @chats.nil?
 				@eventTypes = EventTypesScreen.new(nav_bar: true) if @eventTypes.nil?
 				@schedule = ScheduleScreen.new(nav_bar: true) if @schedule.nil?
 				# NSLog "%@", @schedule.tabBarItem
 				# NSLog "%@", @home.tabBarItem
 				# NSLog "%@", @eventTypes.tabBarItem
 				# NSLog "%@", @chats.tabBarItem
-				@tab_bar = open_tab_bar @home, @schedule, @eventTypes, @chats, @explore
+				@tab_bar = open_tab_bar @home, @schedule, @eventTypes#, @chats #, @explore
 				@tab_bar.tabBar.items.each do |tab|
 					tab.imageInsets = UIEdgeInsetsMake(5.0,0,-5.0,0)
 				end

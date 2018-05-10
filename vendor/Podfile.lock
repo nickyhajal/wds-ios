@@ -49,6 +49,9 @@ PODS:
   - FirebaseDatabase (3.0.2):
     - FirebaseAnalytics (~> 3.2)
   - FirebaseInstanceID (1.0.7)
+  - FMDB (2.7.2):
+    - FMDB/standard (= 2.7.2)
+  - FMDB/standard (2.7.2)
   - GoogleInterchangeUtilities (1.2.1):
     - GoogleSymbolUtilities (~> 1.0)
   - GoogleNetworkingUtilities (1.2.1):
@@ -61,6 +64,7 @@ PODS:
     - GoogleSymbolUtilities (~> 1.0)
   - ionicons (2.0.1)
   - MCSMKeychainItem (1.1)
+  - MMMarkdown (0.5.5)
   - OpenInChrome (0.0.1)
   - SDWebImage (3.7.2):
     - SDWebImage/Core (= 3.7.2)
@@ -78,8 +82,10 @@ DEPENDENCIES:
   - Firebase
   - Firebase/Auth
   - Firebase/Database
+  - FMDB
   - ionicons
   - MCSMKeychainItem
+  - MMMarkdown
   - OpenInChrome
   - SDWebImage (~> 3.7)
   - SORelativeDateTransformer
@@ -88,7 +94,7 @@ DEPENDENCIES:
   - UIImage-Resize
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/specs.git:
     - AFNetworking
     - CardIO
     - Crashlytics
@@ -98,6 +104,7 @@ SPEC REPOS:
     - FirebaseAuth
     - FirebaseDatabase
     - FirebaseInstanceID
+    - FMDB
     - GoogleInterchangeUtilities
     - GoogleNetworkingUtilities
     - GoogleParsingUtilities
@@ -105,6 +112,7 @@ SPEC REPOS:
     - GoogleUtilities
     - ionicons
     - MCSMKeychainItem
+    - MMMarkdown
     - OpenInChrome
     - SDWebImage
     - SORelativeDateTransformer
@@ -122,6 +130,7 @@ SPEC CHECKSUMS:
   FirebaseAuth: 5efddc3fae47042b73585f083f956462be4f5b8e
   FirebaseDatabase: 59bea2e7dfd81b3b8b2f8e396caf1a52c2ced6f7
   FirebaseInstanceID: a9d923f3d0b6fbf9fac89310860357aaadc34be5
+  FMDB: 6198a90e7b6900cfc046e6bc0ef6ebb7be9236aa
   GoogleInterchangeUtilities: def8415a862effc67d549d5b5b0b9c7a2f97d4de
   GoogleNetworkingUtilities: 3e83269048cfb498dc7ec83ab36813360965c74f
   GoogleParsingUtilities: 30b3896f9ee167dc78747f013d3de157ced1cadf
@@ -129,6 +138,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: 56c5ac05b7aa5dc417a1bb85221a9516e04d7032
   ionicons: c7b0867373392e85c17f613d19ade04ccfbe5a7c
   MCSMKeychainItem: d02cf96b1cc19b01e815bda1cfacf9e3de8229fa
+  MMMarkdown: 1af97166ce0f6d6e0cb05695665492195d27c3f1
   OpenInChrome: f1f3f9dec682216fe78a0d7fe0b5b263d6312c32
   SDWebImage: 71b7cdc1d1721d6a82ed62889030225f2c249e29
   SORelativeDateTransformer: 307489386df4697780902bc16e99881d69a629b3
@@ -136,6 +146,6 @@ SPEC CHECKSUMS:
   SZTextView: 3a81174dce0710a9ab069bc73a813e6df53b9c82
   UIImage-Resize: fa776860f10e6900bbaf53a73e494bdceaaccc77
 
-PODFILE CHECKSUM: a43b6e2662b707293580b4846dd4af4f18ddbab6
+PODFILE CHECKSUM: d0daeceb834d2959f37b1b6716fbd06e9e69d928
 
-COCOAPODS: 1.5.0
+COCOAPODS: 1.5.2

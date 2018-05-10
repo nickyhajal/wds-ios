@@ -12,7 +12,7 @@ class NotificationsScreen < PM::Screen
     @layout.build
     @dispatch_screen = DispatchItemScreen.new(nav_bar: false)
     @attendee_screen = AttendeeScreen.new(nav_bar: false)
-    @chat_screen = ChatScreen.new(nav_bar: false)
+    # @chat_screen = ChatScreen.new(nav_bar: false)
     syncState
     true
   end
@@ -67,8 +67,8 @@ class NotificationsScreen < PM::Screen
     open_modal @dispatch_screen
   end
   def open_chat(pid, name)
-    @chat_screen.setChatFromPid({pid: pid, name: name})
-    open_modal @chat_screen
+    # @chat_screen.setChatFromPid({pid: pid, name: name})
+    # open_modal @chat_screen
   end
   def showLoadingMsg
     unless @layout.nil?

@@ -3,8 +3,8 @@ class AttendeeScreen < PM::Screen
   attr_accessor :from
   def on_init
     @notes_screen = NotesScreen.new(nav_bar: false)
-    @chat_screen = ChatScreen.new(nav_bar: false)
-    @chat_screen.setModal(true)
+    # @chat_screen = ChatScreen.new(nav_bar: false)
+    # @chat_screen.setModal(true)
   end
   def on_load
     @layout = AttendeeLayout.new(root: self.view)

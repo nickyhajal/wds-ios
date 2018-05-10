@@ -1,6 +1,6 @@
 module Me
   class << self
-    defined? KeyVal
+    # defined? KeyVal
     attr_accessor :first_name, :last_name, :user_token, :atn, :fireUser, :firetoken
     def init(delegate)
       @delegate = delegate
@@ -78,7 +78,7 @@ module Me
       end
     end
     def checkLoggedIn
-      user_token = KeyVal.where(key: 'user_token')
+      # user_token = KeyVal.where(key: 'user_token')
       if user_token.count > 0
         Api.get 'user/validate', {} do |rsp|
           if rsp.is_err
@@ -113,17 +113,17 @@ module Me
       end
     end
     def saveUserToken(user_token)
-      kv = KeyVal.where(key: 'user_token')
-      if kv.count > 0
-        kv = kv.first
-        kv.val = user_token
-      else
-        kv = KeyVal.new
-        kv.key = 'user_token'
-        kv.val = user_token
-      end
-      kv.save
-      Me.checkLoggedIn
+      # kv = KeyVal.where(key: 'user_token')
+      # if kv.count > 0
+      #   kv = kv.first
+      #   kv.val = user_token
+      # else
+      #   kv = KeyVal.new
+      #   kv.key = 'user_token'
+      #   kv.val = user_token
+      # end
+      # kv.save
+      # Me.checkLoggedIn
     end
     def isFriend(user_id)
       get('connected_ids').include? user_id || Me.atn.user_id.to_i == user_id.to_i

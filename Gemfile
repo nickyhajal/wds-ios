@@ -12,7 +12,6 @@ gem 'bubble-wrap', "~> 1.9.5"
 gem 'afmotion'
 gem "sugarcube"
 gem 'motion_model', git:'https://github.com/sxross/MotionModel.git', branch:'sql'
-gem 'ProMotion', "~> 2.6.1"
+gem 'ProMotion', "~> 2.8.0"
 gem 'map-kit-wrapper'
 gem 'ion_in_motion', :git => 'git://github.com/nickyhajal/ion_in_motion.git'
-gem 'motion-markdown-it'
