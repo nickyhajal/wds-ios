@@ -24,11 +24,11 @@ class CommunityLayout < MK::Layout
   def cancel_style
     title "x"
     titleColor Color.dark_gray
-    font Font.Vitesse_Medium(19)
+    font Font.Vitesse_Medium(18)
     target.addTarget @controller, action: 'close_communities_action', forControlEvents:UIControlEventTouchDown
     constraints do
       left 6
-      top 25
+      top.equals(:title).plus(-1)
     end
     target.sizeToFit
   end
@@ -38,7 +38,7 @@ class CommunityLayout < MK::Layout
     font Font.Vitesse_Medium(15.0)
     constraints do
       center_x.equals(:superview)
-      top 26
+      top Device.isX ? 53 : 26
       height 30
     end
     target.sizeToFit
@@ -46,7 +46,7 @@ class CommunityLayout < MK::Layout
   def communities_style
     backgroundColor Color.white
     constraints do
-      top 58
+      top.equals(:title, :bottom).plus(4)
       height.equals(:superview).minus(58)
       width.equals(:superview)
       left 0

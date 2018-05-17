@@ -144,7 +144,7 @@ class CartLayout < MK::Layout
     target.sizeToFit
   end
   def header_style
-    backgroundColor Color.green
+    backgroundColor Color.bright_blue
     constraints do
       left 0
       right 0
@@ -235,7 +235,7 @@ class CartLayout < MK::Layout
     target.selectedSegmentIndex = 0
     tintColor Color.dark_gray
     attributes = {
-      UITextAttributeFont => UIFont.fontWithName('Karla-Bold', size:15)
+      UITextAttributeFont => Font.Karla_Bold(15)
     }
     titleTextAttributes attributes, forState:UIControlStateNormal
     constraints do

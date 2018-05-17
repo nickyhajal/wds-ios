@@ -38,7 +38,7 @@ class EventCell < PM::TableViewCell
     what = what.sub(" - PM", "")
     @whatStr = what.nsattributedstring({
       NSFontAttributeName => Font.Vitesse_Medium(18),
-      UITextAttributeTextColor => "#0A72B0".uicolor(@opacity)
+      UITextAttributeTextColor => Color.bright_blue(@opacity)
     })
     whoStr = @event.who
     if whoStr[0].nil? || @event.type == 'academy'
@@ -57,12 +57,13 @@ class EventCell < PM::TableViewCell
     #   whoStr = "\t"+whoStr
     # end
     paragraphStyle = NSMutableParagraphStyle.alloc.init
+    paragraphStyle.lineSpacing = 2
     if @labelBox
       paragraphStyle.firstLineHeadIndent = @labelBox.size.width + 24
     end
     @whoStr = whoStr.nsattributedstring({
       NSFontAttributeName => Font.Karla(15),
-      UITextAttributeTextColor => "#21170A".uicolor(@opacity),
+      UITextAttributeTextColor => Color.dark_gray_blue(@opacity),
       NSParagraphStyleAttributeName => paragraphStyle
     })
     # if @event.type == 'meetup' and !@event.format.nil?
@@ -84,7 +85,7 @@ class EventCell < PM::TableViewCell
     unless @event.becauseStr.nil?
       @becauseStr = ("Because you\'re interested in "+@event.becauseStr).nsattributedstring({
         NSFontAttributeName => Font.Karla_Italic(14),
-        UITextAttributeTextColor => Color.dark_gray
+        UITextAttributeTextColor => Color.dark_gray_blue
       })
       @because = @becauseStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
       height += @because.size.height.ceil+6
@@ -185,7 +186,7 @@ class EventCellInnerView < UIView
       if @cell.event.type == 'academy' || (!@cell.event.price.nil? && @cell.event.price.to_i > 0)
         rsvpStr = "Attend"
       end
-        rsvpColor = '#EB9622'
+        rsvpColor = Color.orange
       end
       # if @cell.event.type == 'meetup'
       #   imgs = {'discover' => 'bulb', 'experience' => 'map', 'network' => 'shake'}
@@ -210,28 +211,28 @@ class EventCellInnerView < UIView
     })
     detailsStr = "More Details".nsattributedstring({
       NSFontAttributeName => Font.Karla_Bold(15),
-      UITextAttributeTextColor => "#EB9622".uicolor
+      UITextAttributeTextColor => Color.orange
     })
     rsvpBox = rsvpStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     detailsBox = detailsStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     @cell.whatStr.boundingRectWithSize(textSize, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     @cell.whoStr.boundingRectWithSize(textSize, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
-    rsvpStr.drawAtPoint(CGPointMake(cardW/4-rsvpBox.size.width/2,cardRect.size.height-28))
-    detailsStr.drawAtPoint(CGPointMake(detailsBox.size.width/2+cardW/2,cardRect.size.height-28))
-    @cell.whatStr.drawInRect(CGRectMake(13,10,textSize.width, @cell.what.size.height))
-    @cell.whoStr.drawInRect(CGRectMake(13,15+@cell.what.size.height,textSize.width, @cell.who.size.height+60))
+    rsvpStr.drawAtPoint(CGPointMake(cardW/4-rsvpBox.size.width/2,cardRect.size.height-26))
+    detailsStr.drawAtPoint(CGPointMake(detailsBox.size.width/2+cardW/2,cardRect.size.height-26))
+    @cell.whatStr.drawInRect(CGRectMake(13,14,textSize.width, @cell.what.size.height))
+    @cell.whoStr.drawInRect(CGRectMake(13,20+@cell.what.size.height,textSize.width, @cell.who.size.height+60))
     if (@cell.labelBox)
-      labelPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(13, 15+@cell.what.size.height, @cell.labelBox.size.width+18, 18), cornerRadius:4.0)
+      labelPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(13, 18+@cell.what.size.height, @cell.labelBox.size.width+18, 17), cornerRadius:4.0)
       if @cell.event.type == 'meetup'
         Color.dark_yellow_tan(0.5).setFill
       else
         Color.green.setFill
       end
       labelPath.fill
-      @cell.labelStr.drawInRect(CGRectMake(22,16+@cell.what.size.height,textSize.width, @cell.who.size.height+60))
+      @cell.labelStr.drawInRect(CGRectMake(22,21+@cell.what.size.height,textSize.width, @cell.who.size.height+60))
     end
     if @cell.becauseStr
-      @cell.becauseStr.drawInRect(CGRectMake(13,15+@cell.what.size.height+5+@cell.who.size.height,textSize.width, @cell.because.size.height+60))
+      @cell.becauseStr.drawInRect(CGRectMake(13,19+@cell.what.size.height+5+@cell.who.size.height,textSize.width, @cell.because.size.height+60))
     end
   end
 end

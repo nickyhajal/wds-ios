@@ -1,13 +1,13 @@
 # helped with the map: http://www.devfright.com/mkpointannotation-tutorial/
 class EventLayout < MK::Layout
-  # include MapKit
+  include MapKit
   view :event_atn_view, :dispatch_view
   attr_accessor :dispatch, :new_posts_y
   def setController(controller)
     @controller = controller
   end
   def updateEvent(event, updateMap = true)
-    # @updateMap = updateMap
+    @updateMap = updateMap
     @event = event
     @numAttendees = @event.num_rsvps.to_s
     self.reapply!
@@ -34,11 +34,11 @@ class EventLayout < MK::Layout
     end
   end
   def layout
-    @base_styles =  ' style="font-family: Karla; font-size:16px; color:#21170A; margin-left:8px; margin-right:8px;'
+    @base_styles =  ' style="font-family: Graphik App; font-size:15px; color:#21170A; margin-left:8px; margin-right:8px;'
     @p_styles = @base_styles + ' margin-bottom:10px;"'
     @li_styles = @base_styles + ' margin-bottom:4px;"'
     root :main do
-      # add MapView, :map
+      add MapView, :map
       add UIView, :header do
         add UIButton, :header_back
         add UILabel, :header_name
@@ -95,7 +95,7 @@ class EventLayout < MK::Layout
     background_color Color.light_tan
   end
   def dispatch_shell_style
-    background_color Color.green
+    background_color Color.light_tan
     constraints do
       top 0
       @dispatch_left = left super_width
@@ -128,7 +128,7 @@ class EventLayout < MK::Layout
     ]
     constraints do
       left 0
-      top 20
+      top Device.x(20, 28)
       height 33
       width super_width
     end
@@ -136,10 +136,10 @@ class EventLayout < MK::Layout
   def dispatch_style
     backgroundColor "#F2F2EA".uicolor
     constraints do
-      top 53
+      top Device.x(53, 28)
       left 0
       width.equals(:superview)
-      height.equals(super_height-30)
+      height.equals(super_height-Device.x(30, 28))
     end
     @dispatch.setWidth(super_width)
   end
@@ -154,7 +154,7 @@ class EventLayout < MK::Layout
   end
   def atns_back_style
     constraints do
-      top 26
+      top Device.x(26, 28)
       left 0
       width 38
       height 24
@@ -164,7 +164,7 @@ class EventLayout < MK::Layout
   end
   def atns_header_style
     constraints do
-      top 26
+      top Device.x(26, 28)
       left 0
       width.equals(:superview)
       height 32
@@ -190,7 +190,7 @@ class EventLayout < MK::Layout
   def atns_style
     hidden true
     constraints do
-      top 58
+      top Device.x(58, 28)
       left 0
       width super_width
       height super_height - 58
@@ -202,13 +202,13 @@ class EventLayout < MK::Layout
       top 0
       left 0
       width.equals(:superview)
-      height 60
+      height Device.x(60, 28)
     end
   end
   def header_name_style
     header_width = (super_width - 170)
     constraints do
-      top 20
+      top Device.x(20, 28)
       left (super_width/2 - header_width/2)
       width header_width
       height 40
@@ -221,13 +221,13 @@ class EventLayout < MK::Layout
     end
   end
   def header_back_style
-    #target.setImage(Ion.imageByFont(:ios_arrow_back, size:24, color:"#E99533".uicolor), forState:UIControlStateNormal)
+    # target.setImage(Ion.imageByFont(:ios_arrow_back, size:24, color:"#E99533".uicolor), forState:UIControlStateNormal)
     title 'x'
     font Font.Vitesse_Medium(18)
     titleColor Color.orange
     addTarget @controller, action: 'back_action', forControlEvents:UIControlEventTouchDown
     constraints do
-      top 19
+      top Device.x(19, 28)
       left 0
       width 40
       height 40
@@ -236,7 +236,7 @@ class EventLayout < MK::Layout
   def header_rsvp_style
     constraints do
       right 10
-      top 20
+      top Device.x(20, 28)
       width 100
       height 40
     end
@@ -265,8 +265,8 @@ class EventLayout < MK::Layout
   end
   def map_line_top_style
     constraints do
-      top 60
-      #top 64
+      top Device.x(60, 28)
+      # top 64
       left 0
       width.equals(:superview)
       height 4
@@ -275,7 +275,7 @@ class EventLayout < MK::Layout
   end
   def main_content_style
     constraints do
-      @scrollview_top = top 266
+      @scrollview_top = top Device.x(266, 28)
       @scrollview_height = height super_height-266
       left 0
       width super_width
@@ -421,13 +421,13 @@ class EventLayout < MK::Layout
   end
   def name_style
     constraints do
-      top 10
+      top Device.x(10, 0)
       left 15
       @name_height = height 0
       width.equals(:superview).minus(40)
     end
-    font UIFont.fontWithName('Vitesse-Medium', size:26)
-    textColor "#0A72B0".uicolor
+    font Font.Vitesse_Medium(26)
+    textColor Color.bright_blue
     fixedWidth = super_width-40
     textView = target
     scrollEnabled false
@@ -740,8 +740,9 @@ class EventLayout < MK::Layout
   def slideOpen(speed = 0.2)
     if @slid_open.nil?
       @slid_open = true
-      @scrollview_top.equals(56)
-      @scrollview_height.equals(super_height-56)
+      shift = Device.x(56, 28)
+      @scrollview_top.equals(shift)
+      @scrollview_height.equals(super_height-shift)
       @map_line_height.equals(0)
       UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
         self.view.layoutIfNeeded  # applies the constraint change
@@ -753,8 +754,9 @@ class EventLayout < MK::Layout
   end
   def slideClosed(speed = 0.2)
     @slid_open = nil
-    @scrollview_top.equals(266)
-    @scrollview_height.equals(super_height-266)
+    shift = Device.x(266, 0)
+    @scrollview_top.equals(shift)
+    @scrollview_height.equals(super_height-shift)
     @map_line_height.equals(4)
     UIView.animateWithDuration(speed, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
       self.view.layoutIfNeeded  # applies the constraint change
@@ -785,7 +787,7 @@ class EventLayout < MK::Layout
     UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
       self.view.layoutIfNeeded  # applies the constraint change
     end, completion: nil)
-    
+
   end
   def close_atns
     @atns_left.equals(super_width)

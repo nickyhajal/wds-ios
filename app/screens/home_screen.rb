@@ -1,5 +1,4 @@
 
-    puts 'HOME'
  class HomeScreen < PM::Screen
   title 'Dispatch'
   status_bar :light
@@ -15,11 +14,9 @@
     })
   end
   def will_appear
-    puts 'WILL APP>>> '
     UIApplication.sharedApplication.setStatusBarStyle UIStatusBarStyleLightContent
   end
   def on_load
-    puts 'LOAD >>> '
     @event_screen = EventScreen.new(nav_bar: false)
     @notifications_screen = NotificationsScreen.new(nav_bar: false)
     @dispatch_screen = DispatchItemScreen.new(nav_bar: false)
@@ -49,7 +46,7 @@
     @dispatch.initFilters(@filters_screen.layout)
     @dispatch.setNewPostsBtn @layout.get(:new_posts), @layout.new_posts_y, self.view
     @post_screen.dispatch = @dispatch
-    # @chat_screen = ChatScreen.new(nav_bar: false)
+    @chat_screen = ChatScreen.new(nav_bar: false)
     @cart = CartScreen.new(nav_bar: false)
     Fire.watch "value", "/state" do |rsp|
       unless rsp.value.nil?

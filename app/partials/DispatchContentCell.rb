@@ -20,7 +20,7 @@ class DispatchContentCell < PM::TableViewCell
       @avatar.layer.mask = shapeLayer
     end
     if @item.respond_to?('author') && item.author.respond_to?('pic') && @item.author.pic.length > 0
-      @avatar.setImageWithURL @item.author.pic, placeholderImage:"default-avatar.png".uiimage
+      @avatar.setImageWithURL @item.author.pic.nsurl, placeholderImage:"default-avatar.png".uiimage
       @cardView.addSubview(@avatar)
     else
       @avatar.removeFromSuperview
@@ -65,7 +65,7 @@ class DispatchContentCell < PM::TableViewCell
     size.height = Float::MAX
     if @contentView.nil?
       @contentView = UITextView.alloc.initWithFrame([[4,58], [size.width+16,0]]) if @contentView.nil?
-      @contentView.setTextColor Color.coffee
+      @contentView.setTextColor Color.dark_gray_blue
       @contentView.setFont Font.Karla(15)
       @contentView.dataDetectorTypes = UIDataDetectorTypeLink
       @contentView.setEditable false
@@ -75,12 +75,12 @@ class DispatchContentCell < PM::TableViewCell
     end
     @contentStr = content.nsattributedstring({
       NSFontAttributeName => msg ? Font.Vitesse_Medium(14) : Font.Karla(15),
-      UITextAttributeTextColor => msg ? Color.orangish_gray : Color.coffee
+      UITextAttributeTextColor => msg ? Color.orangish_gray : Color.dark_gray_blue
     })
     @contentView.setAttributedText @contentStr
     framePadding = @type == 'dispatch' ? 20 : 16
     @content = @contentStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
-    @contentView.setFrame([[4,48], [@content.size.width+16,@content.size.height+framePadding]])
+    @contentView.setFrame([[4,48], [@content.size.width+16,@content.size.height+framePadding+20]])
     if @item.class.to_s.include?('DispatchItem') && @item.mediaUrl
       avF = @avatar.frame
       baseFrame = @contentView.frame
@@ -94,7 +94,7 @@ class DispatchContentCell < PM::TableViewCell
       @mediaView.setHidden true
     end
   end
-  def imgSize 
+  def imgSize
     UIScreen.mainScreen.bounds.size.width - 4
   end
   def makeAuthorStr(author)

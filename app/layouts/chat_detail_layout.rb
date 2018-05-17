@@ -29,7 +29,7 @@ class ChatDetailLayout < MK::Layout
   def super_width
     get(:main).frame.size.width
   end
-  def updateChatters 
+  def updateChatters
     @chatters_height.equals(@controller.chatters.length > 0 ? 64 : 0)
     UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
       self.view.layoutIfNeeded  # applies the constraint change
@@ -39,7 +39,7 @@ class ChatDetailLayout < MK::Layout
     background_color "#E7E7DD".uicolor
   end
   def header_style
-    background_color Color.green
+    background_color Color.bright_blue
     constraints do
       top 0
       left 0

@@ -118,7 +118,7 @@ class EventsLayout < MK::Layout
     end
     text "Want to host a meetup?"
     font Font.Karla_Italic(24)
-    textColor Color.blue
+    textColor Color.bright_blue
     editable false
   end
   def host_text_style
@@ -137,11 +137,11 @@ class EventsLayout < MK::Layout
     scrollEnabled false
   end
   def sub_nav_style
-    background_color Color.bright_green
+    background_color "#2868F5".uicolor
     constraints do
       width.equals(:superview)
       height 46
-      @subNavTop = top 63
+      @subNavTop = top Device.isX ? 88 : 63
       left 0
     end
     reapply do
@@ -242,13 +242,18 @@ class EventsLayout < MK::Layout
   def events_list_style
     backgroundColor "#F2F2EA".uicolor
     constraints do
+      # base = @type == 'meetup' ? 158 : 170
+      base = 170
+      topVal = Device.x(base, 24)
       left 0
-      right "100%"
-      @listTop = top 170
+      right '100%'
+      @listTop = top topVal
+      bottom.equals(:superview, :bottom)
       if $IS8
-        @listHeight = height.equals(:superview).minus(176)
+        # @listHeight = height.equals(:superview).minus(124)
+        @listHeight = height.equals(:superview).minus(topVal)
       else
-        @listHeight = height.equals(:superview).minus(193)
+        @listHeight = height.equals(:superview).minus(topVal)
       end
     end
   end

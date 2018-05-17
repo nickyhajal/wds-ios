@@ -34,12 +34,12 @@ class NewChatLayout < MK::Layout
     background_color Color.tan
   end
   def header_style
-    background_color Color.green
+    background_color Color.bright_blue
     constraints do
       top 0
       left 0
       width.equals(:superview)
-      height 60
+      height Device.x(60, 28)
     end
   end
   def header_back_style
@@ -48,7 +48,7 @@ class NewChatLayout < MK::Layout
     font Font.Vitesse_Medium(18)
     addTarget @controller, action: 'close_action', forControlEvents:UIControlEventTouchDown
     constraints do
-      top 20
+      top Device.x(20, 28)
       left 0
       width 38
       height 38
@@ -57,7 +57,7 @@ class NewChatLayout < MK::Layout
   def header_name_style
     header_width = (super_width - 170)
     constraints do
-      top 20
+      top Device.x(20, 28)
       left (super_width/2 - header_width/2)
       width header_width
       height 40

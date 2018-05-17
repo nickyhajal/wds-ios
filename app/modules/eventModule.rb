@@ -19,10 +19,10 @@ module EventModule
         title: 'Activities',
         single: 'Activity'
       },
-      expedition: {
-        title: 'Expeditions',
-        single: 'Expedition'
-      },
+      # expedition: {
+      #   title: 'Expeditions',
+      #   single: 'Expedition'
+      # },
       registration: {
         title: 'Registration',
         single: 'Registrations'
@@ -33,7 +33,7 @@ module EventModule
     {
       activities: 'activity',
       meetups: 'meetup',
-      expeditions: 'expedition',
+      # expeditions: 'expedition',
       spark_sessions: 'spark_session',
       registration: 'registration',
       academies: 'academy'

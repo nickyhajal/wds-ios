@@ -26,7 +26,7 @@ class ChatRowCell < PM::TableViewCell
       @avatar.layer.mask = shapeLayer
     end
     av_url = 'https://avatar.wds.fm/' + @chat[:av_id].to_s + '?width=96'
-    @avatar.setImageWithURL av_url, placeholderImage: 'default-avatar.png'.uiimage
+    @avatar.setImageWithURL av_url.nsurl, placeholderImage: 'default-avatar.png'.uiimage
   end
 
   def getHeight
@@ -40,10 +40,14 @@ class ChatRowCell < PM::TableViewCell
     size.height = Float::MAX
     height = @padding * 2 + 2 # 3+15+15 # Top and bottom padding
     text = ''
+    namepgraph = NSMutableParagraphStyle.alloc.init
+    namepgraph.lineBreakMode = NSLineBreakByTruncatingTail
+    namepgraph.lineSpacing = 4
     if !@chat[:last_msg].nil? && !@chat[:last_msg].empty?
       text = "\n" + @chat[:last_msg]
     end
     @withStr = @chat[:with].attrd(NSFontAttributeName => Font.Vitesse_Bold(15),
+                                  NSParagraphStyleAttributeName => namepgraph,
                                   UITextAttributeTextColor => Color.dark_gray)
     @chatStr = text.attrd(NSFontAttributeName => Font.Karla(15),
                           UITextAttributeTextColor => Color.dark_gray)
@@ -58,7 +62,7 @@ class ChatRowCell < PM::TableViewCell
       hours = (NSDate.new.utc_offset / 1.hour)
       created_at = NSDate.dateWithTimeIntervalSince1970(@chat[:last_msg_stamp].to_i / 1000)
       # created_at = formatter.dateFromString(@chat[:last_msg_stamp]).delta(hours:hours)
-      relTime = "\n" + SORelativeDateTransformer.registeredTransformer.transformedValue(created_at)
+      relTime = "\n" + Assets.relativeTime(created_at)
     end
     timeStr = relTime.nsattributedstring(NSFontAttributeName => Font.Karla_Italic(14),
                                          NSParagraphStyleAttributeName => pgraph,

@@ -12,11 +12,21 @@ module Device
     def is6p
       Device.type == '6p'
     end
+    def isX
+      Device.type == 'x'
+    end
+    def x(base, plus)
+      Device.isX ? base+plus : base
+    end
     def type
       width = UIScreen.mainScreen.bounds.size.width
       height = UIScreen.mainScreen.bounds.size.height
+      # puts width
+      # puts height
       if width > 400
         '6p'
+      elsif height > 800
+        'x'
       elsif width > 370
         '6'
       elsif height > 500

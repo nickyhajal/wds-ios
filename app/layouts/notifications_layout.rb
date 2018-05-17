@@ -34,7 +34,7 @@ class NotificationsLayout < MK::Layout
       top 0
       left 0
       width.equals(:superview)
-      height 60
+      height Device.x(60, 30)
     end
   end
   def header_back_style
@@ -43,7 +43,7 @@ class NotificationsLayout < MK::Layout
     font Font.Vitesse_Medium(18)
     addTarget @controller, action: 'close_action', forControlEvents:UIControlEventTouchDown
     constraints do
-      top 20
+      top Device.x(20, 30)
       left 0
       width 38
       height 38
@@ -52,7 +52,7 @@ class NotificationsLayout < MK::Layout
   def header_name_style
     header_width = (super_width - 170)
     constraints do
-      top 20
+      top Device.x(20, 30)
       left (super_width/2 - header_width/2)
       width header_width
       height 40
@@ -103,7 +103,7 @@ class NotificationsLayout < MK::Layout
     constraints do
       left 0
       width super_width
-      @listTop = top 58
+      @listTop = top Device.x(58, 30)
       bottom.equals(:superview, :bottom)
     end
   end

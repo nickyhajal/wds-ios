@@ -27,7 +27,7 @@ class NotificationCell < PM::TableViewCell
       @avatar.layer.mask = shapeLayer
     end
     av_url = 'https://avatar.wds.fm/' + @notn.from[:user_id].to_s + '?width=78'
-    @avatar.setImageWithURL av_url, placeholderImage: 'default-avatar.png'.uiimage
+    @avatar.setImageWithURL av_url.nsurl, placeholderImage: 'default-avatar.png'.uiimage
   end
 
   def getHeight
@@ -51,7 +51,7 @@ class NotificationCell < PM::TableViewCell
     pgraph = NSMutableParagraphStyle.alloc.init
     pgraph.lineBreakMode = NSLineBreakByTruncatingTail
     pgraph.lineSpacing = 3
-    relTime = "\n" + SORelativeDateTransformer.registeredTransformer.transformedValue(created_at)
+    relTime = "\n" + Assets.relativeTime(created_at)
     timeStr = relTime.nsattributedstring(NSFontAttributeName => Font.Karla_Italic(14),
                                          NSParagraphStyleAttributeName => pgraph,
                                          UITextAttributeTextColor => Color.dark_gray(0.7))

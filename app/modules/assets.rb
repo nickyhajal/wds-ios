@@ -45,6 +45,29 @@ module Assets
         end
       end
     end
+    def relativeTime(from, *to)
+      just = 40
+      if to.kind_of?(Array)
+        to = NSDate.new
+      end
+      diff = (to.timeIntervalSince1970 - from.timeIntervalSince1970)
+      if(diff < just)
+        return 'just now'
+      elsif(diff < 60)
+        outDiff = diff.floor
+        return "#{outDiff} #{outDiff==1 ? 'second' : 'seconds'} ago"
+      elsif(diff < 3600)
+        outDiff = (diff/60).floor
+        return "#{outDiff} #{outDiff==1 ? 'minute' : 'minutes'} ago"
+      elsif(diff < 86400)
+        outDiff = (diff/3600).floor
+        return "#{outDiff} #{outDiff==1 ? 'hour' : 'hours'} ago"
+      else
+        outDiff = (diff/86400).floor
+        return "#{outDiff} #{outDiff==1 ? 'day' : 'days'} ago"
+      end
+      return false
+    end
     def getSmart(asset, &block)
       unaliased = asset
       unless @aliases[asset].nil?
@@ -95,10 +118,10 @@ module Assets
         db.executeUpdate('DROP TABLE atns');
         db.executeUpdate("CREATE TABLE atns (user_id INTEGER PRIMARY KEY, first_name TEXT,  last_name TEXT)");
         atns.each do |atn|
-          first_name = atn[:first_name]
-          last_name = atn[:last_name]
+          first_name = atn[:first_name].dump
+          last_name = atn[:last_name].dump
           user_id = atn[:user_id]
-          query = "INSERT into atns(user_id,first_name,last_name) VALUES('#{user_id}', '#{first_name}', '#{last_name}')"
+          query = "INSERT into atns(user_id,first_name,last_name) VALUES('#{user_id}', #{first_name}, #{last_name})"
           rsp = db.executeUpdate(query);
         end
         db.close
@@ -108,7 +131,7 @@ module Assets
       Interests.updateInterests(interests)
       set 'interests', interests
     end
-    
+
     def searchAttendees(q)
       matches = []
       q.split(' ').each do |part|

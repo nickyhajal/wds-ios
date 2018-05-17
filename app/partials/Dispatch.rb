@@ -286,7 +286,7 @@ class Disptch < PM::TableScreen
       size.width = @width - 32
       size.height = Float::MAX
       content = contentStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
-      height = 5 + 38 + 5 + content.size.height.ceil + 40 + item.top_padding
+      height = 5 + 38 + 5 + content.size.height.ceil + 40 + item.top_padding + 25
       if item.mediaUrl and @shouldShowPhotos == 0
         height += (UIScreen.mainScreen.bounds.size.width * 0.75) + 14
       end

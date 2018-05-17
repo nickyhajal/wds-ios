@@ -12,6 +12,7 @@ resources/*.momd
 resources/*.storyboardc
 .DS_Store
 vendor/
+vendor/Pods
 nbproject
 .redcar
 Gemfile.*

@@ -99,12 +99,12 @@ class ScheduleListing < PM::TableScreen
     section = promotion_table_data.section(index)
     view = section[:title_view]
     view = section[:title_view].new if section[:title_view].respond_to?(:new)
-    view.setFont UIFont.fontWithName('Vitesse-Medium', size:14.0)
+    view.setFont Font.Vitesse_Medium(14)
     view.setBackgroundColor "#F2F2EA".uicolor
     view.setTextColor "#848477".uicolor
     view.text = section[:title].upcase
     view
-  end 
+  end
   def tableView(table_view, heightForHeaderInSection: index)
     24
   end

@@ -141,11 +141,11 @@ class PermissionLayout < MK::Layout
     background_color Color.white(0.8)
   end
   def container_shell_style
-    background_color Color.blue
+    background_color Color.bright_blue
     constraints do
-      top 40
+      top Device.x(40, 80)
       center_x.equals(:superview)
-      height.equals(:superview).minus(105)
+      height.equals(:superview).minus(Device.x(105, 145))
       width.equals(:superview).minus(30)
     end
     layer do

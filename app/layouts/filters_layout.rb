@@ -38,7 +38,7 @@ class FiltersLayout < MK::Layout
     font Font.Vitesse_Medium(15.0)
     constraints do
       center_x.equals(:superview)
-      top 23
+      top Device.isX ? 53 : 23
       height 30
       width 120
     end
@@ -48,7 +48,7 @@ class FiltersLayout < MK::Layout
     row
     backgroundColor Color.white(0.6)
     constraints do
-      top 58
+      top.equals(:title, :bottom).plus(4)
     end
   end
   def twitter_style
@@ -156,7 +156,7 @@ class FiltersLayout < MK::Layout
     target.addTarget @controller, action: 'cancel_filters_action', forControlEvents:UIControlEventTouchDown
     constraints do
       left 6
-      top 22
+      top.equals(:title).plus(-1)
     end
     target.sizeToFit
   end

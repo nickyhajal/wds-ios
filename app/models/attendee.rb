@@ -76,7 +76,7 @@ class Attendee
         'Why did you decide to travel '+@distance+' miles '+location+' to the World Domination Summit?',
         'What are you excited about these days?',
         'What\'s your super power?',
-        'What\'s your goal for WDS 2017?',
+        'What\'s your goal for WDS 2018?',
         'What\'s your favorite song?',
         'What\'s your favorite treat?',
         'What\'s your favorite beverage?',

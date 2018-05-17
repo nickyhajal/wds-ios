@@ -24,7 +24,7 @@ class PlaceTypeSelect < MK::Layout
     backgroundColor "#FCFCF3".uicolor
   end
   def heading_style
-    font UIFont.fontWithName('Vitesse-Medium', size:18)
+    font Font.Vitesse_Medium(18)
     textColor "#848477".uicolor
     text 'All Places'
     constraints do
@@ -33,7 +33,7 @@ class PlaceTypeSelect < MK::Layout
     end
   end
   def select_button_style
-    font UIFont.fontWithName('Vitesse', size:15)
+    font Font.Vitesse(15)
     titleColor "#848477".uicolor, forState: UIControlStateNormal
     title 'Select'
     target.addTarget self, action:'open_select_action', forControlEvents:UIControlEventTouchUpInside
@@ -140,7 +140,7 @@ class PlaceTypeListing < PM::TableScreen
   end
   def tableView(tableView, willDisplayCell:cell, forRowAtIndexPath:indexPath)
     cell.backgroundColor = UIColor.clearColor
-    cell.textLabel.font = UIFont.fontWithName('Vitesse-Medium', size:18)
+    cell.textLabel.font = Font.Vitesse_Medium(18)
     cell.textLabel.textColor = Color.dark_gray
   end
   def select_action(cell)

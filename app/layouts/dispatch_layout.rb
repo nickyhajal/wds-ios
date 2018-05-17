@@ -41,12 +41,12 @@ class DispatchItemLayout < MK::Layout
     background_color Color.light_tan
   end
   def header_style
-    background_color Color.green
+    background_color Color.bright_blue
     constraints do
       top 0
       left 0
       width.equals(:superview)
-      height 60
+      height Device.x(60, 28)
     end
   end
   def header_back_style
@@ -56,7 +56,7 @@ class DispatchItemLayout < MK::Layout
     font Font.Vitesse_Medium(16)
     addTarget @controller, action: 'back_action', forControlEvents:UIControlEventTouchDown
     constraints do
-      top 20
+      top Device.x(20, 28)
       left 0
       width 38
       height 38
@@ -65,7 +65,7 @@ class DispatchItemLayout < MK::Layout
   def header_like_style
     constraints do
       right -6
-      top 22
+      top Device.x(22, 28)
       height 31
       width 70
     end
@@ -101,7 +101,7 @@ class DispatchItemLayout < MK::Layout
     constraints do
       width super_width
       @content_height = height super_height - 58 - 40
-      top 58
+      top Device.x(58, 28)
       left 0
     end
   end

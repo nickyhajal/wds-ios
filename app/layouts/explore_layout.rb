@@ -41,7 +41,7 @@ class ExploreLayout < MK::Layout
     target.addTarget @controller, action: 'change_view_action:', forControlEvents:UIControlEventValueChanged
     tintColor Color.white
     attributes = {
-      UITextAttributeFont => UIFont.fontWithName('Karla-Bold', size:15)
+      UITextAttributeFont => Font.Karla_Bold(15)
     }
     titleTextAttributes attributes, forState:UIControlStateNormal
     constraints do
@@ -60,7 +60,7 @@ class ExploreLayout < MK::Layout
     target.addTarget @controller, action: 'change_sort_action:', forControlEvents:UIControlEventValueChanged
     tintColor Color.white
     attributes = {
-      UITextAttributeFont => UIFont.fontWithName('Karla-Bold', size:15)
+      UITextAttributeFont => Font.Karla_Bold(15)
     }
     titleTextAttributes attributes, forState:UIControlStateNormal
     constraints do
@@ -96,7 +96,7 @@ class ExploreLayout < MK::Layout
       end
     end
   end
-  def permission_style 
+  def permission_style
     hidden true
     constraints do
       top.equals(40)

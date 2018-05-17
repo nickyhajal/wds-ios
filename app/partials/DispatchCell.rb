@@ -24,7 +24,7 @@ class DispatchCell < PM::TableViewCell
       shapeLayer.path = path.CGPath
       @avatar.layer.mask = shapeLayer
     end
-    @avatar.setImageWithURL @item.author.pic, placeholderImage:"default-avatar.png".uiimage
+    @avatar.setImageWithURL @item.author.pic.nsurl, placeholderImage:"default-avatar.png".uiimage
     unless @cardView.nil?
       @cardView.addSubview(@avatar)
     end
@@ -38,7 +38,7 @@ class DispatchCell < PM::TableViewCell
       @cardView = DispatchCellInnerView.alloc.initWithFrame([[0,0], [self.frame.size.width, self.frame.size.height]])
       @cardView.cell = self
       @contentView = UITextView.alloc.initWithFrame([[4,pad_top(45)], [size.width+16,0]]) if @contentView.nil?
-      @contentView.setTextColor Color.coffee
+      @contentView.setTextColor Color.dark_gray_blue
       @contentView.setFont Font.Karla(15)
 
       # TODO: Intercept this link so we can auto open events and profiles
@@ -60,11 +60,11 @@ class DispatchCell < PM::TableViewCell
     updateImages
     @contentStr = @item.content.nsattributedstring({
       NSFontAttributeName => Font.Karla(15),
-      UITextAttributeTextColor => Color.coffee
+      UITextAttributeTextColor => Color.dark_gray_blue
     })
     @contentView.setAttributedText @contentStr
     @content = @contentStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
-    @contentView.setFrame([[4,pad_top(45)], [@content.size.width+16,@content.size.height+16]])
+    @contentView.setFrame([[4,pad_top(48)], [@content.size.width+16,@content.size.height+36]])
     @authorStr = @item.author.full_name.nsattributedstring({
       NSFontAttributeName => Font.Vitesse_Bold(15),
       UITextAttributeTextColor => Color.orange
@@ -75,7 +75,7 @@ class DispatchCell < PM::TableViewCell
     created_at = formatter.dateFromString(@item.created_at).delta(hours:hours)
     pgraph = NSMutableParagraphStyle.alloc.init
     pgraph.lineBreakMode = NSLineBreakByTruncatingTail
-    @timeStr = SORelativeDateTransformer.registeredTransformer.transformedValue(created_at).nsattributedstring({
+    @timeStr = Assets.relativeTime(created_at).nsattributedstring({
       NSFontAttributeName => Font.Karla_Bold(14),
       NSParagraphStyleAttributeName => pgraph,
       UITextAttributeTextColor => Color.orangish_gray
@@ -96,7 +96,7 @@ class DispatchCell < PM::TableViewCell
       @mediaView.setHidden true
     end
   end
-  def imgSize 
+  def imgSize
     UIScreen.mainScreen.bounds.size.width - 4
   end
   def makeChannelStr
@@ -123,7 +123,6 @@ class DispatchCell < PM::TableViewCell
           end
         end
       end
-      puts @event
       if @event
         channel_str += EventTypes.byId(@event.type)[:single]+': '+@event.what
       else

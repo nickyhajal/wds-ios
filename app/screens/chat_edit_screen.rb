@@ -67,6 +67,7 @@ class ChatEditScreen < PM::Screen
     leaveBtn = @layout.get(:atn_leave_btn)
     sep = @layout.get(:atn_sep)
     url = 'https://avatar.wds.fm/' + user_id.to_s + '?width=105'
+    puts 'CHAT EDIT'
     @layout.get(:atn_modal_av).setImageWithURL(NSURL.URLWithString(url), placeholderImage: UIImage.imageNamed('default-avatar.png'))
     @layout.get(:atn_modal_title).text = "#{atn['first_name']} #{atn['last_name'][0].upcase}."
     if user_id == Me.atn.user_id

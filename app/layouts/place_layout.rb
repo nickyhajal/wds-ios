@@ -201,7 +201,7 @@ class PlaceLayout < MK::Layout
       @name_height = height 0
       width.equals(:superview).minus(40)
     end
-    font UIFont.fontWithName('Vitesse-Medium', size:26)
+    font Font.Vitesse_Medium(26)
     textColor "#0A72B0".uicolor
     fixedWidth = super_width-40
     textView = target

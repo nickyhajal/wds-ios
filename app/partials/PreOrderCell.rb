@@ -311,7 +311,7 @@ class PreorderRealTimeView < UIView
     shell.addSubview av
     av.layer.mask = shapeLayer
     av_url = "https://avatar.wds.fm/"+ @sale[:user_id].to_s+"?width=76"
-    av.setImageWithURL av_url, placeholderImage:"default-avatar.png".uiimage
+    av.setImageWithURL av_url.nsurl, placeholderImage:"default-avatar.png".uiimage
     frame.origin.x += avatarRect.size.width + avatarRect.origin.x + 4
     if Device.type.to_i < 6
       frame.origin.x -= 2
@@ -332,7 +332,7 @@ class PreorderRealTimeView < UIView
       NSFontAttributeName => Font.Karla_BoldItalic(13),
       UITextAttributeTextColor => Color.dark_gray
     })
-    stamp = SORelativeDateTransformer.registeredTransformer.transformedValue(created).attrd({
+    stamp = Assets.relativeTime(created).attrd({
       NSFontAttributeName => Font.Karla_BoldItalic(11),
       UITextAttributeTextColor => Color.dark_gray(0.7)
     })

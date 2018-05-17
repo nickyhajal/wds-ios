@@ -29,7 +29,7 @@ class ChatsLayout < MK::Layout
     background_color Color.tan
   end
   def header_style
-    background_color Color.green
+    background_color Color.bright_green
     constraints do
       top 0
       left 0
@@ -99,7 +99,7 @@ class ChatsLayout < MK::Layout
     constraints do
       left 0
       width super_width
-      top.equals(:header, :bottom).plus(5)
+      top.equals(:header, :bottom).plus(Device.isX ? 28 : 5)
       bottom.equals(:superview, :bottom)
     end
   end

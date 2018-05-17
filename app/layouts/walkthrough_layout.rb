@@ -6,7 +6,7 @@ class WalkthroughLayout < MK::Layout
     @num_panels = 0
     @panels = []
     root :main do
-      add UIImageView, :loading_image
+      # add UIImageView, :loading_image
       add ProgressDots, :progress
       add UIScrollView, :shell do
         add UIView, :content
@@ -23,7 +23,7 @@ class WalkthroughLayout < MK::Layout
     get(:main).frame.size.width
   end
   def main_style
-    background_color "#F2F2EA".uicolor
+    background_color Color.green
   end
   def loading_image_style
     _width = get(:main).frame.size.width
@@ -140,7 +140,7 @@ class WalkthroughLayout < MK::Layout
     add_walkthrough :schedule, 'Your Schedule', "Stay on top of your schedule!\n\nEverything you care about is clearly outlined — even your academies, activities and meetups!",{image: "schedule_big_icon", ratio: 4}
   end
   def add_attendees
-    add_walkthrough :attendees, 'Browse Attendees', "Search WDSers, browse their profiles and friend them to easily stay connected in the future.",{image: "attendee_big_icon", ratio: 2}
+    add_walkthrough :attendees, 'Browse Attendees', "Search WDSers, browse their profiles and friend them to easily stay connected in the future.\n\nYou can even directly message attendees or groups of attendees.",{image: "attendee_big_icon", ratio: 2}
   end
   def add_finish
     add_walkthrough :finish, "Ready to go?", "You'll need to login with your WDS account to continue.\n\nIf you haven't created one yet, just click the link in your WDS Welcome E-Mail to get started.", {image: "continue_arrow", ratio: 3}

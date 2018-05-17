@@ -100,18 +100,18 @@ class AttendeeLayout < MK::Layout
     target.setImage Ion.imageByFont(:ios_arrow_forward, size:24, color:Color.orange)
   end
   def header_style
-    background_color Color.green
+    background_color Color.bright_blue
     constraints do
       top 0
       left 0
       width.equals(:superview)
-      height 60
+      height Device.x(60, 28)
     end
   end
   def header_name_style
     header_width = (super_width - 170)
     constraints do
-      top 20
+      top Device.x(20, 28)
       left (super_width/2 - header_width/2)
       width header_width
       height 40
@@ -130,7 +130,7 @@ class AttendeeLayout < MK::Layout
     target.setContentEdgeInsets UIEdgeInsetsMake(2, 0, 0, 0)
     addTarget @controller, action: 'back_action', forControlEvents:UIControlEventTouchDown
     constraints do
-      top 19
+      top Device.x(19, 28)
       left 0
       width 40
       height 40
@@ -141,7 +141,7 @@ class AttendeeLayout < MK::Layout
     target.titleLabel.font = Font.Vitesse_Bold(15)
     addTarget @controller, action: 'friend_action', forControlEvents:UIControlEventTouchDown
     constraints do
-      top 28
+      top Device.x(28, 28)
       right.equals(-6, :right)
       height 24
     end
@@ -166,7 +166,7 @@ class AttendeeLayout < MK::Layout
   def header_rsvp_style
     constraints do
       right 10
-      top 20
+      top Device.x(20, 28)
       width 100
       height 40
     end
@@ -186,7 +186,7 @@ class AttendeeLayout < MK::Layout
       width.equals(:superview).minus(15)
       height 100
       left 5
-      top 70
+      top Device.x(70, 28)
     end
     image "gray_dots.png".uiimage
   end
@@ -199,7 +199,7 @@ class AttendeeLayout < MK::Layout
       @avatar_width = width 125
       @avatar_height = height 125
       center_x.equals(:superview)
-      top 32
+      top Device.x(32, 18)
     end
   end
   def main_content_style
@@ -226,7 +226,7 @@ class AttendeeLayout < MK::Layout
     contentSize [super_width, 900]
     backgroundColor Color.white
     constraints do
-      top 60
+      top Device.x(60, 28)
       height.equals(:superview).minus(60)
       left 0
       width.equals(:superview)
@@ -240,7 +240,7 @@ class AttendeeLayout < MK::Layout
       width.equals(:superview).minus(40)
     end
     font Font.Vitesse_Medium(26)
-    textColor Color.blue
+    textColor Color.cyan
     fixedWidth = super_width-40
     textView = target
     scrollEnabled false
@@ -283,7 +283,7 @@ class AttendeeLayout < MK::Layout
       width.equals(:superview).minus(40)
     end
     font Font.Vitesse_Medium(20)
-    textColor Color.blue
+    textColor Color.cyan
     fixedWidth = super_width-40
     textView = target
     scrollEnabled false
@@ -309,12 +309,12 @@ class AttendeeLayout < MK::Layout
     reapply do
       qna = @atn.qna
       str = qna.attrd({
-        NSFontAttributeName => Font.Karla(15)
+        NSFontAttributeName => Font.Karla(18)
       })
+      target.setText qna
       rect = str.boundingRectWithSize(CGSizeMake(super_width-40,Float::MAX), options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
       height = rect.size.height.ceil + 60
       @about_height.equals(height)
-      target.setText qna
     end
   end
   def anchor_style

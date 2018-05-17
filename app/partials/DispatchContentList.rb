@@ -101,7 +101,7 @@ class DispatchContentList < PM::TableScreen
       padding = 20
     end
     content = contentStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
-    height = padding + content.size.height.ceil
+    height = padding + content.size.height.ceil+20
     height.to_f
   end
   def fetchComments(scrollToBottomAfterLoad = false)

@@ -27,8 +27,8 @@ class HTMLTextView < UIWebView
   end
   def styles
     '<style type="text/css">
-      body { font-family: "Karla"; font-size:15px; }
-      a { color: #E99533; text-decoration: underline; }
+      body { font-family: "Graphik App"; font-size:15px; }
+      a { color: ##FD7021; text-decoration: underline; }
     </style>'
   end
   def webView(inWeb, shouldStartLoadWithRequest:inRequest, navigationType:inType)

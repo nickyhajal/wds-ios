@@ -40,7 +40,7 @@ class EventDaySelectOld < MK::Layout
     backgroundColor "#FCFCF3".uicolor
   end
   def day_heading_style
-    font UIFont.fontWithName('Vitesse-Medium', size:18)
+    font Font.Vitesse_Medium(18)
     textColor "#848477".uicolor
     text fitDate('Tuesday, August 8th')
     constraints do
@@ -49,7 +49,7 @@ class EventDaySelectOld < MK::Layout
     end
   end
   def day_select_button_style
-    font UIFont.fontWithName('Vitesse', size:15)
+    font Font.Vitesse(15)
     titleColor "#848477".uicolor, forState: UIControlStateNormal
     title 'Select'
     target.addTarget self, action:'open_select_action', forControlEvents:UIControlEventTouchUpInside
@@ -159,7 +159,7 @@ class EventTimeListingOld < PM::TableScreen
   end
   def tableView(tableView, willDisplayCell:cell, forRowAtIndexPath:indexPath)
     cell.backgroundColor = UIColor.clearColor
-    cell.textLabel.font = UIFont.fontWithName('Vitesse-Medium', size:18)
+    cell.textLabel.font = Font.Vitesse_Medium(18)
     cell.textLabel.textColor = "#848477".uicolor
   end
   def select_day_action(cell)

@@ -49,10 +49,10 @@ class ModalLayout < MK::Layout
     options =  {
       NSDocumentTypeDocumentAttribute => NSHTMLTextDocumentType,
       NSFontAttributeName => Font.Karla(16),
-      UITextAttributeTextColor => Color.dark_gray
+      UITextAttributeTextColor => Color.dark_gray_blue
     }
     content += '<p></p>'
-    content = content.gsub('<p>', '<p style="font-family: Karla; font-size:16px; margin-bottom:10px; margin-left:8px; margin-right:8px;">')
+    content = content.gsub('<p>', '<p style="font-family: Graphik App; font-size:16px; margin-bottom:10px; margin-left:8px; margin-right:8px;">')
     content = NSAttributedString.alloc.initWithData(
       content.dataUsingEncoding(NSUTF8StringEncoding),
       options:options,
@@ -182,13 +182,13 @@ class ModalLayout < MK::Layout
       height 50
       width.equals(:superview)
     end
-    backgroundColor "#716B60".uicolor
+    backgroundColor Color.bright_blue
   end
   def title_style
     text ''
-    textColor Color.light_tan
+    textColor Color.white
     textAlignment NSTextAlignmentCenter
-    backgroundColor "#716B60".uicolor
+    backgroundColor Color.bright_blue
     font Font.Vitesse_Bold(21.0)
     constraints do
       left 0

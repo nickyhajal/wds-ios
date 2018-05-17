@@ -27,7 +27,7 @@ class ScheduleLayout < MK::Layout
     get(:day_selector).setLayout self
     constraints do
       width.equals(:superview)
-      @daySelTop = top 63
+      @daySelTop = top Device.isX ? 88 : 63
       @daySelHeight = height 56
       left 0
     end
@@ -51,20 +51,20 @@ class ScheduleLayout < MK::Layout
 
   def schedule_style
     backgroundColor "#F2F2EA".uicolor
-    # backgroundColor Color.tan
     constraints do
       left 0
       right '100%'
-      top 124
+      top (Device.isX ? 148 : 122)
+      bottom.equals(:superview, :bottom)
       if $IS8
         height.equals(:superview).minus(124)
       else
-        height.equals(:superview).minus(148)
+        height.equals(:superview).minus(Device.isX ? 148 : 148)
       end
     end
   end
 
   def main_style
-    background_color '#F2F2EA'.uicolor
+    background_color Color.tan
   end
 end

@@ -15,7 +15,7 @@ class AttendeeButton < UIButton
     if (reset)
       @name = nil
     end
-    @name ||= begin 
+    @name ||= begin
       name = @atn.first_name+"\n"+@atn.last_name
       name = name.nsattributedstring({
         UITextAttributeFont => Font.Karla_Bold(15),
@@ -40,7 +40,7 @@ class AttendeeButton < UIButton
     self.addSubview @img
   end
   def drawRect(rect)
-    light_tan = Color.tan
+    light_tan =  Color.light_gray(0.4)
     orange = Color.orange
     if @atn
       bgRect = rect
@@ -49,7 +49,7 @@ class AttendeeButton < UIButton
       bgPath = UIBezierPath.bezierPathWithRoundedRect(rect, cornerRadius:0.0)
       light_tan.setFill
       bgPath.fill
-      @name.drawAtPoint(CGPointMake(38,2))
+      @name.drawAtPoint(CGPointMake(38,5))
     end
   end
 end

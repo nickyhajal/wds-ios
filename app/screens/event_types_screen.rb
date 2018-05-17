@@ -31,6 +31,7 @@ class EventTypesScreen < PM::Screen
     end
   end
   def open_event(item)
+    puts item
     @events_screen.setType(item)
     open @events_screen
   end

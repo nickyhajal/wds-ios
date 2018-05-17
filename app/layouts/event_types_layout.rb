@@ -22,12 +22,8 @@ class EventTypesLayout < MK::Layout
     constraints do
       left 0
       right "100%"
-      @listTop = top 58
-      if $IS8
-        @listHeight = height.equals(:superview).minus(58)
-      else
-        @listHeight = height.equals(:superview).minus(105)
-      end
+      @listTop = top (Device.isX ? 88 : 63)
+      bottom.equals(:superview, :bottom)
     end
   end
 end

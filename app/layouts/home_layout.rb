@@ -28,7 +28,7 @@ class HomeLayout < MK::Layout
   def main_style
     background_color "#F2F2EA".uicolor
   end
-  def noti_permission_style 
+  def noti_permission_style
     hidden true
     constraints do
       top.equals(0)
@@ -46,7 +46,7 @@ class HomeLayout < MK::Layout
     ]
     constraints do
       left 0
-      top 58
+      top.equals(:attendee_search_layout, :bottom)
       height 33
       width super_width
     end
@@ -77,7 +77,7 @@ class HomeLayout < MK::Layout
     ]
     constraints do
       left 0
-      top 58
+      top.equals(:attendee_search_layout, :bottom)
       height 33
       width super_width
     end
@@ -92,7 +92,7 @@ class HomeLayout < MK::Layout
     ]
     constraints do
       left 0
-      top 58
+      top.equals(:attendee_search_layout, :bottom)
       height 33
       width super_width
     end
@@ -100,7 +100,7 @@ class HomeLayout < MK::Layout
   def dispatch_style
     backgroundColor Color.clear
     constraints do
-      top 91
+      top.equals(:dispatch_nav, :bottom)
       left 0
       width.equals(:superview)
       height.equals(super_height-139)
@@ -110,18 +110,18 @@ class HomeLayout < MK::Layout
   def attendee_search_layout_style
     get(:attendee_search_layout).setController @controller
     get(:attendee_search_layout).setResultsTable @results_table
-    background_color Color.green
+    background_color Color.bright_blue
     constraints do
       top 0
       left 0
       width.equals(:superview)
-      height 58
+      height (Device.isX ? 88 : 58)
     end
   end
   def attendee_results_style
     hidden true
     constraints do
-      top 91
+      top.equals(:search_nav, :bottom)
       left 0
       right "100%"
       height.equals(super_height-139)

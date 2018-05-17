@@ -7,8 +7,16 @@ module Color
       end
       opacity = args[1].nil? ? 1.0 : args[1]
       colors = {
-        orange: [244,149,51],
-        tan: "#EAEADC",
+        bright_blue: '#0F54ED',
+        light_blue: '#3F76F1',
+        dark_gray_blue: '#414958',
+        cyan: '#00BFF2',
+        orange: "#FD7021",
+        gold: "#FEC31F",
+        red: "#E74D27",
+        # orange: [244,149,51],
+        tan: "#D4D7DC",
+        # tan: "#EAEADC",
         light_tan: "#FCFCFA",
         yellowish_tan: "#F2F2E8",
         dark_yellow_tan: "#D6D6CC",
@@ -16,10 +24,12 @@ module Color
         bright_yellowish_tan: "#FFFFF5",
         gray: "#8A8A7D",
         light_gray: "#D8D8D4",
-        dark_gray: "#848477",
+        dark_gray: "#919CA2",
+        # dark_gray: "#848477",
         orangish_gray: "#B1AEAA",
         blue: "#0A72B0",
-        green: "#B0BA1E",
+        green: "#006F3D",
+        # green: "#B0BA1E",
         bright_green: "#BDC72B",
         white: "#FFFFFF",
         coffee: "#21170A"

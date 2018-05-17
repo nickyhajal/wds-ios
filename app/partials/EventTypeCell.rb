@@ -13,7 +13,7 @@ class EventTypeCell < PM::TableViewCell
       # spark_sessions: 'Open-ended conversations on specific topics',
       activities: 'Special activities to share with your fellow attendees',
       registration: 'Let us know which registration session works for you',
-      expeditions: 'Unique adventures crafted just for WDS Attendees',
+      # expeditions: 'Unique adventures crafted just for WDS Attendees',
     }
     singleFingerTap = UITapGestureRecognizer.alloc.initWithTarget(self, action:'singleTap:')
     self.addGestureRecognizer(singleFingerTap)
@@ -62,8 +62,8 @@ class EventTypeCell < PM::TableViewCell
     })
     @typeBox = @typeStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     @descrStr = @descrs[@type.to_sym].attrd({
-      NSFontAttributeName => Font.Karla_Italic(17),
-      UITextAttributeTextColor => Color.light_tan,
+      NSFontAttributeName => Font.Graphik_BoldItalic(15),
+      UITextAttributeTextColor => Color.light_tan(0.8),
       NSShadowAttributeName => shadow
     })
     @descrBox = @descrStr.boundingRectWithSize(dsize, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
@@ -83,7 +83,7 @@ class EventTypeCell < PM::TableViewCell
   def descrRect
     selfH = self.frame.size.height
     boxH = @descrBox.size.height
-    CGRectMake(20, selfH - boxH - 20, @width - (@width/3) - 20, boxH+20)
+    CGRectMake(20, selfH - boxH - 18, @width - (@width/3) - 20, boxH+20)
   end
   def arrowRect
     x = self.frame.size.width - 20 - 15

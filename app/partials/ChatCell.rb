@@ -5,7 +5,7 @@ class ChatCell < PM::TableViewCell
     @avP = 4
     @botP = 28
     @avGutter = @avW + (@avP * 2)
-    @cardP = 12
+    @cardP = 20
     @me_id = Me.atn.user_id.to_s
     super
   end
@@ -20,11 +20,11 @@ class ChatCell < PM::TableViewCell
     if @cardView.nil?
       @cardView = ChatCellInnerView.alloc.initWithFrame([[0,0], [0,0]])
       @cardView.cell = self
-      @cardView.rotate_to 180.degrees, {duration: 0}
+      @cardView.rotate_to Math::PI, {duration: 0}
       self.addSubview(@cardView)
     end
     cardSize = self.frame.size
-    cardSize.width = cardW - (@cardP * 2)
+    cardSize.width = cardW - (@cardP * 2) - 45
     cardSize.height = Float::MAX
     height = @cardP * 2
     msg = ""
@@ -40,7 +40,7 @@ class ChatCell < PM::TableViewCell
       hours = (NSDate.new.utc_offset / 1.hour)
       created_at = NSDate.dateWithTimeIntervalSince1970(@chat[:created_at].to_i / 1000)
       # created_at = formatter.dateFromString(@chat[:last_msg_stamp]).delta(hours:hours)
-      datetime = SORelativeDateTransformer.registeredTransformer.transformedValue(created_at)
+      datetime = Assets.relativeTime(created_at)
     elsif diff < 86400
       datetime = created.string_with_format('h:mma').downcase
     else
@@ -93,7 +93,7 @@ class ChatCell < PM::TableViewCell
       @avatar.layer.mask = shapeLayer
     end
     av_url = "https://avatar.wds.fm/"+@chat[:user_id].to_s+"?width=78"
-    @avatar.setImageWithURL av_url, placeholderImage:"default-avatar.png".uiimage
+    @avatar.setImageWithURL av_url.nsurl, placeholderImage:"default-avatar.png".uiimage
   end
   def isMe
     @me_id == @author_id
@@ -131,12 +131,12 @@ class ChatCell < PM::TableViewCell
   end
   def authorRect
     rect = cardRect
-    rect.origin.y = rect.size.height + 2
+    rect.origin.y = rect.size.height + 4
     rect
   end
   def stampRect
     rect = cardRect
-    rect.origin.y = rect.size.height + 2
+    rect.origin.y = rect.size.height + 4
     if isMe
       x = rect.origin.x + rect.size.width - @stampBox.size.width
       rect.origin.x = x

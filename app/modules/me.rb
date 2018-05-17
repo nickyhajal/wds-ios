@@ -78,7 +78,7 @@ module Me
       end
     end
     def checkLoggedIn
-      # user_token = KeyVal.where(key: 'user_token')
+      user_token = KeyVal.where(key: 'user_token')
       if user_token.count > 0
         Api.get 'user/validate', {} do |rsp|
           if rsp.is_err
@@ -113,17 +113,17 @@ module Me
       end
     end
     def saveUserToken(user_token)
-      # kv = KeyVal.where(key: 'user_token')
-      # if kv.count > 0
-      #   kv = kv.first
-      #   kv.val = user_token
-      # else
-      #   kv = KeyVal.new
-      #   kv.key = 'user_token'
-      #   kv.val = user_token
-      # end
-      # kv.save
-      # Me.checkLoggedIn
+      kv = KeyVal.where(key: 'user_token')
+      if kv.count > 0
+        kv = kv.first
+        kv.val = user_token
+      else
+        kv = KeyVal.new
+        kv.key = 'user_token'
+        kv.val = user_token
+      end
+      kv.save
+      Me.checkLoggedIn
     end
     def isFriend(user_id)
       get('connected_ids').include? user_id || Me.atn.user_id.to_i == user_id.to_i
@@ -290,7 +290,7 @@ module Me
 end
 
 class Api
-  def request(method, path, params, &block)
+  def self.request(method, path, params, &block)
     url = @@url + path
     if Me.user_token
       params['user_token'] = Me.user_token
@@ -312,11 +312,11 @@ class Api
 end
 
 class Assets
-    def process_me(me)
+    def self.process_me(me)
       Store.set('me', me, true)
       Me.update(me)
     end
-    def process_events(events)
+    def self.process_events(events)
       return false unless events
       schedule = {}
       byType = {}
@@ -374,7 +374,7 @@ class Assets
       end
       set 'schedule', schedule
     end
-    def process_schedule
+    def self.process_schedule
       events = get 'events'
       schedule = {}
       lastDay = ''

@@ -44,7 +44,7 @@ class AtnStoryLayout < MK::Layout
     background_color Color.tan
   end
   def header_style
-    background_color Color.green
+    background_color Color.bright_blue
     constraints do
       top 0
       left 0

@@ -140,7 +140,7 @@ class PostLayout < MK::Layout
     target.addTarget @controller, action: 'cancel_post_action', forControlEvents:UIControlEventTouchDown
     constraints do
       left 6
-      top 25
+      top Device.x(25, 30)
     end
     target.sizeToFit
   end
@@ -170,7 +170,7 @@ class PostLayout < MK::Layout
     target.addTarget @controller, action: 'send_post_action', forControlEvents:UIControlEventTouchDown
     constraints do
       right -4
-      top 22
+      top Device.x(22, 30)
       height 31
       width 80
     end
@@ -189,7 +189,7 @@ class PostLayout < MK::Layout
     target.setImage("camera".uiimage, forState:UIControlStateNormal)
     constraints do
       right.equals(:post, :left).minus(16)
-      top 28
+      top Device.x(28, 30)
       height 20
       width 25
     end
@@ -204,7 +204,7 @@ class PostLayout < MK::Layout
   def input_area_style
     backgroundColor Color.white
     constraints do
-      top 58
+      top Device.x(58, 30)
       height (super_height-58)
       width super_width
       left 0
@@ -252,7 +252,7 @@ class PostLayout < MK::Layout
     constraints do
       left 0
       @mediaB = bottom.equals(:bottomLine, :top).minus(4)
-      width.equals(:superview) 
+      width.equals(:superview)
       @mediaH = height 156
     end
     reapply do
@@ -272,7 +272,7 @@ class PostLayout < MK::Layout
     constraints do
       left 0
       bottom.equals(:bottomLine, :top).minus(4)
-      width.equals(:superview) 
+      width.equals(:superview)
       height 156
     end
   end
@@ -300,7 +300,7 @@ class PostLayout < MK::Layout
     get(:input).layoutIfNeeded
   end
   def avatar_style
-    imageWithURL(Me.atn.pic, placeholderImage:"default-avatar.png".uiimage)
+    imageWithURL(Me.atn.pic.nsurl, placeholderImage:"default-avatar.png".uiimage)
     contentMode UIViewContentModeScaleAspectFill
     layer do
       masksToBounds true
@@ -390,5 +390,5 @@ class PostLayout < MK::Layout
     0.3.seconds.later do
       main.setHidden true
     end
-  end 
+  end
 end

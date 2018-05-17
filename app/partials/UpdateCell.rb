@@ -26,7 +26,7 @@ class UpdateCell < UIView
       NSFontAttributeName => Font.Karla_BoldItalic(18),
       UITextAttributeTextColor => "#999590".uicolor
     })
-    @btnStr.drawAtPoint(CGPointMake(8, 18))
+    @btnStr.drawAtPoint(CGPointMake(8, 22))
     if @arrow.nil?
       @arrow = UILabel.alloc.initWithFrame(CGRectMake(self.frame.size.width-40, 16, 30, 30))
       @arrow.attributedText = Ion.icons[:ios_cloud_download_outline].attrd({

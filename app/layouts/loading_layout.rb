@@ -13,6 +13,8 @@ class LoadingLayout < MK::Layout
 
     if Device.is6p
       imgName = "Default-736h@3x.png"
+    elsif Device.isX
+      imgName = "Default-2436h@3x.png"
     elsif Device.is6
       imgName = "Default-667h@2x.png"
     elsif Device.is5

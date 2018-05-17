@@ -12,8 +12,8 @@ class Event
     @num_free = ""
     @free_max = ""
     @address = ""
-    @lat = 0.0
-    @lon = 0.0
+    @lat = 45.523062
+    @lon = -122.676482
     @price = 0
     @pay_link = ""
     @for_type = "all"

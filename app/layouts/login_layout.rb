@@ -24,9 +24,9 @@ class LoginLayout < MK::Layout
   end
   def logo_top
     if iphone4
-      35
+      85
     else
-      55
+      105
     end
   end
   def container_top
@@ -41,7 +41,8 @@ class LoginLayout < MK::Layout
   end
   def slide_up
     @slid_up = true
-    get(:big_logo).setAlpha 0.0
+    # get(:big_logo).setAlpha 0.0
+    get(:big_logo).fade_out(0.3)
     @login_top.equals(60)
     @login_height.equals super_height - 60
     UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
@@ -54,7 +55,7 @@ class LoginLayout < MK::Layout
       unless @slid_up
         @login_top.equals(container_top)
         @login_height.equals super_height - container_top
-        get(:big_logo).setAlpha 1.0
+        get(:big_logo).fade_in(0.3)
         UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
           self.view.layoutIfNeeded  # applies the constraint change
         end, completion: nil)
@@ -71,18 +72,20 @@ class LoginLayout < MK::Layout
     get(:submit).setTitle title, forState:UIControlStateNormal
   end
   def main_style
-    background_color "#B0BA1E".uicolor
+    background_color Color.bright_blue
   end
   def big_logo_style
+    w = super_width - 60
+    h = w * 0.45
     constraints do
-      width 191
-      height 215
-      top logo_top
-      left (super_width/2) - (190/2)
+      width w
+      height h
+      top ((container_top+75) / 2) - (h / 2)
+      left (super_width/2) - (w/2)
     end
   end
   def login_container_style
-    background_color "#BDC72B".uicolor
+    background_color Color.bright_blue
     constraints do
       width.equals(:superview)
       @login_height = height super_height - container_top
@@ -106,11 +109,11 @@ class LoginLayout < MK::Layout
     target.autocorrectionType = UITextAutocorrectionTypeNo
     target.autocapitalizationType = UITextAutocapitalizationTypeNone
     target.keyboardType = UIKeyboardTypeEmailAddress
-    textColor "#EB9622".uicolor
+    textColor Color.orange
     attributedPlaceholder NSAttributedString.alloc.initWithString("E-Mail Address", attributes:{
-      NSForegroundColorAttributeName => "#EB9622".uicolor
+      NSForegroundColorAttributeName => Color.orange
     })
-    font UIFont.fontWithName("Karla-Bold", size:16.0)
+    font Font.Karla_Bold(16)
     target.addTarget @controller, action:'login_action', forControlEvents:UIControlEventEditingDidEndOnExit
     constraints do
       top 0
@@ -131,13 +134,13 @@ class LoginLayout < MK::Layout
   end
   def password_input_style
     backgroundColor UIColor.clearColor
-    textColor "#EB9622".uicolor
+    textColor Color.orange
     target.delegate = @controller
     attributedPlaceholder NSAttributedString.alloc.initWithString("Password", attributes:{
-      NSForegroundColorAttributeName => "#EB9622".uicolor
+      NSForegroundColorAttributeName => Color.orange
     })
     target.secureTextEntry = true
-    font UIFont.fontWithName("Karla-Bold", size:16.0)
+    font Font.Karla_Bold(16)
     target.addTarget @controller, action:'login_action', forControlEvents:UIControlEventEditingDidEndOnExit
     constraints do
       top 0
@@ -148,8 +151,8 @@ class LoginLayout < MK::Layout
   end
   def submit_style
     title "Login to WDS"
-    backgroundColor "#EB9622".uicolor
-    font UIFont.fontWithName("Karla-Bold", size:18.0)
+    backgroundColor Color.orange
+    font Font.Karla_Bold(18)
     w = super_width - 60
     target.addTarget @controller, action:'login_action', forControlEvents:UIControlEventTouchUpInside
     constraints do
@@ -163,7 +166,7 @@ class LoginLayout < MK::Layout
     title "Forgot your password?"
     backgroundColor UIColor.clearColor
     titleColor "#F2F2EA".uicolor, forState:UIControlStateNormal
-    font UIFont.fontWithName("Karla-Bold", size:16.0)
+    font Font.Karla_Bold(16)
     w = super_width - 60
     target.addTarget @controller, action:'forgot_action', forControlEvents:UIControlEventTouchUpInside
     constraints do

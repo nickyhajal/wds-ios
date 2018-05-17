@@ -56,7 +56,7 @@ class WalkthroughView < MK::Layout
     end
   end
   def title_style
-    font Font.Vitesse_Medium(22)
+    font Font.Vitesse_Medium(23)
     textColor Color.dark_gray
     backgroundColor Color.clear
     textAlignment UITextAlignmentCenter
@@ -65,7 +65,7 @@ class WalkthroughView < MK::Layout
     constraints do
       center_x.equals(:superview)
       width.equals(:superview).minus(60)
-      top 20
+      top 25
     end
     always do
       target.text = @title
@@ -73,7 +73,7 @@ class WalkthroughView < MK::Layout
     end
   end
   def content_style
-    font Font.Karla(16)
+    font Font.Karla(17)
     textColor Color.dark_gray
     backgroundColor Color.clear
     scrollEnabled false
@@ -82,7 +82,7 @@ class WalkthroughView < MK::Layout
     constraints do
       center_x.equals(:superview)
       width.equals(:superview).minus(40)
-      top.equals(:title, :bottom)
+      top.equals(:title, :bottom).plus(16)
     end
     always do
       target.text = @content

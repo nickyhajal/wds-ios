@@ -46,7 +46,7 @@ class EventDaySelect < MK::Layout
   end
 
   def day_heading_style
-    font UIFont.fontWithName('Vitesse-Medium', size: 18)
+    font Font.Vitesse_Medium(18)
     textColor '#848477'.uicolor
     text fitDate('Tuesday, August 8th')
     constraints do
@@ -151,19 +151,19 @@ class EventTimeCell < ProMotion::CollectionViewCell
 
     dayName = @day[:dayNameShort].attrd(NSFontAttributeName => @selected ? Font.Karla_BoldItalic(13) : Font.Karla_Italic(13), UITextAttributeTextColor => Color.dark_gray)
     dayNum = @day[:dayNum].attrd(
-      NSFontAttributeName => @selected ? Font.Vitesse(20) : Font.Vitesse(20),
+      NSFontAttributeName => @selected ? Font.Vitesse(17) : Font.Vitesse(17),
       UITextAttributeTextColor => @selected ? Color.bright_tan : Color.dark_gray
     )
     nameBox = dayName.boundingRectWithSize(rect.size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     numBox = dayNum.boundingRectWithSize(rect.size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     if @selected
       dotSize = 32
-      dot_rect = CGRectMake(rect.size.width/2 - dotSize/2, nameBox.size.height + 6, dotSize, dotSize)
+      dot_rect = CGRectMake(rect.size.width/2 - dotSize/2, nameBox.size.height + 8, dotSize, dotSize)
       path = UIBezierPath.bezierPathWithRoundedRect(dot_rect, cornerRadius:(dotSize*0.5))
-      Color.green.setFill
+      Color.cyan.setFill
       path.fill
     end
-    dayName.drawInRect(CGRectMake(rect.size.width / 2 - nameBox.size.width / 2, 5, Float::MAX, Float::MAX))
+    dayName.drawInRect(CGRectMake(rect.size.width / 2 - nameBox.size.width / 2, 7, Float::MAX, Float::MAX))
     dayNum.drawInRect(CGRectMake(rect.size.width / 2 - numBox.size.width / 2, 28, Float::MAX, Float::MAX))
   end
 end

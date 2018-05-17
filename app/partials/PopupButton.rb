@@ -60,9 +60,12 @@ class PopupButton < UIView
     # rect.size.width -= 0.5
     size = rect.size.clone
     origin = rect.origin.clone
-    borderC = "#DDE381".uicolor
-    labelBgC = "#B1BB25".uicolor
-    labelTxtC = "#FAFFB1".uicolor
+    # borderC = "#DDE381".uicolor
+    # labelBgC = "#B1BB25".uicolor
+    # labelTxtC = "#FAFFB1".uicolor
+    borderC = "#4478EA".uicolor
+    labelBgC = "#2761E2".uicolor
+    labelTxtC = "#D4E1FF".uicolor
     labelPad = 15
 
     button = UIBezierPath.bezierPathWithRoundedRect(rect, cornerRadius:6.0)
@@ -98,7 +101,7 @@ class PopupButton < UIView
       byRoundingCorners: UIRectCornerTopRight | UIRectCornerBottomRight,
       cornerRadii: CGSizeMake(6.0, 6.0)
     )
-    Color.bright_green.setFill
+    "#2868F5".uicolor.setFill
     mask.fill
 
     if !@values.nil? && !@values[@selected].nil?

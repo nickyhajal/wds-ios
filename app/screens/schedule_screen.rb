@@ -33,14 +33,14 @@ class ScheduleScreen < PM::Screen
     # Set the default day to August 11th, 2016
     day = days[0]
     days.each do |d|
-      if d[:day] == '2017-07-14'
+      if d[:day] == '2018-06-26'
         day = d
       end
     end
 
     # If we are between the dates of WDS, start showing the current day by default
     today = NSDate.new+3.hours
-    if today.string_with_format(:ymd) >= '2017-07-11' && today.string_with_format(:ymd) < '2017-07-19'
+    if today.string_with_format(:ymd) >= '2018-06-26' && today.string_with_format(:ymd) < '2018-07-02'
       ends = ['th','st','nd','rd','th','th','th','th','th','th']
       dayNum = today.string_with_format("d").to_i
       if (dayNum % 100) >= 11 && (dayNum % 100) <= 13
@@ -90,6 +90,7 @@ class ScheduleScreen < PM::Screen
   end
   def update_schedule
     Assets.getSmart 'schedule' do |events, status|
+      # puts events
       @schedule_table.update_events events
     end
   end

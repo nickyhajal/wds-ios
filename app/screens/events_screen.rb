@@ -34,7 +34,7 @@ class EventsScreen < PM::Screen
   end
   def setDefaultDay(events = false)
 
-    eventStart = NSDate.from_components(year: 2017, month: 7, day: 11)
+    eventStart = NSDate.from_components(year: 2018, month: 6, day: 26)
     if @openedDay
       selected = dayFromShort(@openedDay)
       day = formatDay(selected)
@@ -42,18 +42,18 @@ class EventsScreen < PM::Screen
     elsif @tappedDay.nil?
       days = Assets.get('days')
 
-      # Set the default day to July 11th, 2017
+      # Set the default day to June 26, 2018
       selected = eventStart
       day = days[0]
       days.each do |d|
-        if d[:day] == '2017-07-11'
+        if d[:day] == '2018-06-26'
           day = d
         end
       end
 
       # If we are between the dates of WDS, start showing the current day by default
       selected = NSDate.new+3.hours
-      if selected.string_with_format(:ymd) >= '2017-07-11' && selected.string_with_format(:ymd) < '2017-07-18'
+      if selected.string_with_format(:ymd) >= '2018-06-26' && selected.string_with_format(:ymd) < '2018-07-02'
         day = formatDay(selected)
       end
     else
@@ -61,7 +61,7 @@ class EventsScreen < PM::Screen
       day = formatDay(selected)
     end
 
-    if events
+    if events && events.length > 0
       count = 0
       while events[day[:day]].nil? || events[day[:day]].length < 1 do
         selected = selected+24.hours
@@ -92,6 +92,8 @@ class EventsScreen < PM::Screen
     checkIfNullState('appear')
   end
   def setType(type)
+    puts ".."
+    puts type
     if !type.nil?
       type = pluralToType[type.to_sym]
       @type = type
@@ -224,11 +226,16 @@ class EventsScreen < PM::Screen
     if !@type.nil? && !@events_table.nil?
       Assets.getSmart @type do |events, status|
         events = {} unless events
+        puts 1
         if setDay
+        puts 2
           setDefaultDay(events)
         end
+        puts 3
         @layout.updateDaySelector(events)
+        puts 4
         @events_table.update_events events, scrollToTop
+        puts 5
         checkIfNullState('ue')
       end
     end

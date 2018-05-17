@@ -1,8 +1,7 @@
 class AppDelegate < PM::Delegate
 	attr_accessor :login, :event , :home, :events
 	def on_load(app, options)
-		puts 'ONLOAD'
-		$VERSION = '17.4'
+		$VERSION = '18.1'
 		if Device.simulator?
 			Stripe.setDefaultPublishableKey('pk_test_8WKTIWKXB6T1eFT9sFqrymCM')
 		else
@@ -18,11 +17,11 @@ class AppDelegate < PM::Delegate
 		$APP = self
 		@tab_bar = false
 		init_api
+		init_screens
 		init_db
 		init_assets
 		init_me
 		init_appearance
-		init_screens
 		open_loading
 		## Used for testing walkthrough ##
 		# Store.set('walkthrough', '0')
@@ -40,22 +39,23 @@ class AppDelegate < PM::Delegate
 		Interests.init
 		Assets.init
 	end
-	# def init_notifications
-	# 	asked = Store.get('asked_for_notifications')
-	# 	if asked
-	# 		Me.checkDeviceToken
-	# 	else
-	# 		Store.set('asked_for_notifications', true)
-	# 		register_push_notifications
-	# 	end
-	# end
+	def init_notifications
+		asked = Store.get('asked_for_notifications')
+		if asked
+			Me.checkDeviceToken
+		else
+			Store.set('asked_for_notifications', true)
+			register_push_notifications
+		end
+	end
 	def init_me
 		Me.init self
 	end
 	def init_screens
+		puts 'INIT LOADING'
 		@home = HomeScreen.new(nav_bar: false)
 		# @explore = ExploreScreen.new(nav_bar: true)
-		# @chats = ChatsScreen.new(nav_bar: true)
+		@chats = ChatsScreen.new(nav_bar: true)
 		@events = EventsScreen.new(nav_bar: true)
 		@event = EventScreen.new(nav_bar: false)
 		@eventTypes = EventTypesScreen.new(nav_bar: true)
@@ -65,6 +65,7 @@ class AppDelegate < PM::Delegate
 		@schedule = ScheduleScreen.new(nav_bar: true)
 		@login = LoginScreen.new(nav_bar: false)
 		@loading = LoadingScreen.new(nav_bar:false)
+		puts 'LOADING INITD'
 		@walkthrough = WalkthroughScreen.new(nav_bar:false)
 		20.seconds.later do
 			if BW::Location.enabled? and Store.get('hasLocationPermission', false)
@@ -76,19 +77,19 @@ class AppDelegate < PM::Delegate
 		Api.init
 	end
 	def init_db
-		# MotionModel::Store.config(MotionModel::FMDBAdapter.new('wds.db'))
-		# KeyVal.create_table unless KeyVal.table_exists?
+		MotionModel::Store.config(MotionModel::FMDBAdapter.new('wds.db'))
+		KeyVal.create_table unless KeyVal.table_exists?
 	end
 	def init_appearance
 		refresh = UIRefreshControl.appearance
 		refresh.setTintColor Color.dark_gray
 		refresh.setAttributedTitle(''.attrd({
-			UITextAttributeTextColor => Color.green,
+			UITextAttributeTextColor => Color.bright_green,
 			UITextAttributeFont => Font.Karla(12)
 		}))
 		nav_bar = UINavigationBar.appearance
 		nav_bar.setBarStyle UIBarStyleBlack
-		nav_bar.setBarTintColor "#B0BA1E".to_color
+		nav_bar.setBarTintColor "#0F54ED".to_color
 		nav_bar.setTintColor Color.white
 		nav_bar.setTitleTextAttributes({
 			UITextAttributeTextColor => Color.white,
@@ -99,7 +100,7 @@ class AppDelegate < PM::Delegate
 		if $IS8
 			tab_bar.setTranslucent false
 		end
-		tab_bar.setBarTintColor "#21170A".uicolor
+		tab_bar.setBarTintColor "#262A36".uicolor
 		tab_bar.setTintColor UIColor.blackColor
 		tab_bar_item = UITabBarItem.appearance
 		tab_bar_item.setTitleTextAttributes({
@@ -107,18 +108,24 @@ class AppDelegate < PM::Delegate
 			UITextAttributeFont => Font.Karla(1)
 		}, forState:UIControlStateNormal)
 		tab_bar_item.setTitleTextAttributes({
-			UITextAttributeTextColor => "#E99533".uicolor
+			UITextAttributeTextColor => "#FD7021".uicolor
 		}, forState:UIControlStateSelected)
 		nav_bar_item = UIBarButtonItem.appearance
 		nav_bar_item.setTitleTextAttributes({
 			UITextAttributeFont => Font.Vitesse_Medium(15)
 		}, forState:UIControlStateNormal)
 	end
+	def showStatusBar
+	UIApplication.sharedApplication.setStatusBarHidden(false, withAnimation:UIStatusBarAnimationNone)
+	end
 	def open_loading
+		@loading = LoadingScreen.new(nav_bar:false) if @loading.nil?
 		open @loading
 	end
 	def open_login
+		@login = LoginScreen.new(nav_bar:false) if @login.nil?
 		open @login
+		showStatusBar
 	end
 	def open_walkthrough(step)
 		@walkthrough.setStep step
@@ -127,25 +134,27 @@ class AppDelegate < PM::Delegate
 	def open_tabs
 		if @tab_bar
 			open_root_screen @tab_bar
+			showStatusBar
 		else
 			open_loading
 			Assets.sync do |err|
 				@home = HomeScreen.new(nav_bar: false) if @home.nil?
 				@explore = ExploreScreen.new(nav_bar: true) if @explore.nil?
-				# @chats = ChatsScreen.new(nav_bar: true) if @chats.nil?
+				@chats = ChatsScreen.new(nav_bar: true) if @chats.nil?
 				@eventTypes = EventTypesScreen.new(nav_bar: true) if @eventTypes.nil?
 				@schedule = ScheduleScreen.new(nav_bar: true) if @schedule.nil?
 				# NSLog "%@", @schedule.tabBarItem
 				# NSLog "%@", @home.tabBarItem
 				# NSLog "%@", @eventTypes.tabBarItem
 				# NSLog "%@", @chats.tabBarItem
-				@tab_bar = open_tab_bar @home, @schedule, @eventTypes#, @chats #, @explore
+				@tab_bar = open_tab_bar @home, @schedule, @eventTypes, @chats #, @explore
 				@tab_bar.tabBar.items.each do |tab|
 					tab.imageInsets = UIEdgeInsetsMake(5.0,0,-5.0,0)
 				end
 				0.05.seconds.later do
 					open_notification_content_if_exists
 				end
+				showStatusBar
 				# 0.8.seconds.later do
 				# 	init_notifications
 				# end
@@ -212,5 +221,16 @@ class AppDelegate < PM::Delegate
 	def offline_alert
 		UIAlertView.alert("We can't reach WDS HQ", "Looks like you aren't online or our servers are asleep on the job. \n\nPlease try again in a bit!") do
 		end
+	end
+end
+
+class NSDate
+	def self.timeAgo
+		"hey"
+	end
+end
+class Time
+	def self.timeAgo
+		"hey"
 	end
 end

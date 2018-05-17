@@ -56,7 +56,7 @@ class ChatEditLayout < MK::Layout
   def super_width
     get(:main).frame.size.width
   end
-  def updateChatters 
+  def updateChatters
     @chatters_height.equals(@controller.chatters.length > 0 ? 64 : 0)
     UIView.animateWithDuration(0.2, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
       self.view.layoutIfNeeded  # applies the constraint change
@@ -66,7 +66,7 @@ class ChatEditLayout < MK::Layout
     background_color "#E7E7DD".uicolor
   end
   def header_style
-    background_color Color.green
+    background_color Color.bright_blue
     constraints do
       top 0
       left 0
@@ -104,7 +104,7 @@ class ChatEditLayout < MK::Layout
   def chatters_style
     backgroundColor "#F7F7F1".uicolor
     constraints do
-      top 64
+      top Device.x(64, 26)
       left 0
       right 0
       @chatters_height = height 0
@@ -125,7 +125,7 @@ class ChatEditLayout < MK::Layout
     attributedPlaceholder NSAttributedString.alloc.initWithString("", attributes:{
       NSForegroundColorAttributeName => Color.white
     })
-    font UIFont.fontWithName("Karla", size:15.0)
+    font Font.Karla(15)
     target.addTarget self, action:'search_action', forControlEvents:UIControlEventEditingChanged
     target.autocorrectionType = UITextAutocorrectionTypeNo
     delegate self
@@ -168,8 +168,8 @@ class ChatEditLayout < MK::Layout
       bottom.equals(:superview, :bottom)
     end
   end
- 
-  
+
+
   def search_action
       updatePlaceholder(get(:input), get(:placeholder))
       q = get(:input).text
@@ -225,7 +225,7 @@ class ChatEditLayout < MK::Layout
     end
   end
   def modal_titleShell_style
-    backgroundColor Color.blue
+    backgroundColor Color.bright_blue
     constraints do
       top 0
       height 53
@@ -234,7 +234,7 @@ class ChatEditLayout < MK::Layout
     end
   end
   def atn_modal_titleShell_style
-    backgroundColor Color.blue
+    backgroundColor Color.bright_blue
     constraints do
       top 0
       height 53
@@ -421,7 +421,7 @@ class ChatEditLayout < MK::Layout
     if textField == get(:modal_inp)
       updatePlaceholder(get(:modal_inp), get(:modal_placeholder))
     end
-    
+
   end
   def open_modal
     main = get(:modal_overlay)

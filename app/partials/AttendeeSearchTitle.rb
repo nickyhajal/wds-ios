@@ -50,8 +50,8 @@ class AttendeeSearchTitleLayout < MK::Layout
     constraints do
       width 25
       height 25
-      top 26
-      left 9
+      bottom Device.x(-8, -2)
+      left 7
     end
   end
   def close_button_style
@@ -61,8 +61,8 @@ class AttendeeSearchTitleLayout < MK::Layout
     constraints do
       width 80
       height 25
-      right 0
-      top 26
+      right 2
+      bottom Device.x(-8, -2)
     end
   end
   def clear_button_style
@@ -87,12 +87,12 @@ class AttendeeSearchTitleLayout < MK::Layout
   end
   def search_attendees_style
     constraints do
-      top 23
-      @search_right = right -4
-      @search_width = width.equals(super_width - 45)
+      bottom Device.x(-6, -2)
+      @search_right = right -6
+      @search_width = width.equals(super_width - 46)
       height 30
     end
-    backgroundColor Color.bright_green
+    backgroundColor Color.light_blue
     target.layer.setCornerRadius(5.0)
     target.layer.masksToBounds = true
   end
@@ -103,11 +103,11 @@ class AttendeeSearchTitleLayout < MK::Layout
       NSForegroundColorAttributeName => Color.white
     })
     target.autocorrectionType = UITextAutocorrectionTypeNo
-    font UIFont.fontWithName("Karla", size:16.0)
+    font Font.Karla(16)
     target.addTarget self, action:'search_action', forControlEvents:UIControlEventEditingChanged
     delegate self
     constraints do
-      top 7
+      top 9
       left 28
       width.equals(:superview).minus(15)
       height.equals(:superview).minus(13)
@@ -120,7 +120,7 @@ class AttendeeSearchTitleLayout < MK::Layout
   def startSearch
     @controller.startSearch
     @search_width.equals(super_width - 80)
-    @search_right.equals(-76)
+    @search_right.equals(-74)
     get(:notification_marker).fade_out(0.13)
     UIView.animateWithDuration(0.13, delay: 0.0, options: UIViewAnimationOptionCurveEaseIn, animations: -> do
         self.view.layoutIfNeeded  # applies the constraint change
