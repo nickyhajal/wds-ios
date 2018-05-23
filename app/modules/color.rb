@@ -14,6 +14,7 @@ module Color
         orange: "#FD7021",
         gold: "#FEC31F",
         red: "#E74D27",
+        dark_tan: "#E2E1DE",
         # orange: [244,149,51],
         tan: "#D4D7DC",
         # tan: "#EAEADC",

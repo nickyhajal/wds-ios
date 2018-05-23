@@ -16,7 +16,7 @@ module EventModule
         single: 'Academy'
       },
       activity: {
-        title: 'Activities',
+        title: 'Connect Events',
         single: 'Activity'
       },
       # expedition: {

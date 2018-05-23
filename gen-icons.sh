@@ -1,0 +1,41 @@
+set -x
+
+pushd resources/Assets.xcassets/AppIcon.appiconset/
+
+cp 1024x1024.png "20x20@2x.png"
+cp 1024x1024.png "20x20@3x.png"
+cp 1024x1024.png "29x29@2x.png"
+cp 1024x1024.png "29x29@3x.png"
+cp 1024x1024.png "40x40@2x.png"
+cp 1024x1024.png "40x40@3x.png"
+cp 1024x1024.png "60x60@2x.png"
+cp 1024x1024.png "60x60@3x.png"
+cp 1024x1024.png "20x20~ipad.png"
+cp 1024x1024.png "20x20~ipad@2x.png"
+cp 1024x1024.png "29x29~ipad.png"
+cp 1024x1024.png "29x29~ipad@2x.png"
+cp 1024x1024.png "40x40~ipad.png"
+cp 1024x1024.png "40x40~ipad@2x.png"
+cp 1024x1024.png "76x76~ipad.png"
+cp 1024x1024.png "76x76~ipad@2x.png"
+cp 1024x1024.png "83.5x83.5~ipad@2x.png"
+
+mogrify -resize 40x40 "20x20@2x.png"
+mogrify -resize 60x60 "20x20@3x.png"
+mogrify -resize 58x58 "29x29@2x.png"
+mogrify -resize 87x87 "29x29@3x.png"
+mogrify -resize 80x80 "40x40@2x.png"
+mogrify -resize 120x120 "40x40@3x.png"
+mogrify -resize 120x120 "60x60@2x.png"
+mogrify -resize 180x180 "60x60@3x.png"
+mogrify -resize 20x20 "20x20~ipad.png"
+mogrify -resize 40x40 "20x20~ipad@2x.png"
+mogrify -resize 29x29 "29x29~ipad.png"
+mogrify -resize 58x58 "29x29~ipad@2x.png"
+mogrify -resize 40x40 "40x40~ipad.png"
+mogrify -resize 80x80 "40x40~ipad@2x.png"
+mogrify -resize 76x76 "76x76~ipad.png"
+mogrify -resize 152x152 "76x76~ipad@2x.png"
+mogrify -resize 167x167 "83.5x83.5~ipad@2x.png"
+
+popd

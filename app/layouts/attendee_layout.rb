@@ -183,12 +183,12 @@ class AttendeeLayout < MK::Layout
   end
   def dots_style
     constraints do
-      width.equals(:superview).minus(15)
+      width.equals(:superview).plus(18)
       height 100
-      left 5
+      left 0
       top Device.x(70, 28)
     end
-    image "gray_dots.png".uiimage
+    image "scrib-rect.png".uiimage.overlay(Color.dark_tan)
   end
   def avatar_style
     backgroundColor Color.clear

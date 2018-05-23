@@ -1,7 +1,7 @@
 class AppDelegate < PM::Delegate
 	attr_accessor :login, :event , :home, :events
 	def on_load(app, options)
-		$VERSION = '18.1'
+		$VERSION = '18.1.1'
 		if Device.simulator?
 			Stripe.setDefaultPublishableKey('pk_test_8WKTIWKXB6T1eFT9sFqrymCM')
 		else
@@ -52,7 +52,6 @@ class AppDelegate < PM::Delegate
 		Me.init self
 	end
 	def init_screens
-		puts 'INIT LOADING'
 		@home = HomeScreen.new(nav_bar: false)
 		# @explore = ExploreScreen.new(nav_bar: true)
 		@chats = ChatsScreen.new(nav_bar: true)
@@ -65,13 +64,12 @@ class AppDelegate < PM::Delegate
 		@schedule = ScheduleScreen.new(nav_bar: true)
 		@login = LoginScreen.new(nav_bar: false)
 		@loading = LoadingScreen.new(nav_bar:false)
-		puts 'LOADING INITD'
 		@walkthrough = WalkthroughScreen.new(nav_bar:false)
-		20.seconds.later do
-			if BW::Location.enabled? and Store.get('hasLocationPermission', false)
-				@explore.location_ping
-			end
-		end
+		# 20.seconds.later do
+		# 	if BW::Location.enabled? and Store.get('hasLocationPermission', false)
+		# 		@explore.location_ping
+		# 	end
+		# end
 	end
 	def init_api
 		Api.init

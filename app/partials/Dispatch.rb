@@ -119,6 +119,7 @@ class Disptch < PM::TableScreen
     self.tableView.backgroundView = nil
     self.tableView.backgroundColor = "#F2F2EA".uicolor
     @refresh_control.alpha = 0.7
+    @refresh_control.layer.zPosition = -1
     @initd = false
   end
   def table_data
@@ -278,15 +279,21 @@ class Disptch < PM::TableScreen
     if item.respond_to?('height') and !item.height.nil? and item.height > 0
       height = item.height
     else
-      contentStr = item.content.nsattributedstring({
+      if @contentView.nil?
+        @contentView = UITextView.alloc.initWithFrame([[0,0], [@width+16, Float::MAX]]) if @contentView.nil?
+        @contentView.setFont Font.Karla(15)
+        @contentView.dataDetectorTypes = UIDataDetectorTypeLink
+        @contentView.setEditable false
+        @contentView.setTintColor Color.orange
+        @contentView.scrollEnabled = false
+      end
+      contentStr = item.content.strip.nsattributedstring({
         NSFontAttributeName => Font.Karla(15),
         UITextAttributeTextColor => Color.coffee
       })
-      size = self.frame.size
-      size.width = @width - 32
-      size.height = Float::MAX
-      content = contentStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
-      height = 5 + 38 + 5 + content.size.height.ceil + 40 + item.top_padding + 25
+      @contentView.setAttributedText contentStr
+      size = @contentView.sizeThatFits(CGSizeMake(@width-12, Float::MAX))
+      height = 5 + 38 + 5 + 40 + size.height.ceil + item.top_padding
       if item.mediaUrl and @shouldShowPhotos == 0
         height += (UIScreen.mainScreen.bounds.size.width * 0.75) + 14
       end

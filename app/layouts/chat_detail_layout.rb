@@ -77,7 +77,7 @@ class ChatDetailLayout < MK::Layout
   def chatters_style
     backgroundColor "#F7F7F1".uicolor
     constraints do
-      top 64
+      top Device.x(64, 28)
       left 0
       right 0
       @chatters_height = height 0

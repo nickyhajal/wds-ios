@@ -139,7 +139,7 @@ class CartLayout < MK::Layout
     target.addTarget @controller, action: 'close_action', forControlEvents:UIControlEventTouchDown
     constraints do
       left 6
-      top 24
+      top Device.x(24, 28)
     end
     target.sizeToFit
   end
@@ -149,7 +149,7 @@ class CartLayout < MK::Layout
       left 0
       right 0
       top 0
-      height 60
+      height Device.x(60, 28)
     end
   end
   def header_title_style
@@ -158,7 +158,7 @@ class CartLayout < MK::Layout
     textColor Color.light_tan
     constraints do
       center_x.equals(:superview)
-      top 30
+      top Device.x(30, 28)
     end
     target.sizeToFit
   end
@@ -172,10 +172,10 @@ class CartLayout < MK::Layout
     end
   end
   def item_name_style
-    font Font.Karla_Bold(20)
-    textColor Color.dark_gray
+    font Font.Vitesse_Bold(20)
+    textColor Color.dark_gray_blue
     constraints do
-      top 16
+      top 22
       left 16
     end
     view = target
@@ -185,8 +185,8 @@ class CartLayout < MK::Layout
     end
   end
   def item_descr_style
-    font Font.Vitesse(15)
-    textColor Color.dark_gray
+    font Font.Karla_Bold(15)
+    textColor Color.dark_gray_blue
     numberOfLines 1
     lineBreakMode NSLineBreakByTruncatingTail
     constraints do
@@ -274,13 +274,13 @@ class CartLayout < MK::Layout
   end
   def item_price_style
     font Font.Vitesse_Medium(24)
-    textColor Color.dark_gray
+    textColor Color.green
     numberOfLines 1
     textAlignment UITextAlignmentCenter
     constraints do
       left 2
       right 0
-      center_y.equals(:superview).plus(0)
+      center_y.equals(:superview).plus(3)
       @priceWidth = width 80
     end
     view = target
@@ -509,7 +509,7 @@ class CartLayout < MK::Layout
   def card_scan_btn_style
     title "Scan Card"
     titleColor Color.light_tan
-    backgroundColor Color.blue
+    backgroundColor Color.orange
     font Font.Karla_Bold(15)
     target.addTarget @controller, action: 'onCapture', forControlEvents:UIControlEventTouchDown
     constraints do

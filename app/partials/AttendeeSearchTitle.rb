@@ -38,7 +38,7 @@ class AttendeeSearchTitleLayout < MK::Layout
     constraints do
       width 20
       height 20
-      top 22
+      top Device.x(22, 28)
       left 5
     end
   end

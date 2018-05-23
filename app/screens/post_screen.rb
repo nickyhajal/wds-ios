@@ -69,7 +69,8 @@ class PostScreen < PM::Screen
   end
   def photoroll_action
     BW::Device.camera.any.picture(media_types: [:image]) do |result|
-      Api.postImage result[:original_image].scale_to_fill(CGSizeMake(1900, 1900)) do |status, rsp|
+      photo = result.clone
+      Api.postImage photo[:original_image].scale_to_fill(CGSizeMake(1900, 1900)) do |status, rsp|
         if status == 'success'
           setMedia rsp[:id], result[:original_image]
         elsif status == 'progress'

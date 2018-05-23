@@ -34,6 +34,6 @@ class NotificationMarker < UIView
     })
     @countBox = @countStr.boundingRectWithSize(CGSizeMake(Float::MAX, Float::MAX), options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     x = ((rect.size.width / 2) - (@countBox.size.width / 2))
-    @countStr.drawAtPoint(CGPointMake(x, 2))
+    @countStr.drawAtPoint(CGPointMake(x, 5))
 	end
 end

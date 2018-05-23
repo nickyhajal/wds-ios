@@ -92,12 +92,12 @@ class EventsScreen < PM::Screen
     checkIfNullState('appear')
   end
   def setType(type)
-    puts ".."
-    puts type
     if !type.nil?
       type = pluralToType[type.to_sym]
       @type = type
       @layout.type = @type unless @layout.nil?
+      title = types[type.to_sym][:title]
+      title = "Connect" if title == 'Activities'
       self.title = types[type.to_sym][:title]
       0.02.seconds.later do
         @layout.type = @type unless @layout.nil?
@@ -226,16 +226,11 @@ class EventsScreen < PM::Screen
     if !@type.nil? && !@events_table.nil?
       Assets.getSmart @type do |events, status|
         events = {} unless events
-        puts 1
         if setDay
-        puts 2
           setDefaultDay(events)
         end
-        puts 3
         @layout.updateDaySelector(events)
-        puts 4
         @events_table.update_events events, scrollToTop
-        puts 5
         checkIfNullState('ue')
       end
     end

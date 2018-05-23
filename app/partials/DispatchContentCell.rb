@@ -136,10 +136,14 @@ class DispatchContentCell < PM::TableViewCell
           break
         end
       end
-      if @event.nil?
-        channel_str = EventTypes.byId(@event.type)[:single].downcase
+      if @event
+        if @event.type == 'program'
+          channel_str += @event.what
+        else
+          channel_str += EventTypes.byId(@event.type)[:single]+': '+@event.what
+        end
       else
-        channel_str += EventTypes.byId(@event.type)[:single]+': '+@event.what
+        channel_str += ''
       end
     end
     @channelStr = channel_str.attrd({

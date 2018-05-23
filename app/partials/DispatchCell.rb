@@ -32,7 +32,7 @@ class DispatchCell < PM::TableViewCell
   def prepareText
     @event = false
     size = self.frame.size
-    size.width = @width - 32
+    size.width = @width - 12
     size.height = Float::MAX
     if @contentView.nil?
       @cardView = DispatchCellInnerView.alloc.initWithFrame([[0,0], [self.frame.size.width, self.frame.size.height]])
@@ -58,13 +58,14 @@ class DispatchCell < PM::TableViewCell
       self.addSubview @mediaView
     end
     updateImages
-    @contentStr = @item.content.nsattributedstring({
+    @contentStr = @item.content.strip.nsattributedstring({
       NSFontAttributeName => Font.Karla(15),
       UITextAttributeTextColor => Color.dark_gray_blue
     })
     @contentView.setAttributedText @contentStr
     @content = @contentStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
-    @contentView.setFrame([[4,pad_top(48)], [@content.size.width+16,@content.size.height+36]])
+    newContentSize =  @contentView.sizeThatFits(CGSizeMake(size.width, Float::MAX))
+    @contentView.setFrame([[4,pad_top(48)], [size.width,newContentSize.height]])
     @authorStr = @item.author.full_name.nsattributedstring({
       NSFontAttributeName => Font.Vitesse_Bold(15),
       UITextAttributeTextColor => Color.orange
@@ -90,7 +91,7 @@ class DispatchCell < PM::TableViewCell
       avY = avF.size.height+avF.origin.y+6
       y = avY if avY > y
       @mediaView.setFrame([[2, y], [imgSize,(imgSize*0.75)]])
-      @mediaView.setImageWithURL(@item.mediaUrl.nsurl, placeholderImage:UIImage.imageNamed("gray_dots.png"))
+      @mediaView.setImageWithURL(@item.mediaUrl.nsurl, placeholderImage:UIImage.imageNamed("scrib-2.png"))
       @mediaView.setHidden false
     else
       @mediaView.setHidden true
@@ -124,7 +125,11 @@ class DispatchCell < PM::TableViewCell
         end
       end
       if @event
-        channel_str += EventTypes.byId(@event.type)[:single]+': '+@event.what
+        if @event.type == 'program'
+          channel_str += @event.what
+        else
+          channel_str += EventTypes.byId(@event.type)[:single]+': '+@event.what
+        end
       else
         channel_str += ''
       end

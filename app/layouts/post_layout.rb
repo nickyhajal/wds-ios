@@ -34,6 +34,18 @@ class PostLayout < MK::Layout
       end
     end
   end
+  def on_load
+    @startingStatus = 'light'
+  end
+  def will_appear
+    @startingStatus = UIApplication.sharedApplication.statusBarStyle == 1 ? 'light' : 'dark'
+    UIApplication.sharedApplication.setStatusBarStyle(UIStatusBarStyleDefault)
+  end
+  def will_disappear
+    if (@startingStatus == 'light')
+      UIApplication.sharedApplication.setStatusBarStyle(UIStatusBarStyleLightContent)
+    end
+  end
   def open_modal
     main = get(:modal_overlay)
     container = get(:modal_box)
@@ -267,8 +279,8 @@ class PostLayout < MK::Layout
   end
   def dots_style
     elm = target
-    elm.setImage "gray_dots.png".uiimage
-    contentMode UIViewContentModeScaleAspectFit
+    elm.setImage "scrib-1.png".uiimage.overlay(Color.dark_yellow_tan)
+    contentMode UIViewContentModeScaleAspectFill
     constraints do
       left 0
       bottom.equals(:bottomLine, :top).minus(4)

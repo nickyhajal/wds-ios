@@ -241,6 +241,11 @@ class EventLayout < MK::Layout
       height 40
     end
     reapply do
+      if @event.type == 'program'
+        hidden true
+      else
+        hidden false
+      end
       if Me.isAttendingEvent @event
         if @event.type == 'academy'
           title "Joined"
@@ -695,7 +700,7 @@ class EventLayout < MK::Layout
     backgroundColor Color.clear
     reapply do
       str = @event.descr.attrd({
-        NSFontAttributeName => Font.Karla(15)
+        NSFontAttributeName => Font.Karla(17)
       })
       error_ptr = Pointer.new(:object)
       error_ptrM = Pointer.new(:object)
@@ -709,7 +714,7 @@ class EventLayout < MK::Layout
       content = content.gsub('<li>', '<li'+@li_styles+'>')
       textView.setText(content, false)
       str = @event.descr.attrd({
-        NSFontAttributeName => Font.Karla(17)
+        NSFontAttributeName => Font.Karla(19)
       })
       rect = str.boundingRectWithSize(CGSizeMake(super_width-40,Float::MAX), options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
       height = rect.size.height.ceil + 70
@@ -822,7 +827,8 @@ class EventLayout < MK::Layout
         pinView.canShowCallout = true
         rightButton = UIButton.alloc.initWithFrame(CGRectMake(0,0,45,45))
         rightButton.addTarget @controller, action:'go_to_directions_action', forControlEvents:UIControlEventTouchDown
-        rightButton.setImage(Ion.imageByFont(:ios_navigate, size:24.5, color:"#B0BA1E".uicolor), forState:UIControlStateNormal)
+        rightButton.setImage(Ion.imageByFont(:ios_navigate, size:24.5, color:Color.cyan), forState:UIControlStateNormal)
+        pinView.image = Ion.image(:ios_location, color: Color.red).scale_within([38, 38])
         pinView.rightCalloutAccessoryView = rightButton
       end
       pinView

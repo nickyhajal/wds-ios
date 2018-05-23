@@ -27,11 +27,21 @@ class EventScreen < PM::Screen
     #@dispatch.initFilters(@filters_screen.layout)
     @dispatch.setNewPostsBtn @layout.get(:new_posts), @layout.new_posts_y, self.view
     @post_screen.dispatch = @dispatch
+    @startingStatus = 'light'
     true
   end
   # def viewDidLayoutSubviews
   #   @layout.updateScrollSize
   # end
+  def will_appear
+    @startingStatus = UIApplication.sharedApplication.statusBarStyle == 1 ? 'light' : 'dark'
+    UIApplication.sharedApplication.setStatusBarStyle(UIStatusBarStyleDefault)
+  end
+  def will_disappear
+    if (@startingStatus == 'light')
+      UIApplication.sharedApplication.setStatusBarStyle(UIStatusBarStyleLightContent)
+    end
+  end
   def open_profile(user_id)
     @attendee_screen.setAttendee user_id
     open_modal @attendee_screen

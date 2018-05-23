@@ -38,7 +38,7 @@ class ScheduleCell < PM::TableViewCell
     @whatStr = what.nsattributedstring({
       NSFontAttributeName => Font.Vitesse_Medium(17),
       NSParagraphStyleAttributeName => wrap_p,
-      UITextAttributeTextColor => Color.blue
+      UITextAttributeTextColor => Color.bright_blue
     })
     @what = @whatStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     pgraph = NSMutableParagraphStyle.alloc.init

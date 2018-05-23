@@ -50,7 +50,9 @@ class EventTypeCell < PM::TableViewCell
     shadow.shadowBlurRadius = 2.0;
     shadow.shadowOffset = CGSizeMake(1.0, 1.0);
 
-    @typeStr = @name.attrd({
+    name = @name.clone
+    name = 'Connect' if name == 'Activities'
+    @typeStr = name.attrd({
       NSFontAttributeName => Font.Vitesse_Bold(34),
       UITextAttributeTextColor => Color.light_tan,
       NSShadowAttributeName => shadow

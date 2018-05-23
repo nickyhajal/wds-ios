@@ -50,8 +50,8 @@ Motion::Project::App.setup do |app|
 
 
   ## UPDATE APP DELEGATE VERSION
-  app.version = '18.1'
-  app.short_version = '2.3.0'
+  app.version = '18.1.1'
+  app.short_version = '2.3.5'
   app.detect_dependencies = true
 
   app.development do
@@ -91,7 +91,7 @@ Motion::Project::App.setup do |app|
   # app.vendor_project 'vendor/MMMarkdown/Source', :static
   app.interface_orientations = [:portrait]
   # app.icons = ['Icon.png', 'Icon@2x.png', 'Icon@3x.png']
-  app.deployment_target = "11.0"
+  app.deployment_target = "9.0"
   app.fonts = ['Graphik-Medium.ttf', 'Graphik-RegularItalic.ttf', 'Graphik-SemiboldItalic.ttf', 'Graphik-Semibold.ttf', 'Produkt-Semibold.ttf', 'Karla-Regular.ttf', 'Karla-BoldItalic.ttf', 'Karla-Italic.ttf', 'Karla-Bold.ttf', 'Vitesse-Bold.otf', 'Vitesse-Book.otf', 'Vitesse-Light.otf', 'Vitesse-Medium.otf', 'ionicons.ttf']
   app.pods do
     pod 'SDWebImage', '~>3.7'

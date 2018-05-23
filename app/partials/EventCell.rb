@@ -176,7 +176,7 @@ class EventCellInnerView < UIView
       if @cell.event.type == 'academy' || (!@cell.event.price.nil? && @cell.event.price > 0)
         rsvpStr = "You're Attending!"
       end
-      rsvpColor = '#BF8888'
+      rsvpColor = Color.gray
     else
       if @cell.isFull
         rsvpStr = 'Event Full'

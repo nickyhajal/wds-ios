@@ -24,12 +24,12 @@ class ChatCell < PM::TableViewCell
       self.addSubview(@cardView)
     end
     cardSize = self.frame.size
-    cardSize.width = cardW - (@cardP * 2) - 45
+    cardSize.width = cardW - (@cardP * 2) - 10
     cardSize.height = Float::MAX
     height = @cardP * 2
     msg = ""
     if !@chat[:msg].nil? && @chat[:msg].length() > 0
-      msg = @chat[:msg]
+      msg = @chat[:msg].strip
     end
     now = NSDate.new.timeIntervalSince1970
     created = NSDate.dateWithTimeIntervalSince1970(@chat[:created_at].to_i / 1000)
@@ -56,29 +56,35 @@ class ChatCell < PM::TableViewCell
       NSFontAttributeName => Font.Karla_Bold(13),
       UITextAttributeTextColor => Color.dark_gray
     })
-    @chatStr = msg.attrd({
-      NSFontAttributeName => Font.Karla(15),
+    @calcChatStr = msg.attrd({
+      NSFontAttributeName => Font.Karla(17),
       UITextAttributeTextColor => Color.dark_gray
     })
-    @chatBox = @chatStr.boundingRectWithSize(cardSize, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+    @chatBox = @calcChatStr.boundingRectWithSize(cardSize, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     if @contentView.nil?
       @contentView = UITextView.alloc.initWithFrame(chatContentRect) if @contentView.nil?
-      @contentView.setTextColor Color.coffee
-      @contentView.setFont Font.Karla(15)
+      @contentView.setTextColor Color.dark_gray
+      @contentView.setFont Font.Karla(10)
       @contentView.dataDetectorTypes = UIDataDetectorTypeLink
       @contentView.setEditable false
       @contentView.setTintColor Color.orange
       @contentView.scrollEnabled = false
       @cardView.addSubview @contentView
     end
+    @chatStr = msg.attrd({
+      NSFontAttributeName => Font.Karla(15),
+      UITextAttributeTextColor => Color.dark_gray
+    })
     @contentView.setAttributedText @chatStr
+    newContentSize =  @contentView.sizeThatFits(CGSizeMake(cardSize.width, Float::MAX))
     cardSize.width = Float::MAX
     @stampBox = @stampStr.boundingRectWithSize(cardSize, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     frame = chatContentRect
     frame.origin.y -= 8
-    frame.size.height = @chatBox.size.height+18
+    # frame.size.height = @chatBox.size.height+12
+    frame.size = newContentSize
     @contentView.setFrame(frame)
-    height += @chatBox.size.height
+    height += frame.size.height
     height += @botP
     return height
   end
@@ -102,6 +108,7 @@ class ChatCell < PM::TableViewCell
     frame = self.frame
     w = cardW
     h = @chatBox.size.height + (@cardP * 2)
+    h = @contentView.frame.size.height + (@cardP*1.1) if !@contentView.nil?
     y = 0
     if isMe
       x = frame.size.width - @avGutter - w

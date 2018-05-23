@@ -11,10 +11,11 @@ class ChatScreen < PM::Screen
     #   image: Ion.imageByFont(:ios_more, color:Color.white),
     #   action: :more
     # }
-    set_nav_bar_button :right, {
-      image:  Ion.imageByFont(:ios_more, color: Color.white, size:26),
-      action: :openMore
-    }
+    set_nav_bar_button :right, title: "Host", action: 'open_host'
+    # set_nav_bar_button :right, {
+    #   image:  Ion.imageByFont(:ios_arrow_forward, color: Color.white, size:26),
+    #   action: :openMore
+    # }
   end
   def setParent(parent)
     @parent = parent
@@ -64,11 +65,13 @@ class ChatScreen < PM::Screen
     end
   end
   def will_appear
+    puts @group
     if !@group.nil? and @group
-      set_nav_bar_button :right, {
-        image:  Ion.imageByFont(:ios_more, color: Color.white, size:26),
-        action: :openMore
-      }
+      set_nav_bar_button :right, title: '•••', action: :openMore
+      # set_nav_bar_button :right, {
+      #   image:  Ion.imageByFont(:ios_arrow_forward, color: Color.white, size:26),
+      #   action: :openMore
+      # }
     else
       set_nav_bar_button :right, {
         title: '',
