@@ -458,7 +458,7 @@ class EventLayout < MK::Layout
       top.equals(:name, :bottom).minus(12)
       width.equals(:superview).minus(40)
       height 30
-      left.equals(:name).plus(8)
+      left.equals(:name).plus(4)
     end
   end
   def whenTime_style
@@ -475,7 +475,7 @@ class EventLayout < MK::Layout
       top.equals(:when, :bottom).minus(10)
       width.equals(:superview).minus(40)
       height 30
-      left.equals(:name).plus(8)
+      left.equals(:name).plus(4)
     end
   end
   def venue_style
@@ -499,7 +499,7 @@ class EventLayout < MK::Layout
       @venue_top = top.equals(:whenTime, :bottom).minus(13)
       width.equals(:superview).minus(40)
       @venue_height = height 30
-      left.equals(:name).plus(3)
+      left.equals(:name).plus(0)
     end
   end
   def addr_style
@@ -528,7 +528,7 @@ class EventLayout < MK::Layout
       @addr_top = top.equals(:venue, :bottom).minus(14)
       width.equals(:superview).minus(40)
       @addr_height = height 30
-      left.equals(:name).plus(3)
+      left.equals(:name).plus(0)
     end
   end
   def venue_note_style
@@ -554,13 +554,13 @@ class EventLayout < MK::Layout
       @venue_note_top = top.equals(:addr, :bottom).minus(14)
       width.equals(:superview).minus(40)
       @venue_note_height = height 30
-      left.equals(:name).plus(3)
+      left.equals(:name).plus(0)
     end
   end
   def line_after_when_style
     backgroundColor Color.light_gray
     constraints do
-      left.equals(:name)
+      left.equals(:name).plus(4)
       width.equals(:name)
       height 6
       top.equals(:hosts, :bottom).plus(7)
@@ -570,7 +570,7 @@ class EventLayout < MK::Layout
     backgroundColor NSColor.clearColor
     get(:hosts).controller = @controller
     constraints do
-      left.equals(:name)
+      left.equals(:name).plus(4)
       top.equals(:venue_note, :bottom).plus(10)
       width.equals(:name)
       height 37
@@ -582,7 +582,7 @@ class EventLayout < MK::Layout
   def who_style
     constraints do
       top.equals(:dispatch_btn, :bottom).plus(15)
-      left.equals(:name)
+      left.equals(:name).plus(3)
       @who_height = height 0
       width.equals(:name)
     end
@@ -637,7 +637,7 @@ class EventLayout < MK::Layout
     addTarget self, action:'open_atns', forControlEvents:UIControlEventTouchDown
     constraints do
       top.equals(:line_after_when, :bottom).plus(4)
-      left.equals(:name)
+      left.equals(:name).plus(4)
       @rsvpsHeight = height 32
       width.equals(:name)
     end
@@ -666,7 +666,7 @@ class EventLayout < MK::Layout
     target.addTarget self, action:'open_dispatch', forControlEvents:UIControlEventTouchDown
     constraints do
       top.equals(:rsvps, :bottom).plus(4)
-      left.equals(:name)
+      left.equals(:name).plus(4)
       height 32
       width.equals(:name)
     end

@@ -7,6 +7,7 @@ module Fire
     def auth(token, &block)
       # puts token
       FIRAuth.auth.signInWithCustomToken(token, completion: -> user, error {
+        puts '>> fire erro'
         NSLog "%@", error
         block.call(user, error)
       })

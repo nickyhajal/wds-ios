@@ -48,9 +48,12 @@
     @post_screen.dispatch = @dispatch
     @chat_screen = ChatScreen.new(nav_bar: false)
     @cart = CartScreen.new(nav_bar: false)
+    @ticketChoice_screen = TicketChoiceScreen.new(nav_bar: true, hide_nav_bar: false)
+    @ticketChoice_screen.controller = self
     Fire.watch "value", "/state" do |rsp|
       unless rsp.value.nil?
         $STATE = rsp.value
+        @ticketChoice_screen.updateState()
         @dispatch.update_content([])
       end
     end
@@ -205,19 +208,20 @@
     @cart.setPurchasedCallback(self, 'tckt_purchased', false)
     @cart.setTerms('Each ticket includes 1 complimentary, non-transferable WDS Academy, priority booking at the WDS Hotel, and other discounts and benefits.
 
- Tickets are non-refundable. Name changes and ticket transfers are permitted up to 60 days prior to the event for a $100 fee. A late transfer option will be available at a higher cost.')
-    open_modal @cart
+ Tickets are non-refundable. Name changes and ticket transfers are permitted up to 30 days prior to the event for a $100 fee. A late transfer option will be available at a higher cost.')
+    # open_modal @cart
+    open_modal @ticketChoice_screen
   end
   def open_atn_story_action
     open_modal @atnstory_screen
   end
   def post_tckt_action
     @dispatch.hideFirst
-    Store.set('preorder17', 'post-hidden')
+    Store.set('preorder18', 'post-hidden')
   end
   def tckt_purchased
-    Store.set('preorder17', 'purchased')
-    Me.atn.attending17 = 1
+    Store.set('preorder18', 'purchased')
+    Me.atn.attending19 = 1
     @dispatch.update_content([])
   end
   def show_potential_friends_action

@@ -274,7 +274,7 @@ class CartLayout < MK::Layout
   end
   def item_price_style
     font Font.Vitesse_Medium(24)
-    textColor Color.green
+    textColor Color.bright_green
     numberOfLines 1
     textAlignment UITextAlignmentCenter
     constraints do

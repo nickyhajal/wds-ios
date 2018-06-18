@@ -8,6 +8,7 @@ class EventTypeCell < PM::TableViewCell
     @_item = false
     @currentStr = ''
     @descrs = {
+      trust_issues: 'A featured event to bring WDS Attendees together',
       meetups: 'Informal hangouts and attendee-led gatherings',
       academies: 'Half-day workshops taught by alumni speakers and other experts',
       # spark_sessions: 'Open-ended conversations on specific topics',
@@ -57,8 +58,8 @@ class EventTypeCell < PM::TableViewCell
       UITextAttributeTextColor => Color.light_tan,
       NSShadowAttributeName => shadow
     })
-    @arrowStr = Ion.icons[:ios_arrow_forward].attrd({
-      NSFontAttributeName => IonIcons.fontWithSize(38),
+    @arrowStr = Ion.icons[@type ==='trust_issues'? :chevron_up : :ios_arrow_forward].attrd({
+      NSFontAttributeName => IonIcons.fontWithSize(@type == 'trust_issues' ? 29 : 38),
       UITextAttributeTextColor => Color.light_tan,
       NSShadowAttributeName => shadow
     })
@@ -88,7 +89,7 @@ class EventTypeCell < PM::TableViewCell
     CGRectMake(20, selfH - boxH - 18, @width - (@width/3) - 20, boxH+20)
   end
   def arrowRect
-    x = self.frame.size.width - 20 - 15
+    x = self.frame.size.width - 20 - 15 - (@type == 'trust_issues' ? 8 : 0)
     y = self.frame.size.height - 20 - 33
     CGRectMake(x, y, 240, 370)
   end

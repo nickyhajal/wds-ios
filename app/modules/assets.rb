@@ -25,10 +25,15 @@ module Assets
       end
     end
     def pull(assets, &block)
+      if assetsReady
+        puts 'call first ready'
+        block.call false
+      end
       unless assets.kind_of?(Array)
         assets = assets.split(',')
       end
       Api.get 'assets', {tracker: tracker, assets: assets.join(','),via:'ios'} do |rsp|
+        puts 'assets returned'
         unless rsp.is_err
           assets.each do |asset|
             unless rsp.nil? || rsp[asset].nil?
@@ -41,6 +46,7 @@ module Assets
           end
         end
         unless block.nil?
+          puts 'call second ready'
           block.call rsp.is_err
         end
       end
@@ -100,6 +106,10 @@ module Assets
       Store.set(asset, val, true, true)
       track(asset)
     end
+    def assetsReady
+      t = tracker(true)
+      return t.has_key?('slim_attendees') && t.has_key?('events')
+    end
     def tracker(parse = false)
       tracker = Store.get('tracker', parse)
       unless tracker
@@ -113,6 +123,7 @@ module Assets
       Store.set('tracker', _tracker, true)
     end
     def process_slim_attendees(atns)
+      track('slim_attendees')
       Dispatch::Queue.concurrent.async do
         db = fmdb
         db.executeUpdate('DROP TABLE atns');

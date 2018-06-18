@@ -65,6 +65,7 @@ class ChatScreen < PM::Screen
     end
   end
   def will_appear
+    puts '>> chat group'
     puts @group
     if !@group.nil? and @group
       set_nav_bar_button :right, title: '•••', action: :openMore

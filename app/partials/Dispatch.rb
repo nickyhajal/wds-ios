@@ -180,14 +180,14 @@ class Disptch < PM::TableScreen
   def add_special_tiles(items)
 
     ### COMMENT THIS OUT BEFORE PUBLISHING
-    # unless @initd
-    #   @initd = true
-    #   Store.set('preorder17', 'do_pre')
-    # end
+    unless @initd
+      @initd = true
+      Store.set('preorder18', 'do_pre')
+    end
     #### ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    pre = Store.get('preorder17')
+    pre = Store.get('preorder18')
     atnstory = Store.get('atnstory17')
-    preState = Store.get('preorder17_state')
+    preState = Store.get('preorder18_state')
     today = NSDate.new.string_with_format(:iso8601)
     preState = 'open' unless preState
     if $STATE.nil?
@@ -210,8 +210,15 @@ class Disptch < PM::TableScreen
         'state' => 'open'
       })
       items.unshift(make_cell(tile))
-    elsif (!pre || pre == "do_pre") and ($STATE[:test17_special] == 'preorder')
-    # elsif (!pre || pre == "do_pre") and ($STATE[:special] == 'preorder')
+    elsif ($STATE[:test18_special] == 'announce')
+      tile = DispatchItem.new({
+        'type' => 'announce',
+        'height' => bannerHeight,
+        'state' => $STATE[:announce]
+      })
+      items.unshift(make_cell(tile))
+    # elsif (!pre || pre == "do_pre") and ($STATE[:test18_special] == 'preorder')
+    elsif (!pre || pre == "do_pre") and ($STATE[:special] == 'preorder')
       tile = DispatchItem.new({
         'type' => 'tckt',
         'height' => (preState == 'open' ? fullHeight : bannerHeight),
@@ -310,6 +317,8 @@ class Disptch < PM::TableScreen
       params[:media] = @mediaAttached
       params[:media_type] = 'photo'
     end
+    puts '>> dsp params'
+    puts params
     Api.post 'feed', params do |rsp|
       unless rsp.is_err
         @mediaAttached = false

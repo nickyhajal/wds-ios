@@ -25,7 +25,7 @@ class ExploreLayout < MK::Layout
     background_color "#F2F2EA".uicolor
   end
   def sub_nav_style
-    background_color Color.bright_green
+    background_color Color.bright_blue
     constraints do
       width.equals(:superview)
       height 46

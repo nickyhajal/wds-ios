@@ -31,7 +31,7 @@ class PostOrderCell < UIView
     cardPath.fill
 
     iw = rect.size.width
-    ih = iw * 0.678
+    ih = iw * 0.757
     if @img.nil?
       @img = UIImageView.alloc.initWithFrame(CGRectMake(3,4,iw-2,ih-8))
       # @img.contentMode = UIViewContentModeScaleAspectFill
@@ -40,10 +40,10 @@ class PostOrderCell < UIView
     end
 
     btn_bg_h = Device.is4 ? 46 : 64
-    cpadding = Device.is4 ? 160 : 104
+    cpadding = Device.is4 ? 160 : 70
     cw = iw - cpadding
     cx = cpadding / 2
-    ch = cw * 0.462
+    ch = cw * 0.316
     cont_size = rect.size.height-ih - btn_bg_h
     cy = ih + ((cont_size)/2) - (ch/2) - 2
     if @cont.nil?
@@ -63,7 +63,7 @@ class PostOrderCell < UIView
     btn_sh_h = btn_bg_h - 12
     btn_sh_y = btn_bg_y + 4
     btn_shPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(3, btn_sh_y, btn_bg_w, btn_sh_h), cornerRadius:0.0)
-    "#D17E1C".uicolor.setFill
+    "#E54B2C".uicolor.setFill
     btn_shPath.fill
 
     btn_h = btn_sh_h - 2
@@ -81,7 +81,7 @@ class PostOrderCell < UIView
     box.width = btn_bg_w
     box.height = Float::MAX
     btnBox = @btnStr.boundingRectWithSize(box, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
-    pnt = CGPointMake((btn_bg_w/2)-(btnBox.size.width/2), btn_y + ((btn_h/2)-(btnBox.size.height/2)))
+    pnt = CGPointMake((btn_bg_w/2)-(btnBox.size.width/2), 2+ btn_y + ((btn_h/2)-(btnBox.size.height/2)))
     @btnStr.drawAtPoint(pnt)
 
   end

@@ -56,6 +56,7 @@ class ScheduleScreen < PM::Screen
   def open_event(event)
     @event_screen.setEvent(event)
     open_modal @event_screen
+    # open @event_screen
   end
   def will_appear
     update_schedule

@@ -40,7 +40,7 @@ class PlaceCell < PM::TableViewCell
     # Name
     @nameStr = @place['name'].nsattributedstring({
       NSFontAttributeName => Font.Vitesse_Medium(19),
-      UITextAttributeTextColor => Color.blue
+      UITextAttributeTextColor => Color.bright_blue
     })
     @name = @nameStr.boundingRectWithSize(size, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
     pgraph = NSMutableParagraphStyle.alloc.init
@@ -127,7 +127,7 @@ class PlaceCell < PM::TableViewCell
   end
   def name_rect
     @name_top = 10
-    CGRectMake(10, 10, @name.size.width, @name.size.height)
+    CGRectMake(10, 10, @name.size.width, @name.size.height+100)
   end
   def addr_rect
     @addr_top = @name_top + @name.size.height+4

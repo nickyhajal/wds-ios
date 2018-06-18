@@ -76,7 +76,7 @@ class EventScreen < PM::Screen
       @event = event
       @post_screen.layout.get(:placeholder).text = "Share a message with "+@event.what
       @dispatch.clear
-      @dispatch.setChannel('meetup', @event.event_id)
+      @dispatch.setChannel(@event.type === 'ambassador' ? 'ambassador' : 'meetup', @event.event_id)
       @layout.get(:channel_nav).setButtonText 1, @event.what
       @layout.get(:scrollview).setContentOffset(CGPointMake(0, 0), animated: false)
       @layout.slideClosed(0.0)

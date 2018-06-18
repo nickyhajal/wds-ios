@@ -15,6 +15,7 @@ module Color
         gold: "#FEC31F",
         red: "#E74D27",
         dark_tan: "#E2E1DE",
+        black: "#000000",
         # orange: [244,149,51],
         tan: "#D4D7DC",
         # tan: "#EAEADC",
@@ -31,7 +32,7 @@ module Color
         blue: "#0A72B0",
         green: "#006F3D",
         # green: "#B0BA1E",
-        bright_green: "#BDC72B",
+        bright_green: "#13AB2E",
         white: "#FFFFFF",
         coffee: "#21170A"
       }

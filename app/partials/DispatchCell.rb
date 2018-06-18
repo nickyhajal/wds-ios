@@ -277,6 +277,8 @@ class DispatchCell < PM::TableViewCell
         cellClass = PostOrderCell
       elsif @type == 'update'
         cellClass = UpdateCell
+      elsif @type == 'announce'
+        cellClass = AnnouncementCell
       elsif @type == 'attendee-stories'
         cellClass = AtnStoryCell
       end

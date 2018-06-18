@@ -62,6 +62,8 @@ module Me
       if token
         uuid = MCSMApplicationUUIDKeychainItem.applicationUUID
         Api.post 'device', {token: token, uuid: uuid, type: 'ios'} do |rsp|
+          puts '>> saved token'
+          puts rsp.saved_token
           if rsp.saved_token.to_i > 0
             Store.set('saved_device_token', '1')
           end

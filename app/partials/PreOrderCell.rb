@@ -51,7 +51,7 @@ class PreOrderCell < UIView
       new_state = 'open'
       height = @cell.table.fullHeight
     end
-    @cell.table.update_cell_height(@cell.inx, height, new_state, 'preorder17')
+    @cell.table.update_cell_height(@cell.inx, height, new_state, 'preorder18')
   end
   def drawRect(rect)
     initViews
@@ -87,11 +87,11 @@ class PreOrderCell_Closed < UIView
     bg.setFill
     bgPath.fill
 
-    @btnStr = "🎆 Pre-order for WDS 2018!".attrd({
+    @btnStr = "🎆 Pre-order for WDS 2019 & 2020!".attrd({
       NSFontAttributeName => Font.Karla_BoldItalic(18),
       UITextAttributeTextColor => "#999590".uicolor
     })
-    @btnStr.drawAtPoint(CGPointMake(8, 18))
+    @btnStr.drawAtPoint(CGPointMake(8, 20))
     if @arrow.nil?
       @arrow = UILabel.alloc.initWithFrame(CGRectMake(self.frame.size.width-20, 8, 30, 42))
       @arrow.attributedText = Ion.icons[:ios_arrow_forward].attrd({
@@ -109,6 +109,11 @@ class PreOrderCell_Open < UIView
     CGRectMake(self.frame.size.width-w-6, 14, w, h)
   end
   def drawRect(rect)
+
+    pre = $STATE[:pre]
+    s_soldout = pre[:single_soldout].nil? ? false : pre[:single_soldout] > 0
+    d_soldout = pre[:double_soldout].nil? ? false : pre[:double_soldout] > 0
+
     size = rect.size
     textSize = CGSizeMake(size.width - 32, Float::MAX)
 
@@ -131,12 +136,19 @@ class PreOrderCell_Open < UIView
     cardPath.fill
 
     iw = rect.size.width
-    ih = iw * 0.677
+    ih = iw * 0.4176
+    # ih = iw * 0.556
     if @img.nil?
-      @img = UIImageView.alloc.initWithFrame(CGRectMake(0,3,iw-2,ih-8))
+      @img = UIImageView.alloc.initWithFrame(CGRectMake(2,3,iw-4,ih-8))
       # @img.contentMode = UIViewContentModeScaleAspectFill
       @img.setImage(UIImage.imageNamed("preorder"))
       self.addSubview @img
+    end
+    if @shmoo.nil?
+      @shmoo= UIImageView.alloc.initWithFrame(CGRectMake(iw-44,ih-30,42,71))
+      # @img.contentMode = UIViewContentModeScaleAspectFill
+      @shmoo.setImage(UIImage.imageNamed("green_shmoo"))
+      self.addSubview @shmoo
     end
 
     rt_h = 55
@@ -147,17 +159,28 @@ class PreOrderCell_Open < UIView
     ch = cw * 0.397
     cont_size = rect.size.height-ih - btn_bg_h - rt_h - 8
     cy = ih + ((cont_size)/2) - (ch/2) - 2
-    if @cont.nil?
-      @cont = UIImageView.alloc.initWithFrame(CGRectMake(cx, cy, cw, ch))
-      # @img.contentMode = UIViewContentModeScaleAspectFill
-      @cont.setImage(UIImage.imageNamed("preorder_content"))
-      self.addSubview @cont
-    end
+    # if @cont.nil?
+    #   @cont = UIImageView.alloc.initWithFrame(CGRectMake(cx, cy, cw, ch))
+    #   # @img.contentMode = UIViewContentModeScaleAspectFill
+    #   @cont.setImage(UIImage.imageNamed("preorder_content"))
+    #   self.addSubview @cont
+    # end
 
     # Background
     btn_bg_y = rect.size.height - btn_bg_h - rt_h
     btn_use_h = rect.size.height - btn_bg_y
     btn_bg_w = rect.size.width - 6
+    hi_y = ih-8
+    cont_h = btn_bg_y - ih
+    hi_h = cont_h * 0.6
+
+    hi_path = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(2, hi_y, iw, hi_h), cornerRadius:0.0)
+    "#FFFDEF".uicolor.setFill
+    hi_path.fill
+    hi_line = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(2, hi_y+hi_h, iw, 1), cornerRadius:0.0)
+    "#F4F4E0".uicolor.setFill
+    hi_line.fill
+
     btn_bgPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(3, btn_bg_y, btn_bg_w, btn_use_h), cornerRadius:0.0)
     bg.setFill
     btn_bgPath.fill
@@ -165,7 +188,7 @@ class PreOrderCell_Open < UIView
     btn_sh_h = btn_bg_h - 12
     btn_sh_y = btn_bg_y + 4
     btn_shPath = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(3, btn_sh_y, btn_bg_w, btn_sh_h), cornerRadius:0.0)
-    "#D17E1C".uicolor.setFill
+    "#E54B2C".uicolor.setFill
     btn_shPath.fill
 
     btn_h = btn_sh_h - 2
@@ -173,17 +196,80 @@ class PreOrderCell_Open < UIView
     btn_Path = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(3, btn_y, btn_bg_w, btn_h), cornerRadius:0.0)
     Color.orange.setFill
     btn_Path.fill
-
     fontSize = Device.is4 ? 18 : 24
-    @btnStr = "Get Your Ticket!".attrd({
-      NSFontAttributeName => Font.Karla_Bold(fontSize),
+    pgraph = NSMutableParagraphStyle.alloc.init
+    pgraph.alignment = NSTextAlignmentCenter
+    @doubleText = "Join us for\nWDS 2019 & 2020".attrd({
+      NSFontAttributeName => Font.Vitesse_Bold(fontSize),
+      NSParagraphStyleAttributeName => pgraph,
+      UITextAttributeTextColor => Color.cyan(d_soldout ? 0.4 : 1.0)
+    })
+    dblBox = self.frame.size
+    dblBox.width = 210
+    dblBox.height = Float::MAX
+    dblTxtBox = @doubleText.boundingRectWithSize(dblBox, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+    dblPriceW = 200
+    dblPriceH = dblPriceW*0.24
+    dblTxtY = hi_y + (hi_h / 2 - ((dblTxtBox.size.height + dblPriceH) / 2))
+    dblTxtPnt = CGPointMake((iw/2)-(dblTxtBox.size.width/2), dblTxtY) # ((hi_h/2)-(dblTxtBox.size.height/2)))
+    @doubleText.drawInRect(CGRectMake(dblTxtPnt.x, dblTxtPnt.y, dblBox.width, dblBox.height))
+    if @dblPrice.nil?
+      @dblPrice = UIImageView.alloc.initWithFrame(CGRectMake(iw/2 - dblPriceW/2, dblTxtBox.size.height+dblTxtPnt.y+8, dblPriceW, dblPriceH))
+      @dblPrice.contentMode = UIViewContentModeScaleAspectFill
+      @dblPrice.setImage(UIImage.imageNamed("double_pricing"))
+      self.addSubview @dblPrice
+    end
+    @dblPrice.setAlpha(d_soldout ? 0.3 : 1.0)
+    if @dblSoldout.nil?
+      dblSoldoutH = dblPriceH + dblTxtBox.size.height - 20
+      dblSoldoutW = 2.64 * dblSoldoutH
+      @dblSoldout = UIImageView.alloc.initWithFrame(CGRectMake(iw/2 - dblSoldoutW/2, dblTxtY + 13, dblSoldoutW, dblSoldoutH))
+      @dblSoldout.contentMode = UIViewContentModeScaleAspectFill
+      @dblSoldout.setImage(UIImage.imageNamed("sold_out"))
+      self.addSubview @dblSoldout
+    end
+    @dblSoldout.setAlpha(d_soldout ? 0.8 : 0)
+    @singleText = "OR pre-order to WDS 2019".attrd({
+      NSFontAttributeName => Font.Vitesse_Bold(fontSize - 3),
+      NSParagraphStyleAttributeName => pgraph,
+      UITextAttributeTextColor => Color.cyan(s_soldout ? 0.3 : 1.0)
+    })
+    singleBox = self.frame.size
+    singleBox.height = Float::MAX
+    singleTxtBox = @singleText.boundingRectWithSize(singleBox, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
+    singlePriceW = 145
+    singlePriceH = singlePriceW*0.252
+    secondContentY = hi_y + hi_h
+    secondContentH = btn_bg_y - secondContentY
+    singleTxtY = (hi_y+hi_h) + (secondContentH / 2 - ((singleTxtBox.size.height + singlePriceH) / 2))
+    singleTxtPnt = CGPointMake(0, singleTxtY) # ((hi_h/2)-(dblTxtBox.size.height/2)))
+    @singleText.drawInRect(CGRectMake(singleTxtPnt.x, singleTxtPnt.y, singleBox.width, singleBox.height))
+    if @singlePrice.nil?
+      @singlePrice = UIImageView.alloc.initWithFrame(CGRectMake(iw/2 - singlePriceW/2, singleTxtBox.size.height+singleTxtPnt.y+8, singlePriceW, singlePriceH))
+      @singlePrice.contentMode = UIViewContentModeScaleAspectFill
+      @singlePrice.setImage(UIImage.imageNamed("single_pricing"))
+      self.addSubview @singlePrice
+    end
+    @singlePrice.setAlpha(s_soldout ? 0.3 : 1.0)
+    if @singleSoldout.nil?
+      sSoldoutH = singlePriceH + singleTxtBox.size.height - 4
+      sSoldoutW = 2.64 * sSoldoutH
+      @singleSoldout = UIImageView.alloc.initWithFrame(CGRectMake(iw/2 - sSoldoutW/2, singleTxtY + 2, sSoldoutW, sSoldoutH))
+      @singleSoldout.contentMode = UIViewContentModeScaleAspectFill
+      @singleSoldout.setImage(UIImage.imageNamed("sold_out"))
+      self.addSubview @singleSoldout
+    end
+    @singleSoldout.setAlpha(s_soldout ? 0.8 : 0)
+
+    @btnStr = "I'm in, let's go!".attrd({
+      NSFontAttributeName => Font.Vitesse_Bold(fontSize),
       UITextAttributeTextColor => Color.light_tan
     })
     box = self.frame.size
     box.width = btn_bg_w
     box.height = Float::MAX
     btnBox = @btnStr.boundingRectWithSize(box, options: NSStringDrawingUsesLineFragmentOrigin, context: nil)
-    pnt = CGPointMake((btn_bg_w/2)-(btnBox.size.width/2), btn_y + ((btn_h/2)-(btnBox.size.height/2)))
+    pnt = CGPointMake((btn_bg_w/2)-(btnBox.size.width/2), 2+ btn_y + ((btn_h/2)-(btnBox.size.height/2)))
     @btnStr.drawAtPoint(pnt)
 
     if @arrow.nil?
@@ -317,9 +403,9 @@ class PreorderRealTimeView < UIView
       frame.origin.x -= 2
     end
     frame.size.width -= frame.origin.x + 20
-    frame.origin.y -= 3
+    frame.origin.y -= 0
     @textView = UITextView.alloc.initWithFrame(frame)
-    msg = @sale[:name]+" will be at WDS 2018! "
+    msg = @sale[:name]+" will be at WDS 2019! "
     msg = msg.attrd({
       NSFontAttributeName => Font.Karla_BoldItalic(13),
       UITextAttributeTextColor => Color.dark_gray
@@ -352,7 +438,7 @@ class PreorderRealTimeView < UIView
     shell.fade_out(0)
     frame.size.width -= 20
     frame.origin.x += 5
-    frame.origin.y -= 3
+    frame.origin.y -= 0
     @textView = UITextView.alloc.initWithFrame(frame)
     msg = getMsg
     @textView.attributedText = msg.attrd({
@@ -412,7 +498,7 @@ class PreorderCounterView < UIView
       if Device.type.to_i <  6
         y += 3
       end
-      @txt.drawAtPoint(CGPointMake(x,y))
+      @txt.drawAtPoint(CGPointMake(x,y+5))
       line = UIBezierPath.bezierPathWithRoundedRect(CGRectMake(0, 6, 2, 30), cornerRadius:0.0)
       "#D0D0C5".uicolor.setFill
       # Color.blue.setFill

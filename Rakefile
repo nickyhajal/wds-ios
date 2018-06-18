@@ -45,13 +45,13 @@ Motion::Project::App.setup do |app|
   force_64bit_only!(app)
   define_icon_defaults!(app)
   app.name = 'WDS App'
-  app.frameworks += ["QuartzCore", "CoreImage", "MapKit"]
+  app.frameworks += ["QuartzCore", "CoreImage", "MapKit", "CoreLocation"]
   app.identifier = 'com.worlddominationsummit.wdsios'
 
 
   ## UPDATE APP DELEGATE VERSION
-  app.version = '18.1.1'
-  app.short_version = '2.3.5'
+  app.version = '18.2'
+  app.short_version = '2.3.9'
   app.detect_dependencies = true
 
   app.development do
@@ -79,6 +79,7 @@ Motion::Project::App.setup do |app|
   app.entitlements['application-identifier'] = "#{app.seed_id}.#{app.identifier}"
   app.info_plist['UIViewControllerBasedStatusBarAppearance'] = false
   app.info_plist['NSLocationAlwaysUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers.'
+  app.info_plist['NSLocationAlwaysAndWhenInUseUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers.'
   app.info_plist['NSLocationWhenInUseUsageDescription'] = 'We use your location to help you explore Portland and connect with other WDSers.'
   app.info_plist['NSCameraUsageDescription'] = 'We use your camera to allow you to share photos with WDS Attendees and to make adding credit cards easy.'
   app.info_plist['NSPhotoLibraryUsageDescription'] = 'We use your photos to allow you to share photos with WDS Attendees and to make adding credit cards easy.'
@@ -560,6 +561,7 @@ Motion::Project::App.setup do |app|
   app.ordered_build_files << "./app/screens/events_nav.rb"
   app.ordered_build_files << "./app/screens/events_screen.rb"
   app.ordered_build_files << "./app/screens/explore_screen.rb"
+  app.ordered_build_files << "./app/screens/ticket_choice_screen.rb"
   app.ordered_build_files << "./app/screens/filters_screen.rb"
   app.ordered_build_files << "./app/screens/loading_screen.rb"
   app.ordered_build_files << "./app/screens/login_screen.rb"
@@ -593,6 +595,8 @@ Motion::Project::App.setup do |app|
   app.ordered_build_files << "./app/layouts/login_layout.rb"
   app.ordered_build_files << "./app/layouts/modal_layout.rb"
   app.ordered_build_files << "./app/layouts/more_layout.rb"
+  app.ordered_build_files << "./app/layouts/ticket_choice_layout.rb"
+  app.ordered_build_files << "./app/layouts/ticket_choice_block.rb"
   app.ordered_build_files << "./app/layouts/newchat_layout.rb"
   app.ordered_build_files << "./app/layouts/notifications_layout.rb"
   app.ordered_build_files << "./app/layouts/notes_layout.rb"
@@ -654,8 +658,11 @@ Motion::Project::App.setup do |app|
   app.ordered_build_files << "./app/partials/ScheduleListing.rb"
   app.ordered_build_files << "./app/partials/ScrollView.rb"
   app.ordered_build_files << "./app/partials/UpdateCell.rb"
+  app.ordered_build_files << "./app/partials/AnnouncementCell.rb"
   app.ordered_build_files << "./app/partials/WDTextField.rb"
 end
+
+#kjbt-ttuh-spud-zsta
 
 def define_icon_defaults!(app)
   # This is required as of iOS 11.0 (you must use asset catalogs to
@@ -669,12 +676,12 @@ def define_icon_defaults!(app)
     }
   }
 
-  app.info_plist['CFBundleIcons~ipad'] = {
-    'CFBundlePrimaryIcon' => {
-      'CFBundleIconName' => 'AppIcon',
-      'CFBundleIconFiles' => ['AppIcon60x60', 'AppIcon76x76']
-    }
-  }
+  # app.info_plist['CFBundleIcons~ipad'] = {
+  #   'CFBundlePrimaryIcon' => {
+  #     'CFBundleIconName' => 'AppIcon',
+  #     'CFBundleIconFiles' => ['AppIcon60x60', 'AppIcon76x76']
+  #   }
+  # }
 end
 
 Rake::Task["archive:distribution"].enhance do

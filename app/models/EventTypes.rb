@@ -2,7 +2,7 @@ module EventTypes
   class << self
     def types(form = 'id')
       # ['meetup', 'academy', 'activity', 'expedition', 'registration']
-      ['meetup', 'academy', 'activity', 'registration']
+      ['meetup', 'academy', 'activity', 'registration', 'ambassador']
     end
     def byId(id = 'meetup')
       out = false
@@ -50,6 +50,12 @@ module EventTypes
         title: 'Registration',
         single: 'Registration',
         plural: 'Registration'
+      }
+      list << {
+        id: 'ambassador',
+        title: 'Ambassador',
+        single: 'Ambassador',
+        plural: 'Ambassador'
       }
       list
     end

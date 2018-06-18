@@ -93,7 +93,7 @@ class ExploreScreen < PM::Screen
     unless @pinging
       location_ping
     end
-    @frequency = 45
+    @frequency = 20
   end
   def open_location_permission_primer
       Store.set('asked_for_location', 0)
@@ -119,6 +119,10 @@ class ExploreScreen < PM::Screen
   end
   def location_allow(item)
     Store.set('hasLocationPermission', true)
+    @locationManager = CLLocationManager.alloc.init
+    @locationManager.requestWhenInUseAuthorization
+    @waitingForOk = true
+    @frequency = 5
     location_ping
   end
   def location_ping
@@ -128,6 +132,10 @@ class ExploreScreen < PM::Screen
       if !hasPermission
         open_location_permission_primer
       else
+        if @waitingForOk
+          @waitingForOk = false
+          @frequency = 20
+        end
         BW::Location.get_once(purpose: "We'd like to use your location to help you explore Portland and connect with other WDSers!") do |result|
           if result.is_a?(CLLocation)
             @placeList.position = result

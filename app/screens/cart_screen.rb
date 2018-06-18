@@ -57,6 +57,30 @@ class CartScreen < PM::Screen
       @purchase_data = {
         event_id: @meta.event_id
       }
+    elsif @code == 'wds2019'
+      pkg = {
+        name: "WDS 2019",
+        descr: "360 Ticket to WDS 2019",
+        price: "597",
+        confirm: true,
+        max_quantity: 3,
+        fee: 10
+      }
+      @purchase_data = {
+        quantity: 1
+      }
+    elsif @code == 'wdsDouble'
+      pkg = {
+        name: "WDS 2019 & 2020",
+        descr: "360 Ticket to WDS 2019 & 2020",
+        price: "997",
+        confirm: true,
+        max_quantity: 3,
+        fee: 10
+      }
+      @purchase_data = {
+        quantity: 1
+      }
     elsif @code == 'wds2018'
       pkg = {
         name: "WDS 2018",
@@ -87,10 +111,18 @@ class CartScreen < PM::Screen
     end
     if @layout.vals[:confirm] and !confirmed
       q = @layout.vals[:quantity]
-      if q == 1
-        tickets = "1 ticket to WDS 2018"
-      else
-        tickets = q.to_s+" tickets to WDS 2018"
+      if @code === 'wdsDouble'
+        if q == 1
+          tickets = "1 ticket to WDS 2019 & 2020"
+        else
+          tickets = q.to_s+" tickets to WDS 2019 & 2020"
+        end
+      elsif @code === 'wds2019'
+        if q == 1
+          tickets = "1 ticket to WDS 2019"
+        else
+          tickets = q.to_s+" tickets to WDS 2019"
+        end
       end
       priceStr = @layout.get(:item_price).text
       priceStr = priceStr.sub('$', '')

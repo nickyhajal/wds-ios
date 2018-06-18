@@ -1,7 +1,7 @@
 class AppDelegate < PM::Delegate
 	attr_accessor :login, :event , :home, :events
 	def on_load(app, options)
-		$VERSION = '18.1.1'
+		$VERSION = '18.2'
 		if Device.simulator?
 			Stripe.setDefaultPublishableKey('pk_test_8WKTIWKXB6T1eFT9sFqrymCM')
 		else
@@ -53,7 +53,7 @@ class AppDelegate < PM::Delegate
 	end
 	def init_screens
 		@home = HomeScreen.new(nav_bar: false)
-		# @explore = ExploreScreen.new(nav_bar: true)
+		@explore = ExploreScreen.new(nav_bar: true)
 		@chats = ChatsScreen.new(nav_bar: true)
 		@events = EventsScreen.new(nav_bar: true)
 		@event = EventScreen.new(nav_bar: false)
@@ -65,11 +65,17 @@ class AppDelegate < PM::Delegate
 		@login = LoginScreen.new(nav_bar: false)
 		@loading = LoadingScreen.new(nav_bar:false)
 		@walkthrough = WalkthroughScreen.new(nav_bar:false)
-		# 20.seconds.later do
-		# 	if BW::Location.enabled? and Store.get('hasLocationPermission', false)
-		# 		@explore.location_ping
-		# 	end
-		# end
+		20.seconds.later do
+			puts 'INIT PING'
+			puts "ENA: #{BW::Location.enabled?}"
+			puts "HAS: #{Store.get('hasLocationPermission', false)}"
+			if BW::Location.enabled? and Store.get('hasLocationPermission', false)
+				puts 'INIT PING RESULT'
+				if !@explore.nil? && @explore.respond_to?('location_ping')
+					@explore.location_ping
+				end
+			end
+		end
 	end
 	def init_api
 		Api.init
@@ -145,7 +151,7 @@ class AppDelegate < PM::Delegate
 				# NSLog "%@", @home.tabBarItem
 				# NSLog "%@", @eventTypes.tabBarItem
 				# NSLog "%@", @chats.tabBarItem
-				@tab_bar = open_tab_bar @home, @schedule, @eventTypes, @chats #, @explore
+				@tab_bar = open_tab_bar @home, @schedule, @eventTypes, @chats, @explore
 				@tab_bar.tabBar.items.each do |tab|
 					tab.imageInsets = UIEdgeInsetsMake(5.0,0,-5.0,0)
 				end
@@ -179,6 +185,7 @@ class AppDelegate < PM::Delegate
 	  application.registerForRemoteNotifications
 	end
 	def application(application, didFailToRegisterForRemoteNotificationsWithError: error)
+		puts '>> app err'
 		puts error.inspect
 	end
 	def application(application, didRegisterForRemoteNotificationsWithDeviceToken: device_token)

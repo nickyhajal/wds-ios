@@ -46,7 +46,7 @@ class PermissionLayout < MK::Layout
       NSFontAttributeName => Font.Karla(16),
       UITextAttributeTextColor => Color.dark_gray
     }
-    content = content.gsub('<p>', '<p style="color: #877F75; font-family: Karla; text-align:center; font-size:16px; margin-bottom:16px; margin-left:8px; margin-right:8px;">')
+    content = content.gsub('<p>', '<p style="color: #877F75; font-family: Graphik App; text-align:center; font-size:16px; margin-bottom:16px; margin-left:8px; margin-right:8px;">')
     content = content.gsub('<em>', '<em style="font-family: Karla; font-weight: bold;">')
     content = NSAttributedString.alloc.initWithData(
       content.dataUsingEncoding(NSUTF8StringEncoding),
@@ -171,13 +171,13 @@ class PermissionLayout < MK::Layout
       height 50
       width.equals(:superview)
     end
-    backgroundColor Color.blue
+    backgroundColor Color.bright_blue
   end
   def title_style
     text ''
     textColor Color.light_tan
     textAlignment NSTextAlignmentCenter
-    backgroundColor Color.blue
+    backgroundColor Color.bright_blue
     font Font.Vitesse_Bold(21.0)
     constraints do
       left 0

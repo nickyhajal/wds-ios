@@ -18,6 +18,7 @@ class EventTypesScreen < PM::Screen
   def on_load
     @layout = EventTypesLayout.new(root: self.view)
     @layout.setController self
+    @event_screen = EventScreen.new(nav_bar: false)
     @event_table = EventTypesListing.new
     @event_table.controller = self
     @event_table.setLayout @layout
@@ -31,9 +32,19 @@ class EventTypesScreen < PM::Screen
     end
   end
   def open_event(item)
+    puts 'event item>>'
     puts item
+    if item == 'trust_issues'
+      events = Store.get('events', true)
+      trust = events.select { |ev|
+        ev[:event_id] == 960
+      }
+      @event_screen.setEvent(Event.new(trust[0]))
+      open_modal @event_screen
+    else
     @events_screen.setType(item)
     open @events_screen
+    end
   end
   def select_event_type_action(sender)
     selector = @layout.get(:subview_selector)

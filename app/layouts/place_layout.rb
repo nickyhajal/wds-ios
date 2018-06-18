@@ -211,7 +211,7 @@ class PlaceLayout < MK::Layout
     reapply do
       text @place[:name]
       newSize =  textView.sizeThatFits(CGSizeMake(fixedWidth, Float::MAX))
-      @name_height.equals(newSize.height)
+      @name_height.equals(newSize.height+5)
     end
   end
   def anchor_style

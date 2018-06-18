@@ -27,6 +27,7 @@ module Store
       # CLSLog("Store response: %@", kv)
       # Crashlytics.sharedInstance.setObjectValue(kv, forKey: 'kvReturnObj')
       # NSLog "%@", kv.inspect
+      # puts key
       if !kv.nil? && !kv.count.nil? && kv.count > 0
         kv.first
       else
@@ -36,6 +37,7 @@ module Store
       end
     end
     def set(key, val, gen_json = false, cache = false)
+      # puts "set #{key}"
       if cache
         set_cache key, val
       end
