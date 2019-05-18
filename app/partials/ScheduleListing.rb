@@ -4,14 +4,16 @@ class ScheduleListing < PM::TableScreen
   attr_accessor :day, :dayStr, :events, :layout, :controller
   def on_load
     days = Assets.get('days')
-    @day ||= begin
-      days[0][:startDay]
+    if !days.nil? && days.length > 0
+      @day ||= begin
+        days[0][:startDay]
+      end
+      @dayStr ||= begin
+        days[0][:dayStr]
+      end
+      @events = []
+      self.tableView.setSeparatorStyle(UITableViewCellSeparatorStyleNone)
     end
-    @dayStr ||= begin
-      days[0][:dayStr]
-    end
-    @events = []
-    self.tableView.setSeparatorStyle(UITableViewCellSeparatorStyleNone)
   end
   def table_data
     @events

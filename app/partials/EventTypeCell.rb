@@ -52,7 +52,7 @@ class EventTypeCell < PM::TableViewCell
     shadow.shadowOffset = CGSizeMake(1.0, 1.0);
 
     name = @name.clone
-    name = 'Connect' if name == 'Activities'
+    name = 'WDS HQ' if name == 'Activities'
     @typeStr = name.attrd({
       NSFontAttributeName => Font.Vitesse_Bold(34),
       UITextAttributeTextColor => Color.light_tan,

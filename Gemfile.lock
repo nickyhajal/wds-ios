@@ -5,8 +5,8 @@ GIT
     ion_in_motion (0.2.0)
 
 GIT
-  remote: https://github.com/sxross/MotionModel.git
-  revision: 9d7cebaf74beb12fe28a1b94aaf2e5fdd59a6ab0
+  remote: https://github.com/nickyhajal/MotionModel.git
+  revision: 10558b305b34925809073cac1ee6dd2542ac99be
   branch: sql
   specs:
     motion_model (0.4.6)
@@ -257,4 +257,4 @@ DEPENDENCIES
   sugarcube
 
 BUNDLED WITH
-   1.16.0
+   1.17.3

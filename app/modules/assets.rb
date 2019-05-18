@@ -26,14 +26,12 @@ module Assets
     end
     def pull(assets, &block)
       if assetsReady
-        puts 'call first ready'
         block.call false
       end
       unless assets.kind_of?(Array)
         assets = assets.split(',')
       end
       Api.get 'assets', {tracker: tracker, assets: assets.join(','),via:'ios'} do |rsp|
-        puts 'assets returned'
         unless rsp.is_err
           assets.each do |asset|
             unless rsp.nil? || rsp[asset].nil?
@@ -46,7 +44,6 @@ module Assets
           end
         end
         unless block.nil?
-          puts 'call second ready'
           block.call rsp.is_err
         end
       end

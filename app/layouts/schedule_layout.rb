@@ -22,9 +22,14 @@ class ScheduleLayout < MK::Layout
     get(:main).frame.size.width
   end
 
+  def main_style
+    background_color "#F2F2EA".uicolor
+  end
+
   def day_selector_style
     get(:day_selector).setController @controller
     get(:day_selector).setLayout self
+    hidden false
     constraints do
       width.equals(:superview)
       @daySelTop = top Device.isX ? 88 : 63
@@ -36,11 +41,26 @@ class ScheduleLayout < MK::Layout
   def null_msg_style
     hidden true
     editable false
-    text 'Nothing scheduled...yet!'
-    font Font.Vitesse_Medium(17)
+    # text 'Nothing scheduled...yet!'
+    # text 'Your complete WDS Schedule will be available here later in the year!'
     textColor Color.orangish_gray
+    textColor Color.gray
     backgroundColor Color.clear
     textAlignment UITextAlignmentCenter
+    paragraphStyle = NSMutableParagraphStyle.alloc.init
+    paragraphStyle.lineSpacing = 5
+    paragraphStyle.alignment = NSTextAlignmentCenter
+    str = "Nothing scheduled...yet!".attrd({
+      NSFontAttributeName => Font.Vitesse_Medium(17),
+      UITextAttributeTextColor => Color.gray,
+      NSParagraphStyleAttributeName => paragraphStyle
+    })
+    # str = "Your complete WDS Schedule will be available here later in the year!".attrd({
+    #   NSFontAttributeName => Font.Vitesse_Medium(17),
+    #   UITextAttributeTextColor => Color.gray,
+    #   NSParagraphStyleAttributeName => paragraphStyle
+    # })
+    target.setAttributedText str
     constraints do
       center_x.equals(:superview)
       top 180
@@ -50,6 +70,7 @@ class ScheduleLayout < MK::Layout
   end
 
   def schedule_style
+    hidden false
     backgroundColor "#F2F2EA".uicolor
     constraints do
       left 0
@@ -65,6 +86,6 @@ class ScheduleLayout < MK::Layout
   end
 
   def main_style
-    background_color Color.tan
+    background_color "#F2F2EA".uicolor
   end
 end

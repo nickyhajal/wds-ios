@@ -30,33 +30,40 @@ class EventListing < PM::TableScreen
   def setState(state)
     @state = state
   end
-  # def scrollToHour
-  #   today = NSDate.new.string_with_format(:ymd)
-  #   now = NSDate.new.string_with_format(:iso8601).sub(" ", "T")+"Z"
-  #   # today = '2015-07-10'
-  #   # now = "2015-07-10T12:39:28.067Z"
-  #   count = 0
-  #   found = 0
-  #   section = 0
-  #   if (today == @day)
-  #     if @events.length > 0
-  #       @events.each do |event|
-  #         if (section != event[:section])
-  #           section = event[:section]
-  #           count += 1
-  #         end
-  #         start = event[:cells][0][:arguments][:event].start
-  #         if start > now
-  #           found = count
-  #           break
-  #         end
-  #       end
-  #       0.1.seconds.later do
-  #         self.tableView.scrollToRowAtIndexPath(NSIndexPath.indexPathForRow(0, inSection: found), atScrollPosition: UITableViewScrollPositionTop, animated: true)
-  #       end
-  #     end
-  #   end
-  # end
+
+  ###
+  # This is tested and seems to work well as of Jun 29, 2018
+  # but not pushing it, let's run it live next year
+  ###
+  def scrollToHour
+    # today = NSDate.new.string_with_format(:ymd)
+    # now = NSDate.new.string_with_format(:iso8601).sub(" ", "T")+"Z"
+    # today = '2019-06-29'
+    # now = "2019-06-30T13:39:28.067Z"
+    # count = 0
+    # found = 0
+    # section = 0
+    # # puts "#{today} => #{@day}"
+    # # puts now
+    # if (today == @day)
+    #   if @events.length > 0
+    #     @events.each do |event|
+    #       if (section != event[:section])
+    #         section = event[:section]
+    #         count += 1
+    #       end
+    #       start = event[:cells][0][:arguments][:event].start
+    #       if start > now
+    #         found = count
+    #         break
+    #       end
+    #     end
+    #     0.01.seconds.later do
+    #       self.tableView.scrollToRowAtIndexPath(NSIndexPath.indexPathForRow(0, inSection: found), atScrollPosition: UITableViewScrollPositionTop, animated: false)
+    #     end
+    #   end
+    # end
+  end
   def table_data
     @events
   end
@@ -137,6 +144,9 @@ class EventListing < PM::TableScreen
     self.tableView.beginUpdates
     self.tableView.endUpdates
     UIView.setAnimationsEnabled true
+    0.1.seconds.later do
+      scrollToHour
+    end
     if scrollToTop
       self.tableView.setContentOffset(CGPointMake(0, -self.tableView.contentInset.top), animated: false)
     end

@@ -30,28 +30,30 @@ class ScheduleScreen < PM::Screen
   def setDefaultDay
     days = Assets.get('days')
 
-    # Set the default day to August 11th, 2016
-    day = days[0]
-    days.each do |d|
-      if d[:day] == '2018-06-26'
-        day = d
+    # Set the default day to June 25th, 2019
+    if !days.nil? && days.length > 0
+      day = days[0]
+      days.each do |d|
+        if d[:day] == '2019-06-27'
+          day = d
+        end
       end
-    end
 
-    # If we are between the dates of WDS, start showing the current day by default
-    today = NSDate.new+3.hours
-    if today.string_with_format(:ymd) >= '2018-06-26' && today.string_with_format(:ymd) < '2018-07-02'
-      ends = ['th','st','nd','rd','th','th','th','th','th','th']
-      dayNum = today.string_with_format("d").to_i
-      if (dayNum % 100) >= 11 && (dayNum % 100) <= 13
-         dayNum = dayNum.to_s + 'th'
-      else
-         dayNum = dayNum.to_s + ends[dayNum % 10]
-       end
-      day = {day: today.string_with_format(:ymd), dayStr: today.string_with_format("EEEE")+", "+today.string_with_format("MMMM")+" "+dayNum}
+      # If we are between the dates of WDS, start showing the current day by default
+      today = NSDate.new+3.hours
+      if today.string_with_format(:ymd) >= '2019-06-25' && today.string_with_format(:ymd) < '2019-07-01'
+        ends = ['th','st','nd','rd','th','th','th','th','th','th']
+        dayNum = today.string_with_format("d").to_i
+        if (dayNum % 100) >= 11 && (dayNum % 100) <= 13
+          dayNum = dayNum.to_s + 'th'
+        else
+          dayNum = dayNum.to_s + ends[dayNum % 10]
+        end
+        day = {day: today.string_with_format(:ymd), dayStr: today.string_with_format("EEEE")+", "+today.string_with_format("MMMM")+" "+dayNum}
+      end
+      @layout.get(:day_selector).setDay(day[:day])
+      setDay(day[:day], day[:dayStr])
     end
-    @layout.get(:day_selector).setDay(day[:day])
-    setDay(day[:day], day[:dayStr])
   end
   def open_event(event)
     @event_screen.setEvent(event)
@@ -91,7 +93,6 @@ class ScheduleScreen < PM::Screen
   end
   def update_schedule
     Assets.getSmart 'schedule' do |events, status|
-      # puts events
       @schedule_table.update_events events
     end
   end

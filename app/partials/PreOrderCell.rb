@@ -229,7 +229,7 @@ class PreOrderCell_Open < UIView
       self.addSubview @dblSoldout
     end
     @dblSoldout.setAlpha(d_soldout ? 0.8 : 0)
-    @singleText = "OR pre-order to WDS 2019".attrd({
+    @singleText = "OR join us for WDS 2019".attrd({
       NSFontAttributeName => Font.Vitesse_Bold(fontSize - 3),
       NSParagraphStyleAttributeName => pgraph,
       UITextAttributeTextColor => Color.cyan(s_soldout ? 0.3 : 1.0)

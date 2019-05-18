@@ -4,6 +4,7 @@ build
 tags
 crashes/
 design/
+vendor/
 .vscode/
 dump.*
 app/pixate_code.rb
@@ -11,7 +12,8 @@ resources/*.nib
 resources/*.momd
 resources/*.storyboardc
 .DS_Store
-vendor/
+./vendor
+vendor/*
 vendor/Pods
 nbproject
 .redcar

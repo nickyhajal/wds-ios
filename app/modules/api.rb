@@ -7,7 +7,7 @@ module Api
   ####
   ####
   if Device.simulator?
-   #@@url = 'http://wds.nky/api/'
+  #  @@url = 'http://wds.nky/api/'
    @@url = 'https://api.worlddominationsummit.com/api/'
   else
     # @@url = 'https://staging.worlddominationsummit.com/api/'
@@ -23,15 +23,19 @@ module Api
       end
     end
     def get(path, params, &block)
+      puts path
       request('get', path, params, &block)
     end
     def post(path, params, &block)
+      puts path
       request('post', path, params, &block)
     end
     def put(path, params, &block)
+      puts path
       request('put', path, params, &block)
     end
     def delete(path, params, &block)
+      puts path
       request('delete', path, params, &block)
     end
     def postImage(image, &block)

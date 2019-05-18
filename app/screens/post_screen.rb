@@ -62,11 +62,13 @@ class PostScreen < PM::Screen
         elsif status == 'progress'
           @layout.setProgress(rsp)
         else
-          
+
         end
       end
     end
   end
+
+  # https://github.com/rubymotion/BubbleWrap/pull/493/commits/1f13d81995ef7d0bead20e048397dfc71ae0b1ca
   def photoroll_action
     BW::Device.camera.any.picture(media_types: [:image]) do |result|
       photo = result.clone
@@ -76,7 +78,7 @@ class PostScreen < PM::Screen
         elsif status == 'progress'
           @layout.setProgress(rsp)
         else
-
+          puts 'rerr'
         end
       end
     end

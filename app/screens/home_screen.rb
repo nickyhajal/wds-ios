@@ -45,6 +45,7 @@
     @dispatch.initParams({channel_type:'global', layout: @layout, controller: self})
     @dispatch.initFilters(@filters_screen.layout)
     @dispatch.setNewPostsBtn @layout.get(:new_posts), @layout.new_posts_y, self.view
+    @dispatch.active = true
     @post_screen.dispatch = @dispatch
     @chat_screen = ChatScreen.new(nav_bar: false)
     @cart = CartScreen.new(nav_bar: false)
@@ -204,7 +205,7 @@
     @layout.get(:attendee_search_layout).setSearch('friended me')
   end
   def tckt_purchase_action
-    @cart.setProduct('wds2018', {})
+    @cart.setProduct('wds2019', {})
     @cart.setPurchasedCallback(self, 'tckt_purchased', false)
     @cart.setTerms('Each ticket includes 1 complimentary, non-transferable WDS Academy, priority booking at the WDS Hotel, and other discounts and benefits.
 

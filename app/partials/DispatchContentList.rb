@@ -16,7 +16,16 @@ class DispatchContentList < PM::TableScreen
     self.tableView.setSeparatorStyle(UITableViewCellSeparatorStyleNone)
     self.tableView.backgroundView = nil
     self.tableView.backgroundColor = "#F2F2EA".uicolor
+    @refresh_control.layer.zPosition = -1
+    @refresh_control.alpha = 0.7
   end
+  # def on_appear
+  #   puts 'APPEAR'
+  #   0.5.seconds.later do
+  #     puts 'PETCH'
+  #     fetchComments
+  #   end
+  # end
   def on_refresh
     fetchComments
   end
@@ -25,7 +34,9 @@ class DispatchContentList < PM::TableScreen
     @comments = []
     @items = []
     update_content
-    fetchComments
+    0.2.seconds.later do
+      fetchComments
+    end
   end
   def table_data
     [{cells: @items}]
@@ -84,7 +95,7 @@ class DispatchContentList < PM::TableScreen
         UITextAttributeTextColor => Color.coffee
       })
       padding = 74
-      if item.mediaUrl 
+      if item.mediaUrl
         padding += (UIScreen.mainScreen.bounds.size.width * 0.75) - 6
       end
     elsif item.class.to_s.include?('Comment')

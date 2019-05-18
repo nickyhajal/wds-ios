@@ -32,8 +32,8 @@ class EventTypesScreen < PM::Screen
     end
   end
   def open_event(item)
-    puts 'event item>>'
-    puts item
+   # puts 'event item>>'
+   # puts item
     if item == 'trust_issues'
       events = Store.get('events', true)
       trust = events.select { |ev|

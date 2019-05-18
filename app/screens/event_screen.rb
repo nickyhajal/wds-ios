@@ -151,12 +151,12 @@ class EventScreen < PM::Screen
       Me.addRsvp(event.event_id)
       Me.atn.academy = event.event_id
       @layout.reapply!
-      8.seconds.later do
-        closeModal
+      4.seconds.later do
+        closeModal(false)
       end
     end
   end
-  def closeModal
+  def closeModal(blank)
     @layout.get(:modal).close
   end
   def purchaseAcademy(event)

@@ -2,7 +2,7 @@ class Attendee
   attr_accessor :user_id, :first_name, :last_name, :full_name, :card
   attr_accessor :ticket_type, :email, :user_name, :twitter, :instagram
   attr_accessor :facebook, :pic, :location, :lat, :lon, :distance, :registered
-  attr_accessor :qnaStr, :isQna, :academy, :attending19, :pre17, :firetoken
+  attr_accessor :qnaStr, :isQna, :academy, :attending19, :pre19, :firetoken
   def initialize(atn)
     @attending19 = 0
     @registered = 0
@@ -76,7 +76,7 @@ class Attendee
         'Why did you decide to travel '+@distance+' miles '+location+' to the World Domination Summit?',
         'What are you excited about these days?',
         'What\'s your super power?',
-        'What\'s your goal for WDS 2018?',
+        'What\'s your goal for WDS 2019?',
         'What\'s your favorite song?',
         'What\'s your favorite treat?',
         'What\'s your favorite beverage?',

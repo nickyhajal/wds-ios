@@ -50,8 +50,8 @@ Motion::Project::App.setup do |app|
 
 
   ## UPDATE APP DELEGATE VERSION
-  app.version = '18.2'
-  app.short_version = '2.3.9'
+  app.version = '19.1.4'
+  app.short_version = '3.0.3'
   app.detect_dependencies = true
 
   app.development do
@@ -92,7 +92,7 @@ Motion::Project::App.setup do |app|
   # app.vendor_project 'vendor/MMMarkdown/Source', :static
   app.interface_orientations = [:portrait]
   # app.icons = ['Icon.png', 'Icon@2x.png', 'Icon@3x.png']
-  app.deployment_target = "9.0"
+  app.deployment_target = "12.0"
   app.fonts = ['Graphik-Medium.ttf', 'Graphik-RegularItalic.ttf', 'Graphik-SemiboldItalic.ttf', 'Graphik-Semibold.ttf', 'Produkt-Semibold.ttf', 'Karla-Regular.ttf', 'Karla-BoldItalic.ttf', 'Karla-Italic.ttf', 'Karla-Bold.ttf', 'Vitesse-Bold.otf', 'Vitesse-Book.otf', 'Vitesse-Light.otf', 'Vitesse-Medium.otf', 'ionicons.ttf']
   app.pods do
     pod 'SDWebImage', '~>3.7'
@@ -167,7 +167,7 @@ Motion::Project::App.setup do |app|
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/sugarcube-3.4.2/lib/cocoa/sugarcube-nsdata/nsurl.rb"
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/sugarcube-3.4.2/lib/cocoa/sugarcube-nsdata/nsstring.rb"
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/sugarcube-3.4.2/lib/cocoa/sugarcube-nsdata/nsdata.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/sugarcube-3.4.2/lib/ios/sugarcube-nsdata/uiimage.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/rubY/gems/2.3.0/gems/sugarcube-3.4.2/lib/ios/sugarcube-nsdata/uiimage.rb"
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/sugarcube-3.4.2/lib/ios/sugarcube-nsdata/nsdata.rb"
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/sugarcube-3.4.2/lib/cocoa/sugarcube-timer/timer.rb"
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/sugarcube-3.4.2/lib/cocoa/sugarcube-foundation/nsarray.rb"
@@ -445,20 +445,20 @@ Motion::Project::App.setup do |app|
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/afmotion-2.6/lib/afmotion/operation.rb"
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/afmotion-2.6/lib/afmotion/patch/UIImageView_url.rb"
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/afmotion-2.6/lib/afmotion/patch/NSString_NSUrl.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/ext.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/date_parser.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/version.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/validatable.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/input_helpers.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/store.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/model/inheritance.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/model/column.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/model/model_casts.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/model/model.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/model/formotion.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/model/transaction.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/base_db_adapter.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/base_model_adapter.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/ext.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/date_parser.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/version.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/validatable.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/input_helpers.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/store.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/model/inheritance.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/model/column.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/model/model_casts.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/model/model.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/model/formotion.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/model/transaction.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/base_db_adapter.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/base_model_adapter.rb"
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/ProMotion-2.8.0/lib/ProMotion/support/support.rb"
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/ProMotion-2.8.0/lib/ProMotion/screen/nav_bar_module.rb"
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/ProMotion-2.8.0/lib/ProMotion/screen/screen_navigation.rb"
@@ -511,19 +511,19 @@ Motion::Project::App.setup do |app|
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/ProMotion-2.8.0/lib/ProMotion/table/cell/table_view_cell_module.rb"
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/ProMotion-2.8.0/lib/ProMotion/cocoatouch/table_view_cell.rb"
   app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/gems/ProMotion-2.8.0/lib/ProMotion/version.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/array/array_model_persistence.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/array/array_model_adapter.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/array/array_finder_query.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/sql/sql_db_adapter.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/sql/sqlite3_adapter.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/sql/fmdb_model_adapter.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/sql/sqlite3_model_adapter.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/sql/sql_scope.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/sql/sql_condition.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/sql/sql_model_adapter.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/sql/join.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/sql/fmdb_adapter.rb"
-  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-9d7cebaf74be/motion/adapters/sql/relation.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/array/array_model_persistence.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/array/array_model_adapter.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/array/array_finder_query.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/sql/sql_db_adapter.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/sql/sqlite3_adapter.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/sql/fmdb_model_adapter.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/sql/sqlite3_model_adapter.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/sql/sql_scope.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/sql/sql_condition.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/sql/sql_model_adapter.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/sql/join.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/sql/fmdb_adapter.rb"
+  app.ordered_build_files << "/Users/nicky/.rbenv/versions/2.3.1/lib/ruby/gems/2.3.0/bundler/gems/MotionModel-10558b305b34/motion/adapters/sql/relation.rb"
   app.ordered_build_files << "./app/modifiers/string.rb"
   app.ordered_build_files << "./app/models/fire.rb"
   app.ordered_build_files << "./app/app_delegate.rb"
@@ -662,8 +662,6 @@ Motion::Project::App.setup do |app|
   app.ordered_build_files << "./app/partials/WDTextField.rb"
 end
 
-#kjbt-ttuh-spud-zsta
-
 def define_icon_defaults!(app)
   # This is required as of iOS 11.0 (you must use asset catalogs to
   # define icons or your app will be rejected. More information in
@@ -695,7 +693,7 @@ end
 
 desc "Run simulator on iPhone"
 task :iphone5 do
-    exec 'bundle exec rake device_name="iPhone 5"'
+    exec 'bundle exec rake device_name="iPhone SE"'
 end
 
 desc "Run simulator on iPhone"
@@ -711,6 +709,16 @@ end
 desc "Run simulator in iPhone X"
 task :x do
     exec 'bundle exec rake device_name="iPhone X"'
+end
+
+desc "Run simulator in iPhone X"
+task :xs do
+    exec 'bundle exec rake device_name="iPhone XS Max"'
+end
+
+desc "Run simulator in iPhone XR"
+task :xr do
+    exec 'bundle exec rake device_name="iPhone XR"'
 end
 
 desc "Run simulator in iPad Retina"

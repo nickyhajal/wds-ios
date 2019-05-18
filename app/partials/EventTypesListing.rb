@@ -4,7 +4,7 @@ class EventTypesListing < PM::TableScreen
   row_height 144
   def on_load
     # @types = [ 'Meetups', 'Activities', 'Expeditions', 'Academies']
-    @types = ['Meetups', 'Activities', 'Academies']
+    @types = ['Academies', 'Activities', 'Meetups']
     self.tableView.setSeparatorStyle(UITableViewCellSeparatorStyleNone)
     self.tableView.backgroundView = nil
     self.tableView.backgroundColor = "#F2F2EA".uicolor

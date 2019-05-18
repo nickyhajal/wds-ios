@@ -29,7 +29,7 @@ class ExploreLayout < MK::Layout
     constraints do
       width.equals(:superview)
       height 46
-      @subNavTop = top 63
+      @subNavTop = top Device.x(63, 25)
       left 0
     end
   end
@@ -88,7 +88,7 @@ class ExploreLayout < MK::Layout
     constraints do
       left 0
       right "100%"
-      @listTop = top 146
+      @listTop = top Device.x(146, 25)
       if $IS8
         @listHeight = height.equals(:superview).minus(146)
       else

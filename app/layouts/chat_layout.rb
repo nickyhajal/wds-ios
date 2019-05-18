@@ -38,12 +38,14 @@ class ChatLayout < MK::Layout
     end
   end
   def nameStr
-    if @chat.nil?
+    if @atn.nil?
       if @atn == 'support'
         'the WDS Team'
-       else
+      elsif !@atn.first_name.nil?
          @atn.first_name == 'WDS' ? 'the WDS Team' : @atn.first_name
-       end
+      else
+        "your group"
+      end
     else
       "your group"
     end

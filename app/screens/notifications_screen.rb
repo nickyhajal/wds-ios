@@ -21,7 +21,7 @@ class NotificationsScreen < PM::Screen
     Api.get 'user/notifications', {} do |rsp|
       Crashlytics.sharedInstance.setObjectValue(rsp, forKey: 'notificationResponse')
       # if !rsp.respond_to?('notifications') or rsp.notifications.nil? or rsp.notifications.length < 1
-      if rsp.notifications.nil? or rsp.notifications.length < 1
+      if !rsp.respond_to? 'notifications' or rsp.notifications.nil? or rsp.notifications.length < 1
         setState 'null'
         showNullMsg
       else

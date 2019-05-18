@@ -16,8 +16,10 @@ class AttendeeScreen < PM::Screen
   def setAttendee(atn)
     unless atn.class.to_s.include?('Attendee')
       Api.get 'user', {"user_id" => atn} do |rsp|
-        new_atn = Attendee.new(rsp.user)
-        setAttendee new_atn
+        if rsp.respond_to?('user')
+          new_atn = Attendee.new(rsp.user)
+          setAttendee new_atn
+        end
       end
       atn = Attendee.new('default')
     end

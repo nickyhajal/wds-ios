@@ -16,7 +16,7 @@ module EventModule
         single: 'Academy'
       },
       activity: {
-        title: 'Connect Events',
+        title: 'HQ Events',
         single: 'Activity'
       },
       # expedition: {
@@ -71,6 +71,33 @@ Will you make it this registration time?
           ",
           yes_action: 'doRsvp',
           yes_text: 'Yep, let\'s do it!',
+          controller: self
+        }
+      end
+    end
+    if event.type == 'activity'
+      if Me.isAttendingEvent event
+        modal = {
+          item: event,
+          title: "Can't make it?",
+          content: "Not able to make it to this activity? No problem.
+          
+Just remove it from your schedule below.
+          ",
+          yes_action: 'doRsvp',
+          yes_text: 'Cancel RSVP',
+          controller: self
+        }
+      else
+        modal = {
+          item: event,
+          title: "See you there?",
+          content: "Add this activity to your schedule by tapping below.
+          
+We're excited to have you!
+          ",
+          yes_action: 'doRsvp',
+          yes_text: 'Let\'s do it!',
           controller: self
         }
       end
@@ -187,7 +214,7 @@ Would you like to purchase access to this #{type}?",
     product = event.type == 'academy' ? 'academy' : 'event'
     @cart.setProduct(product, event)
     @cart.setPurchasedCallback(self, 'purchaseComplete', event)
-    closeModal
+    closeModal(false)
     open_modal @cart
   end
   def purchaseComplete(event)

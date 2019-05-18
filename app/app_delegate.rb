@@ -1,7 +1,7 @@
 class AppDelegate < PM::Delegate
 	attr_accessor :login, :event , :home, :events
 	def on_load(app, options)
-		$VERSION = '18.2'
+		$VERSION = '19.1.4'
 		if Device.simulator?
 			Stripe.setDefaultPublishableKey('pk_test_8WKTIWKXB6T1eFT9sFqrymCM')
 		else
@@ -53,7 +53,7 @@ class AppDelegate < PM::Delegate
 	end
 	def init_screens
 		@home = HomeScreen.new(nav_bar: false)
-		@explore = ExploreScreen.new(nav_bar: true)
+		# @explore = ExploreScreen.new(nav_bar: true)
 		@chats = ChatsScreen.new(nav_bar: true)
 		@events = EventsScreen.new(nav_bar: true)
 		@event = EventScreen.new(nav_bar: false)
@@ -65,17 +65,17 @@ class AppDelegate < PM::Delegate
 		@login = LoginScreen.new(nav_bar: false)
 		@loading = LoadingScreen.new(nav_bar:false)
 		@walkthrough = WalkthroughScreen.new(nav_bar:false)
-		20.seconds.later do
-			puts 'INIT PING'
-			puts "ENA: #{BW::Location.enabled?}"
-			puts "HAS: #{Store.get('hasLocationPermission', false)}"
-			if BW::Location.enabled? and Store.get('hasLocationPermission', false)
-				puts 'INIT PING RESULT'
-				if !@explore.nil? && @explore.respond_to?('location_ping')
-					@explore.location_ping
-				end
-			end
-		end
+		# 20.seconds.later do
+		# 	puts 'INIT PING'
+		# 	puts "ENA: #{BW::Location.enabled?}"
+		# 	puts "HAS: #{Store.get('hasLocationPermission', false)}"
+		# 	if BW::Location.enabled? and Store.get('hasLocationPermission', false)
+		# 		puts 'INIT PING RESULT'
+		# 		if !@explore.nil? && @explore.respond_to?('location_ping')
+		# 			@explore.location_ping
+		# 		end
+		# 	end
+		# end
 	end
 	def init_api
 		Api.init
@@ -143,7 +143,7 @@ class AppDelegate < PM::Delegate
 			open_loading
 			Assets.sync do |err|
 				@home = HomeScreen.new(nav_bar: false) if @home.nil?
-				@explore = ExploreScreen.new(nav_bar: true) if @explore.nil?
+				#@explore = ExploreScreen.new(nav_bar: true) if @explore.nil?
 				@chats = ChatsScreen.new(nav_bar: true) if @chats.nil?
 				@eventTypes = EventTypesScreen.new(nav_bar: true) if @eventTypes.nil?
 				@schedule = ScheduleScreen.new(nav_bar: true) if @schedule.nil?
@@ -151,7 +151,7 @@ class AppDelegate < PM::Delegate
 				# NSLog "%@", @home.tabBarItem
 				# NSLog "%@", @eventTypes.tabBarItem
 				# NSLog "%@", @chats.tabBarItem
-				@tab_bar = open_tab_bar @home, @schedule, @eventTypes, @chats, @explore
+				@tab_bar = open_tab_bar @home, @schedule, @eventTypes, @chats #, @explore
 				@tab_bar.tabBar.items.each do |tab|
 					tab.imageInsets = UIEdgeInsetsMake(5.0,0,-5.0,0)
 				end
@@ -204,22 +204,25 @@ class AppDelegate < PM::Delegate
 		if !@notification_data.nil? && @notification_data && @tab_bar
 			data = @notification_data
 			@notification_data = false
-			link = data[:link]
-			content = BW::JSON.parse(data[:content])
-			if link[0] == '~'
-				open_root_screen @tab_bar
-				open_tab(@home)
-				@home.open_profile content[:from_id]
-			elsif link.include? 'dispatch'
-				id = link.split('/').last
-				open_root_screen @tab_bar
-				open_tab(@home)
-				@home.open_dispatch id, is_id: true
-			elsif link.include? 'message'
-				id = link.split('/').last
-				open_root_screen @tab_bar
-				open_tab(@home)
-				@home.open_chat id, data[:title]
+      Crashlytics.sharedInstance.setObjectValue(data, forKey: 'notificationData')
+			unless data[:link].nil?
+				link = data[:link]
+				content = BW::JSON.parse(data[:content])
+				if link[0] == '~'
+					open_root_screen @tab_bar
+					open_tab(@home)
+					@home.open_profile content[:from_id]
+				elsif link.include? 'dispatch'
+					id = link.split('/').last
+					open_root_screen @tab_bar
+					open_tab(@home)
+					@home.open_dispatch id, is_id: true
+				elsif link.include? 'message'
+					id = link.split('/').last
+					open_root_screen @tab_bar
+					open_tab(@home)
+					@home.open_chat id, data[:title]
+				end
 			end
 		end
 	end

@@ -81,10 +81,10 @@ class CartScreen < PM::Screen
       @purchase_data = {
         quantity: 1
       }
-    elsif @code == 'wds2018'
+    elsif @code == 'wds2019'
       pkg = {
-        name: "WDS 2018",
-        descr: "360 Ticket to WDS 2018",
+        name: "WDS 2019",
+        descr: "360 Ticket to WDS 2019",
         price: "547",
         confirm: true,
         max_quantity: 3,

@@ -266,7 +266,7 @@ module Me
       end
     end
     def claimedAcademy
-      (Me.atn.pre17.nil? || Me.atn.pre17.to_i < 1) || (!Me.atn.academy.nil? and Me.atn.academy.to_i > 0)
+      (Me.atn.pre19.nil? || Me.atn.pre19.to_i < 1) || (!Me.atn.academy.nil? and Me.atn.academy.to_i > 0)
     end
     def isInterestedInEvent(event)
       is = Assets.get('interests')

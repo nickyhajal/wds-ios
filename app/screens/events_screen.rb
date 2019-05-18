@@ -34,7 +34,7 @@ class EventsScreen < PM::Screen
   end
   def setDefaultDay(events = false)
 
-    eventStart = NSDate.from_components(year: 2018, month: 6, day: 26)
+    eventStart = NSDate.from_components(year: 2019, month: 6, day: 25)
     if @openedDay
       selected = dayFromShort(@openedDay)
       day = formatDay(selected)
@@ -42,18 +42,18 @@ class EventsScreen < PM::Screen
     elsif @tappedDay.nil?
       days = Assets.get('days')
 
-      # Set the default day to June 26, 2018
+      # Set the default day to June 27, 2019
       selected = eventStart
       day = days[0]
       days.each do |d|
-        if d[:day] == '2018-06-26'
+        if d[:day] == '2019-06-27'
           day = d
         end
       end
 
       # If we are between the dates of WDS, start showing the current day by default
       selected = NSDate.new+3.hours
-      if selected.string_with_format(:ymd) >= '2018-06-26' && selected.string_with_format(:ymd) < '2018-07-02'
+      if selected.string_with_format(:ymd) >= '2019-06-25' && selected.string_with_format(:ymd) < '2019-07-01'
         day = formatDay(selected)
       end
     else
@@ -97,7 +97,7 @@ class EventsScreen < PM::Screen
       @type = type
       @layout.type = @type unless @layout.nil?
       title = types[type.to_sym][:title]
-      title = "Connect" if title == 'Activities'
+      title = "WDS HQ" if title == 'Activities'
       self.title = types[type.to_sym][:title]
       0.02.seconds.later do
         @layout.type = @type unless @layout.nil?
@@ -184,12 +184,12 @@ class EventsScreen < PM::Screen
       Me.addRsvp(event.event_id)
       Me.atn.academy = event.event_id
       @activeCell.setNeedsDisplay
-      8.seconds.later do
-        closeModal
+      5.seconds.later do
+        closeModal(false)
       end
     end
   end
-  def closeModal
+  def closeModal(blank)
     @layout.get(:modal).close
   end
   def checkIfNullState(from)

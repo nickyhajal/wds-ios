@@ -73,7 +73,12 @@ class DispatchCell < PM::TableViewCell
     formatter = NSDateFormatter.alloc.init
     formatter.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     hours = (NSDate.new.utc_offset / 1.hour)
-    created_at = formatter.dateFromString(@item.created_at).delta(hours:hours)
+    Crashlytics.sharedInstance.setObjectValue(item, forKey: 'item')
+    formatterObj = formatter.dateFromString(@item.created_at)
+    created_at = 0
+    if !formatterObj.nil? && formatterObj.respond_to?('delta')
+      created_at = formatterObj.delta(hours:hours)
+    end
     pgraph = NSMutableParagraphStyle.alloc.init
     pgraph.lineBreakMode = NSLineBreakByTruncatingTail
     @timeStr = Assets.relativeTime(created_at).nsattributedstring({

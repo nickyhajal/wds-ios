@@ -59,9 +59,9 @@ class Disptch < PM::TableScreen
     @filters = filters
     if do_update
       update
-      # 15.seconds.later do
-      #   fetchUpdates(continueUpdating)
-      # end
+      15.seconds.later do
+        fetchUpdates(continueUpdating)
+      end
     end
   end
   def setNewPostsBtn(view, const, mainView)
@@ -119,6 +119,7 @@ class Disptch < PM::TableScreen
     self.tableView.backgroundView = nil
     self.tableView.backgroundColor = "#F2F2EA".uicolor
     @refresh_control.alpha = 0.7
+    # https://stackoverflow.com/questions/45278472/uirefreshcontrol-appears-on-top-of-collection-view-items-instead-of-behind
     @refresh_control.layer.zPosition = -1
     @initd = false
   end
@@ -180,10 +181,10 @@ class Disptch < PM::TableScreen
   def add_special_tiles(items)
 
     ### COMMENT THIS OUT BEFORE PUBLISHING
-    unless @initd
-      @initd = true
-      Store.set('preorder18', 'do_pre')
-    end
+    # unless @initd
+    #   @initd = true
+    #   Store.set('preorder18', 'do_pre')
+    # end
     #### ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     pre = Store.get('preorder18')
     atnstory = Store.get('atnstory17')
@@ -210,7 +211,8 @@ class Disptch < PM::TableScreen
         'state' => 'open'
       })
       items.unshift(make_cell(tile))
-    elsif ($STATE[:test18_special] == 'announce')
+    # elsif ($STATE[:test18_special] == 'announce')
+    elsif ($STATE[:special] == 'announce')
       tile = DispatchItem.new({
         'type' => 'announce',
         'height' => bannerHeight,
@@ -317,8 +319,6 @@ class Disptch < PM::TableScreen
       params[:media] = @mediaAttached
       params[:media_type] = 'photo'
     end
-    puts '>> dsp params'
-    puts params
     Api.post 'feed', params do |rsp|
       unless rsp.is_err
         @mediaAttached = false
@@ -381,6 +381,9 @@ class Disptch < PM::TableScreen
     end
   end
   def fetchUpdates(continueFetch = true)
+		unless @updateTimo.nil?
+			@updateTimo.invalidate
+		end
     params = @params.clone
     feed_ids = @items.select{ |i| i[:properties][:item].respond_to?('feed_id')}
     .map do |i|
@@ -429,11 +432,11 @@ class Disptch < PM::TableScreen
         end
       end
     end
-    # if continueFetch
-    #   10.seconds.later do
-    #     fetchUpdates
-    #   end
-    # end
+    if continueFetch
+      @updateTimo = 40.seconds.later do
+        fetchUpdates
+      end
+    end
   end
   def fetchContent(before = false, waitForScrollStop = false)
     @fetchingContent = true
